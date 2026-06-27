@@ -1,0 +1,1123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Databricks — Learn & Interview Prep</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600;700&display=swap');
+
+:root {
+  --bg: #0d0f12;
+  --bg2: #14171c;
+  --bg3: #1c2028;
+  --bg4: #232830;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.13);
+  --text: #e9ecf2;
+  --muted: #5e6878;
+  --muted2: #8b95a5;
+  --blue: #4f8ef7;
+  --blue-dim: rgba(79,142,247,0.12);
+  --green: #3ecf8e;
+  --green-dim: rgba(62,207,142,0.1);
+  --amber: #f5a623;
+  --amber-dim: rgba(245,166,35,0.1);
+  --red: #f05a5a;
+  --red-dim: rgba(240,90,90,0.1);
+  --purple: #a78bfa;
+  --purple-dim: rgba(167,139,250,0.1);
+  --teal: #2dd4bf;
+  --teal-dim: rgba(45,212,191,0.1);
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Inter', system-ui, sans-serif;
+  --r: 10px;
+  --accent: #4f8ef7;
+  --accent-dim: rgba(79,142,247,0.12);
+  --radius: 10px;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 15px; line-height: 1.7; }
+
+/* ── TOP MODE BAR ── */
+.mode-bar {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: var(--bg2);
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0 20px;
+  height: 48px;
+}
+.mode-logo {
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--blue);
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  margin-right: 24px;
+  white-space: nowrap;
+}
+.mode-btn {
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 500;
+  padding: 6px 18px;
+  border: none;
+  background: transparent;
+  color: var(--muted2);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  height: 48px;
+  transition: all .15s;
+}
+.mode-btn:hover { color: var(--text); }
+.mode-btn.active { color: var(--blue); border-bottom-color: var(--blue); }
+
+/* ── APP VIEWS ── */
+.view { display: none; }
+.view.active { display: flex; }
+
+/* ══════════════════════════════════════════
+   LEARN VIEW (sidebar + lesson content)
+══════════════════════════════════════════ */
+#view-learn { min-height: calc(100vh - 48px); }
+
+.sidebar {
+  width: 260px;
+  min-width: 260px;
+  background: var(--bg2);
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 48px;
+  height: calc(100vh - 48px);
+  overflow-y: auto;
+}
+.sidebar-header {
+  padding: 20px 20px 14px;
+  border-bottom: 1px solid var(--border);
+}
+.sidebar-header h2 { font-size: 15px; font-weight: 600; color: var(--text); }
+.sidebar-header p { font-size: 12px; color: var(--muted2); margin-top: 2px; }
+
+.progress-bar-wrap { padding: 14px 20px; border-bottom: 1px solid var(--border); }
+.progress-track { background: var(--bg3); border-radius: 3px; height: 4px; overflow: hidden; margin-bottom: 6px; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--green)); border-radius: 3px; transition: width .4s ease; }
+.progress-label { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.progress-label span { color: var(--green); }
+
+.nav-section { padding: 10px 12px 4px; font-size: 10px; font-weight: 600; letter-spacing: .1em; color: var(--muted); text-transform: uppercase; }
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 20px;
+  font-size: 13px;
+  color: var(--muted2);
+  cursor: pointer;
+  transition: all .15s;
+  border-left: 2px solid transparent;
+  user-select: none;
+}
+.nav-item:hover { color: var(--text); background: rgba(255,255,255,0.03); }
+.nav-item.active { color: var(--blue); border-left-color: var(--blue); background: var(--blue-dim); }
+.nav-item.done { color: var(--green); }
+.nav-item.done.active { color: var(--blue); }
+.nav-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--bg4); border: 1.5px solid var(--muted); flex-shrink: 0; transition: all .2s; }
+.nav-item.done .nav-dot { background: var(--green); border-color: var(--green); }
+.nav-item.active .nav-dot { background: var(--blue); border-color: var(--blue); }
+
+.lesson-main { flex: 1; max-width: 780px; padding: 48px 48px 80px; min-height: calc(100vh - 48px); }
+
+/* ── LESSON CONTENT ── */
+.lesson-pane { display: none; }
+.lesson-pane.active { display: block; }
+
+.lesson-header { margin-bottom: 40px; }
+.lesson-eyebrow { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; flex-wrap: wrap; }
+.lesson-num { font-family: var(--mono); font-size: 11px; color: var(--muted); }
+.chip { font-family: var(--mono); font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 4px; letter-spacing: .04em; text-transform: uppercase; }
+.chip-blue { background: var(--blue-dim); color: var(--blue); }
+.chip-green { background: var(--green-dim); color: var(--green); }
+.chip-amber { background: var(--amber-dim); color: var(--amber); }
+.chip-red { background: var(--red-dim); color: var(--red); }
+.chip-purple { background: var(--purple-dim); color: var(--purple); }
+.chip-teal { background: var(--teal-dim); color: var(--teal); }
+
+.lesson-header h1 { font-size: 28px; font-weight: 700; color: var(--text); letter-spacing: -.02em; line-height: 1.25; margin-bottom: 10px; }
+.lesson-header .subtitle { font-size: 15px; color: var(--muted2); line-height: 1.6; }
+
+.section { margin-bottom: 36px; }
+.section-title {
+  font-size: 11px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+}
+.section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+.concept-box {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r);
+  padding: 22px 24px; margin-bottom: 16px; font-size: 14px; color: #9ba5b5; line-height: 1.8;
+}
+.concept-box strong { color: var(--text); font-weight: 500; }
+.concept-box code { font-family: var(--mono); font-size: 12.5px; background: rgba(79,142,247,0.1); color: var(--blue); padding: 2px 6px; border-radius: 3px; }
+
+.callout { display: flex; gap: 14px; padding: 14px 18px; border-radius: 8px; font-size: 13px; line-height: 1.7; margin-bottom: 12px; }
+.callout-icon { font-size: 16px; flex-shrink: 0; line-height: 1.4; }
+.callout-text { color: #9ba5b5; }
+.callout-text strong { font-weight: 500; }
+.callout.tip { background: var(--green-dim); border-left: 3px solid var(--green); }
+.callout.tip .callout-text { color: #7dcfaa; }
+.callout.trap { background: var(--red-dim); border-left: 3px solid var(--red); }
+.callout.trap .callout-text { color: #f08080; }
+.callout.insight { background: var(--blue-dim); border-left: 3px solid var(--blue); }
+.callout.insight .callout-text { color: #8ab4f8; }
+.callout.rule { background: var(--amber-dim); border-left: 3px solid var(--amber); }
+.callout.rule .callout-text { color: #e8b86d; }
+
+.compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
+.compare-col { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); padding: 18px; }
+.compare-col .col-title { font-size: 12px; font-weight: 600; margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px solid var(--border); }
+.compare-col ul { list-style: none; font-size: 13px; color: #9ba5b5; display: flex; flex-direction: column; gap: 7px; }
+.compare-col ul li { display: flex; gap: 8px; line-height: 1.5; }
+.compare-col ul li::before { content: '›'; flex-shrink: 0; font-weight: 700; }
+.col-yes .col-title { color: var(--green); }
+.col-yes ul li::before { color: var(--green); }
+.col-no .col-title { color: var(--red); }
+.col-no ul li::before { color: var(--red); }
+.col-a .col-title { color: var(--blue); }
+.col-a ul li::before { color: var(--blue); }
+.col-b .col-title { color: var(--purple); }
+.col-b ul li::before { color: var(--purple); }
+
+.steps { display: flex; flex-direction: column; gap: 0; }
+.step { display: flex; gap: 18px; position: relative; }
+.step:not(:last-child) .step-line { position: absolute; left: 15px; top: 32px; bottom: -4px; width: 1px; background: var(--border); z-index: 0; }
+.step-num { width: 30px; height: 30px; border-radius: 50%; background: var(--bg3); border: 1.5px solid var(--border2); display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 11px; font-weight: 600; color: var(--muted2); flex-shrink: 0; position: relative; z-index: 1; }
+.step-body { padding: 4px 0 24px; flex: 1; }
+.step-body h4 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 6px; }
+.step-body p { font-size: 13px; color: #9ba5b5; line-height: 1.7; }
+.step-body code { font-family: var(--mono); font-size: 12px; background: rgba(79,142,247,0.1); color: var(--blue); padding: 1px 5px; border-radius: 3px; }
+
+.kv-table { width: 100%; border-collapse: collapse; font-size: 13px; margin-bottom: 16px; }
+.kv-table th { font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); padding: 8px 14px; text-align: left; border-bottom: 1px solid var(--border); }
+.kv-table td { padding: 9px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); color: #9ba5b5; vertical-align: top; }
+.kv-table td:first-child { color: var(--text); font-weight: 500; white-space: nowrap; }
+.kv-table tr:last-child td { border-bottom: none; }
+.kv-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+.ladder { display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px; }
+.ladder-item { display: flex; gap: 14px; align-items: flex-start; background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 14px 18px; }
+.ladder-level { font-family: var(--mono); font-size: 11px; font-weight: 600; padding: 3px 10px; border-radius: 4px; flex-shrink: 0; margin-top: 1px; }
+.ladder-text { font-size: 13px; color: #9ba5b5; line-height: 1.6; }
+.ladder-text strong { color: var(--text); font-weight: 500; }
+
+.quiz-section { margin-top: 40px; padding-top: 32px; border-top: 1px solid var(--border); }
+.quiz-section h3 { font-size: 14px; font-weight: 600; color: var(--muted2); letter-spacing: .05em; text-transform: uppercase; margin-bottom: 20px; }
+.quiz-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 12px; }
+.quiz-question { padding: 16px 20px; font-size: 14px; font-weight: 500; color: var(--text); cursor: pointer; display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.quiz-question:hover { background: rgba(255,255,255,0.02); }
+.quiz-chevron { color: var(--muted); font-size: 18px; flex-shrink: 0; transition: transform .2s; }
+.quiz-answer { display: none; padding: 0 20px 18px; font-size: 13px; color: #9ba5b5; line-height: 1.75; border-top: 1px solid var(--border); }
+.quiz-answer.open { display: block; padding-top: 14px; }
+.quiz-answer strong { color: var(--text); font-weight: 500; }
+.quiz-answer code { font-family: var(--mono); font-size: 12px; background: rgba(79,142,247,0.1); color: var(--blue); padding: 1px 5px; border-radius: 3px; }
+.quiz-chevron.open { transform: rotate(180deg); }
+
+.lesson-nav { display: flex; justify-content: space-between; align-items: center; margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--border); }
+.nav-btn { display: flex; align-items: center; gap: 8px; padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border2); background: transparent; color: var(--muted2); font-size: 13px; font-weight: 500; cursor: pointer; transition: all .15s; font-family: var(--sans); }
+.nav-btn:hover { background: var(--bg3); color: var(--text); }
+.nav-btn.primary { background: var(--blue); color: #fff; border-color: var(--blue); }
+.nav-btn.primary:hover { background: #3a7de8; }
+.nav-btn:disabled { opacity: .3; cursor: not-allowed; }
+.mark-done-btn { font-family: var(--sans); font-size: 13px; font-weight: 500; padding: 8px 18px; border-radius: 8px; border: 1px solid var(--green); background: var(--green-dim); color: var(--green); cursor: pointer; transition: all .15s; }
+.mark-done-btn:hover { background: rgba(62,207,142,.2); }
+.mark-done-btn.marked { background: var(--green); color: #0a1f15; }
+
+/* ══════════════════════════════════════════
+   INTERVIEW PREP VIEW
+══════════════════════════════════════════ */
+#view-prep { flex-direction: column; min-height: calc(100vh - 48px); }
+
+.prep-shell { max-width: 960px; margin: 0 auto; padding: 32px 24px 80px; width: 100%; }
+
+.prep-header { margin-bottom: 28px; }
+.prep-header .eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: .12em; color: var(--blue); text-transform: uppercase; margin-bottom: 6px; }
+.prep-header h1 { font-size: 24px; font-weight: 600; color: var(--text); letter-spacing: -.02em; }
+.prep-header p { font-size: 13px; color: var(--muted); margin-top: 4px; }
+
+.tab-bar { display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 28px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+.tab-btn { font-family: var(--sans); font-size: 13px; font-weight: 500; padding: 6px 14px; border-radius: 6px; border: 1px solid transparent; background: transparent; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+.tab-btn:hover { color: var(--text); background: var(--bg3); }
+.tab-btn.active { background: var(--accent-dim); border-color: rgba(79,142,247,0.3); color: var(--accent); }
+
+.pane { display: none; }
+.pane.active { display: block; }
+
+/* Study notes cards */
+.card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(380px, 1fr)); gap: 16px; margin-bottom: 32px; }
+.note-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; transition: border-color 0.2s; }
+.note-card:hover { border-color: var(--border2); }
+.note-card .card-label { font-family: var(--mono); font-size: 10px; letter-spacing: .1em; color: var(--accent); text-transform: uppercase; margin-bottom: 10px; }
+.note-card h3 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 12px; }
+.note-card ul { list-style: none; font-size: 13px; color: #9ba3b2; display: flex; flex-direction: column; gap: 6px; }
+.note-card ul li { display: flex; gap: 8px; line-height: 1.55; }
+.note-card ul li::before { content: "›"; color: var(--accent); flex-shrink: 0; font-weight: 600; }
+
+/* Decision tree */
+.dtree { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; margin-bottom: 32px; }
+.dtree h3 { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--border); }
+.dt-row { display: grid; grid-template-columns: 80px 1fr; gap: 12px; margin-bottom: 10px; align-items: start; font-size: 13px; }
+.dt-pill { display: inline-block; padding: 3px 10px; border-radius: 4px; font-family: var(--mono); font-size: 11px; font-weight: 600; text-align: center; }
+.pill-q { background: var(--accent-dim); color: var(--accent); }
+.pill-y { background: var(--green-dim); color: var(--green); }
+.pill-n { background: var(--amber-dim); color: var(--amber); }
+.dt-text { color: #9ba3b2; line-height: 1.6; }
+.dt-text strong { color: var(--text); font-weight: 500; }
+
+/* Question bank */
+.q-filter-bar { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; margin-bottom: 20px; }
+.q-filter-bar .label { font-size: 12px; color: var(--muted); margin-right: 4px; }
+.filter-btn { font-family: var(--sans); font-size: 12px; font-weight: 500; padding: 4px 12px; border-radius: 5px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+.filter-btn:hover { color: var(--text); border-color: var(--border2); }
+.filter-btn.active-all  { background: var(--accent-dim); color: var(--accent); border-color: rgba(79,142,247,0.3); }
+.filter-btn.active-intermediate { background: var(--amber-dim); color: var(--amber); border-color: rgba(245,166,35,0.3); }
+.filter-btn.active-hard { background: var(--accent-dim); color: var(--accent); border-color: rgba(79,142,247,0.3); }
+.filter-btn.active-brutal { background: var(--red-dim); color: var(--red); border-color: rgba(240,90,90,0.3); }
+
+.topic-filters { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 24px; }
+.topic-btn { font-size: 12px; padding: 3px 10px; border-radius: 4px; border: 1px solid var(--border); background: transparent; color: var(--muted); cursor: pointer; transition: all 0.15s; }
+.topic-btn:hover, .topic-btn.active { background: var(--bg3); color: var(--text); border-color: var(--border2); }
+
+.q-count { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+.q-count span { color: var(--accent); font-weight: 600; }
+
+.q-list { display: flex; flex-direction: column; gap: 10px; }
+.q-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; transition: border-color 0.15s; }
+.q-card:hover { border-color: var(--border2); }
+.q-card.reviewed { border-color: rgba(62,207,142,0.2); }
+
+.q-head { display: flex; align-items: flex-start; gap: 14px; padding: 16px 20px; cursor: pointer; user-select: none; }
+.q-meta { display: flex; flex-direction: column; gap: 6px; flex: 1; min-width: 0; }
+.q-badges { display: flex; gap: 6px; flex-wrap: wrap; }
+.badge { font-family: var(--mono); font-size: 10px; font-weight: 600; letter-spacing: .05em; padding: 2px 8px; border-radius: 3px; text-transform: uppercase; }
+.badge-intermediate { background: var(--amber-dim); color: var(--amber); }
+.badge-hard { background: var(--accent-dim); color: var(--accent); }
+.badge-brutal { background: var(--red-dim); color: var(--red); }
+.badge-topic { background: var(--purple-dim); color: var(--purple); }
+.q-text { font-size: 14px; font-weight: 500; color: var(--text); line-height: 1.55; }
+.q-chevron { color: var(--muted); font-size: 20px; line-height: 1; transition: transform 0.2s; flex-shrink: 0; margin-top: 2px; }
+
+.q-answer { display: none; padding: 0 20px 20px; border-top: 1px solid var(--border); }
+.q-answer.open { display: block; padding-top: 16px; }
+.answer-block { background: var(--bg3); border-radius: 8px; padding: 16px 18px; font-size: 13px; color: #9ba3b2; line-height: 1.75; }
+.answer-block strong { color: var(--text); font-weight: 500; }
+.answer-block code { font-family: var(--mono); font-size: 12px; background: rgba(79,142,247,0.1); color: var(--accent); padding: 1px 5px; border-radius: 3px; }
+.answer-block .tip { display: flex; gap: 10px; margin-top: 12px; padding: 10px 12px; background: var(--green-dim); border-left: 2px solid var(--green); border-radius: 0 6px 6px 0; font-size: 12px; color: var(--green); }
+.answer-block .trap { display: flex; gap: 10px; margin-top: 10px; padding: 10px 12px; background: var(--red-dim); border-left: 2px solid var(--red); border-radius: 0 6px 6px 0; font-size: 12px; color: var(--red); }
+
+/* Cheat sheet */
+.cs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+.cs-card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 18px 20px; }
+.cs-card h3 { font-size: 12px; font-weight: 600; color: var(--accent); letter-spacing: .08em; text-transform: uppercase; margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid var(--border); font-family: var(--mono); }
+.cs-row { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-size: 12.5px; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.04); }
+.cs-row:last-child { border-bottom: none; }
+.cs-key { color: var(--muted); flex-shrink: 0; }
+.cs-val { color: var(--text); font-weight: 500; text-align: right; }
+.cs-val.good { color: var(--green); }
+.cs-val.warn { color: var(--amber); }
+.cs-val.bad  { color: var(--red); }
+
+/* Progress tracker */
+.progress-section { margin-bottom: 32px; }
+.progress-section h3 { font-size: 13px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 14px; }
+.progress-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+.prog-card { background: var(--bg2); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; cursor: pointer; transition: all 0.15s; user-select: none; }
+.prog-card:hover { border-color: var(--border2); }
+.prog-card.done { border-color: rgba(62,207,142,0.3); background: var(--green-dim); }
+.prog-card .prog-num { font-family: var(--mono); font-size: 22px; font-weight: 600; color: var(--text); line-height: 1; margin-bottom: 4px; }
+.prog-card.done .prog-num { color: var(--green); }
+.prog-card .prog-label { font-size: 12px; color: var(--muted); line-height: 1.3; }
+.overall-bar { background: var(--bg3); border-radius: 4px; height: 6px; margin-bottom: 8px; overflow: hidden; }
+.overall-fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--green)); border-radius: 4px; transition: width 0.4s ease; }
+.overall-label { font-family: var(--mono); font-size: 12px; color: var(--muted); margin-bottom: 16px; }
+.overall-label span { color: var(--green); }
+
+/* scrollbar */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--bg4); border-radius: 3px; }
+
+@media (max-width: 900px) {
+  .sidebar { display: none; }
+  .lesson-main { padding: 28px 20px 60px; }
+  .card-grid { grid-template-columns: 1fr; }
+  .compare-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- ══ MODE BAR ══ -->
+<div class="mode-bar">
+  <div class="mode-logo">Databricks</div>
+  <button class="mode-btn active" onclick="switchMode('learn')" id="mode-learn">📚 Learn</button>
+  <button class="mode-btn" onclick="switchMode('prep')" id="mode-prep">🎯 Interview Prep</button>
+</div>
+
+<!-- ══════════════════════════════════════════
+     LEARN VIEW
+══════════════════════════════════════════ -->
+<div class="view active" id="view-learn">
+
+  <!-- sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <h2>Teach Me Everything</h2>
+      <p>25 newsletter issues · 10 lessons</p>
+    </div>
+    <div class="progress-bar-wrap">
+      <div class="progress-track"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+      <div class="progress-label"><span id="prog-text">0</span> / 10 lessons complete</div>
+    </div>
+    <div class="nav-section">Core Topics</div>
+    <div class="nav-item active" onclick="gotoLesson(0)" id="nav-0"><span class="nav-dot"></span>Liquid Clustering</div>
+    <div class="nav-item" onclick="gotoLesson(1)" id="nav-1"><span class="nav-dot"></span>Spark Internals</div>
+    <div class="nav-item" onclick="gotoLesson(2)" id="nav-2"><span class="nav-dot"></span>Partition Pruning &amp; Data Skipping</div>
+    <div class="nav-item" onclick="gotoLesson(3)" id="nav-3"><span class="nav-dot"></span>Schema Evolution</div>
+    <div class="nav-item" onclick="gotoLesson(4)" id="nav-4"><span class="nav-dot"></span>Structured Streaming</div>
+    <div class="nav-item" onclick="gotoLesson(5)" id="nav-5"><span class="nav-dot"></span>Data Quality</div>
+    <div class="nav-section">Platform &amp; Career</div>
+    <div class="nav-item" onclick="gotoLesson(6)" id="nav-6"><span class="nav-dot"></span>Compute Selection &amp; Cost</div>
+    <div class="nav-item" onclick="gotoLesson(7)" id="nav-7"><span class="nav-dot"></span>Debugging Maturity</div>
+    <div class="nav-item" onclick="gotoLesson(8)" id="nav-8"><span class="nav-dot"></span>Data Modelling in Databricks</div>
+    <div class="nav-item" onclick="gotoLesson(9)" id="nav-9"><span class="nav-dot"></span>Interview Strategy</div>
+  </aside>
+
+  <!-- main lesson area -->
+  <main class="lesson-main">
+
+<!-- LESSON 0 · LIQUID CLUSTERING -->
+<div class="lesson-pane active" id="lesson-0">
+  <div class="lesson-header">
+    <div class="lesson-eyebrow"><span class="lesson-num">Lesson 01 / 10</span><span class="chip chip-blue">Storage</span><span class="chip chip-green">Delta Lake</span></div>
+    <h1>Liquid Clustering</h1>
+    <p class="subtitle">How automatic data organisation replaces manual partitioning strategies — and when to actually use it.</p>
+  </div>
+  <div class="section">
+    <div class="section-title">What problem does it solve?</div>
+    <div class="concept-box">Traditional Hive-style partitioning (e.g. <code>PARTITION BY date</code>) was designed for HDFS in 2009. It works by splitting data into separate folders on disk. This is fast when you always query by that same column — but collapses in three real-world situations: <strong>(1)</strong> analysts start filtering on a different column than the one you partitioned by, <strong>(2)</strong> your partition column has too many distinct values (a "partition explosion"), or <strong>(3)</strong> your access patterns change over time. Every time this happens with traditional partitioning, you either suffer full-table scans or do a full rewrite of your data.<br><br><strong>Liquid Clustering</strong> (GA in Databricks Runtime 13.3+) replaces this with an automatic, incremental layout optimiser that works without requiring you to pre-decide your query patterns.</div>
+    <div class="callout insight"><span class="callout-icon">💡</span><div class="callout-text"><strong>The core idea:</strong> Instead of physically splitting data into folders, Liquid Clustering co-locates related rows within the same Parquet files using a <strong>Hilbert space-filling curve</strong> — a mathematical path through multi-dimensional space that preserves locality. Rows with similar clustering key values land in the same file, making file-level data skipping highly effective.</div></div>
+  </div>
+  <div class="section">
+    <div class="section-title">How it works technically</div>
+    <div class="steps">
+      <div class="step"><div class="step-line"></div><div class="step-num">1</div><div class="step-body"><h4>You define clustering keys</h4><p><code>CREATE TABLE events CLUSTER BY (user_id, event_date)</code> — you specify which columns your queries filter on most. These become the clustering dimensions.</p></div></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">2</div><div class="step-body"><h4>New data writes with partial clustering</h4><p>Incoming data is partially clustered at write time. Fully optimised clustering happens lazily when you run <code>OPTIMIZE table_name</code>.</p></div></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">3</div><div class="step-body"><h4>Hilbert curve + tree balancer organises files</h4><p>The Hilbert curve maps multi-dimensional key values into a 1D ordering. A tree-based layout balancer then groups rows into balanced Parquet files. This handles high-cardinality keys and skewed distributions automatically — something Z-ORDER cannot do.</p></div></div>
+      <div class="step"><div class="step-num">4</div><div class="step-body"><h4>Delta's data skipping uses min/max stats</h4><p>Because related rows are now co-located, when your query filters on <code>user_id = 12345</code>, Delta checks per-file min/max stats and skips every file that can't contain that value. With good clustering, 95%+ of files can be skipped.</p></div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Liquid Clustering vs Partitioning vs Z-ORDER</div>
+    <div class="compare-grid">
+      <div class="compare-col col-a"><div class="col-title">Partitioning</div><ul><li>Stable, low-cardinality columns (&lt;1,000 values)</li><li>All queries filter on the same column</li><li>Best elimination: entire directory skipped</li><li>Changing the partition key = full rewrite</li><li>Can combine with Z-ORDER for secondary filters</li></ul></div>
+      <div class="compare-col col-b"><div class="col-title">Liquid Clustering</div><ul><li>High-cardinality columns (millions of values)</li><li>Access patterns change over time</li><li>Best elimination: file-level via stats</li><li>Changing keys: <code>ALTER TABLE</code> — only future writes</li><li>Cannot combine with Z-ORDER or partitions</li></ul></div>
+    </div>
+    <div class="callout trap"><span class="callout-icon">⚠</span><div class="callout-text"><strong>Mutual exclusivity:</strong> You CANNOT use CLUSTER BY on a table that already has partition columns, and you CANNOT run OPTIMIZE ZORDER BY on a CLUSTER BY table. Both Z-ORDER and Liquid Clustering use Hilbert curves — the engine can't reconcile two layout strategies simultaneously.</div></div>
+    <div class="callout rule"><span class="callout-icon">📋</span><div class="callout-text"><strong>The decision rule:</strong> If your filter column has &lt;1,000 distinct values and never changes → stick with partitioning. If cardinality is high or access patterns evolve → use Liquid Clustering. For new tables, default to Liquid Clustering.</div></div>
+  </div>
+  <div class="section">
+    <div class="section-title">Migration reality check (the 2TB question)</div>
+    <div class="concept-box">Migrating a 2 TB partitioned table to Liquid Clustering requires a <strong>full data rewrite</strong>. This means: compute cost for the rewrite job, a period of downtime or dual-write complexity, and updates to any downstream pipelines that rely on the physical file path structure (e.g. external Hive readers expecting <code>/date=2024-01-01/</code> folders).<br><br>Before migrating, calculate the payback period: <em>cost of full-partition scans on non-partition columns × weekly query count</em> vs <em>one-time migration compute cost</em>. If payback is &lt; 4 weeks, migrate. If the table is stable and access patterns haven't changed, leave it alone.</div>
+  </div>
+  <div class="quiz-section">
+    <h3>Knowledge check</h3>
+    <div class="quiz-card"><div class="quiz-question" onclick="toggleQ(this)">You have a 2 TB table partitioned by region (50 values). 40% of queries now filter by user_id (5M distinct values). What do you do? <span class="quiz-chevron">⌄</span></div><div class="quiz-answer">Migrate to Liquid Clustering — but quantify first. Calculate the compute cost of full-partition scans (40% of queries scanning all 50 partitions × 2 TB) vs the one-time migration rewrite cost. If analysts keep adding dashboards on non-partition columns, <code>CLUSTER BY (user_id, region)</code> will eliminate both scan penalties going forward. Mention the payback period.</div></div>
+    <div class="quiz-card"><div class="quiz-question" onclick="toggleQ(this)">Why can't you run OPTIMIZE ZORDER BY on a CLUSTER BY table? <span class="quiz-chevron">⌄</span></div><div class="quiz-answer">Both use Hilbert space-filling curves to co-locate data. Z-ORDER applies the curve manually per OPTIMIZE run with static results. Liquid Clustering adds a tree-based balancer on top and applies incrementally. A Delta table can only carry one layout strategy in its metadata — having both would create conflicting reorganisation semantics on every OPTIMIZE run.</div></div>
+    <div class="quiz-card"><div class="quiz-question" onclick="toggleQ(this)">You need to change the clustering key from user_id to account_id. What happens? <span class="quiz-chevron">⌄</span></div><div class="quiz-answer">With Liquid Clustering: run <code>ALTER TABLE t CLUSTER BY (account_id)</code>. Only future writes use the new key — existing data is gradually re-clustered by subsequent OPTIMIZE runs. No full rewrite required. This is the key operational advantage over partitioning where changing the partition key requires a complete data migration.</div></div>
+  </div>
+  <div class="lesson-nav">
+    <button class="nav-btn" disabled>← Previous</button>
+    <button class="mark-done-btn" id="done-0" onclick="markDone(0)">Mark as done ✓</button>
+    <button class="nav-btn primary" onclick="gotoLesson(1)">Next: Spark Internals →</button>
+  </div>
+</div>
+
+<!-- LESSON 1 · SPARK INTERNALS -->
+<div class="lesson-pane" id="lesson-1">
+  <div class="lesson-header">
+    <div class="lesson-eyebrow"><span class="lesson-num">Lesson 02 / 10</span><span class="chip chip-purple">Spark</span><span class="chip chip-blue">Performance</span></div>
+    <h1>How One SQL Line Becomes 4,000 Parallel Tasks</h1>
+    <p class="subtitle">The complete Catalyst → Tungsten → AQE pipeline — and why understanding it is the difference between listing optimisation tips and actually fixing slow jobs.</p>
+  </div>
+  <div class="section">
+    <div class="section-title">The full compilation pipeline</div>
+    <div class="steps">
+      <div class="step"><div class="step-line"></div><div class="step-num">1</div><div class="step-body"><h4>Parsing → Unresolved Logical Plan</h4><p>The SQL text is parsed into an Abstract Syntax Tree (AST). Column names and table references exist but are not yet validated against the Catalog. The result is an "unresolved" logical plan.</p></div></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">2</div><div class="step-body"><h4>Analysis → Resolved Logical Plan</h4><p>The Analyzer resolves column names, table references, and function calls against the Spark Catalog (Hive Metastore or Unity Catalog). This produces a resolved logical plan with concrete types and references.</p></div></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">3</div><div class="step-body"><h4>Catalyst Optimizer → Optimised Logical Plan</h4><p>A rule-based optimizer applies dozens of rules in batches: <strong>constant folding</strong> (evaluate <code>1 + 1</code> at plan time), <strong>predicate pushdown</strong> (move filters as early as possible), <strong>column pruning</strong> (remove columns not referenced), and <strong>join reordering</strong> (put smaller tables first). This is Catalyst's logical optimisation phase.</p></div></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">4</div><div class="step-body"><h4>Physical Planning → Physical Plan</h4><p>Catalyst generates multiple candidate physical plans (e.g. BroadcastHashJoin vs SortMergeJoin for each join) and uses a cost model to select the best one. This is where join strategy decisions are made at plan time.</p></div></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">5</div><div class="step-body"><h4>Tungsten Code Generation → JVM Bytecode</h4><p>Whole-stage code generation compiles the physical plan into a single tight JVM bytecode loop, eliminating virtual dispatch overhead. Operations that would normally call multiple virtual methods are fused into a single tight loop — this is where Spark gets its raw speed on modern CPUs.</p></div></div>
+      <div class="step"><div class="step-num">6</div><div class="step-body"><h4>AQE — Runtime Adaptation</h4><p>Adaptive Query Execution re-optimises the plan at runtime using actual statistics gathered after each stage: <strong>partition coalescing</strong> (merging small shuffle partitions), <strong>skew join handling</strong> (splitting large partitions), and <strong>join strategy switching</strong> (downgrading SortMergeJoin to BroadcastHashJoin if a partition turns out small enough).</p></div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">Key AQE configurations</div>
+    <table class="kv-table">
+      <tr><th>Setting</th><th>Default</th><th>What it controls</th></tr>
+      <tr><td>spark.sql.adaptive.enabled</td><td>true (DBR)</td><td>Master AQE toggle</td></tr>
+      <tr><td>spark.sql.adaptive.skewJoin.enabled</td><td>true</td><td>Automatic skew join splitting</td></tr>
+      <tr><td>spark.sql.adaptive.skewJoin.skewedPartitionFactor</td><td>5×</td><td>Threshold to detect skewed partitions vs median</td></tr>
+      <tr><td>spark.sql.adaptive.coalescePartitions.enabled</td><td>true</td><td>Merge small shuffle output partitions</td></tr>
+      <tr><td>spark.sql.autoBroadcastJoinThreshold</td><td>10 MB</td><td>Max table size for auto-broadcast</td></tr>
+      <tr><td>spark.sql.shuffle.partitions</td><td>200</td><td>Initial shuffle partitions (AQE coalesces down)</td></tr>
+    </table>
+  </div>
+  <div class="section">
+    <div class="section-title">What interviewers actually evaluate</div>
+    <div class="ladder">
+      <div class="ladder-item"><span class="ladder-level" style="background:rgba(240,90,90,.15);color:#f05a5a">Junior</span><div class="ladder-text">Lists optimisation techniques from memory: "increase shuffle partitions, use broadcast joins, cache intermediate DataFrames"</div></div>
+      <div class="ladder-item"><span class="ladder-level" style="background:var(--amber-dim);color:var(--amber)">Mid</span><div class="ladder-text">Correctly explains what each technique does, but can't say which one to apply first without seeing the job. Analysis paralysis.</div></div>
+      <div class="ladder-item"><span class="ladder-level" style="background:var(--blue-dim);color:var(--blue)">Senior</span><div class="ladder-text"><strong>Diagnostic framework first:</strong> "I'd open Spark UI, find the longest stage, check task duration distribution for skew, then look at the SQL plan tab to verify pushdown — before touching any config."</div></div>
+      <div class="ladder-item"><span class="ladder-level" style="background:var(--green-dim);color:var(--green)">Principal</span><div class="ladder-text">Instruments pipelines proactively with stage-level metrics before they become slow. Owns the SLA rather than reacting to it.</div></div>
+    </div>
+    <div class="callout insight"><span class="callout-icon">💡</span><div class="callout-text"><strong>The Spark UI diagnostic order:</strong> Stages tab (find the longest stage) → Task duration distribution (check for skew) → Shuffle read/write size (check for missing pushdown) → SQL tab physical plan (verify join strategy and predicate pushdown) → Executor GC time (check for memory pressure).</div></div>
+  </div>
+  <div class="quiz-section">
+    <h3>Knowledge check</h3>
+    <div class="quiz-card"><div class="quiz-question" onclick="toggleQ(this)">A job has 200 shuffle partitions, each 10 GB. What's the problem and fix? <span class="quiz-chevron">⌄</span></div><div class="quiz-answer"><strong>Problem:</strong> 10 GB partitions are far too large — recommended target is ~128 MB per partition. This means tasks are doing too much work per task, are hard to parallelize, and may spill to disk.<br><br><strong>Fix:</strong> Increase <code>spark.sql.shuffle.partitions</code> to 2 TB / 128 MB ≈ 16,000. BUT first check if the bottleneck is actually skew (a few partitions huge, most small) vs uniform large partitions — these require different fixes.</div></div>
+    <div class="quiz-card"><div class="quiz-question" onclick="toggleQ(this)">What does AQE's skew join handling actually do at runtime? <span class="quiz-chevron">⌄</span></div><div class="quiz-answer">After the first shuffle stage completes, AQE reads the actual partition size statistics. If any partition is more than <code>skewedPartitionFactor</code> (default 5×) the median size AND larger than <code>skewedPartitionThresholdInBytes</code> (default 256 MB), AQE automatically splits that partition into smaller sub-partitions and replicates the corresponding rows from the other table to join against each sub-partition. The join completes in more, smaller tasks instead of one massive task.</div></div>
+  </div>
+  <div class="lesson-nav">
+    <button class="nav-btn" onclick="gotoLesson(0)">← Liquid Clustering</button>
+    <button class="mark-done-btn" id="done-1" onclick="markDone(1)">Mark as done ✓</button>
+    <button class="nav-btn primary" onclick="gotoLesson(2)">Next: Partition Pruning →</button>
+  </div>
+</div>
+
+<!-- LESSON 2 · PARTITION PRUNING & DATA SKIPPING -->
+<div class="lesson-pane" id="lesson-2">
+  <div class="lesson-header">
+    <div class="lesson-eyebrow"><span class="lesson-num">Lesson 03 / 10</span><span class="chip chip-blue">Delta Lake</span><span class="chip chip-purple">Spark</span></div>
+    <h1>Partition Pruning vs Data Skipping</h1>
+    <p class="subtitle">Two optimisation layers — directory level and file level — and why understanding the difference wins interviews.</p>
+  </div>
+  <div class="section">
+    <div class="section-title">Two different layers of elimination</div>
+    <div class="compare-grid">
+      <div class="compare-col col-a"><div class="col-title">Partition Pruning (directory level)</div><ul><li>Operates on the folder structure of partitioned tables</li><li>When filter matches partition column, entire directories are skipped without opening any files</li><li>E.g. <code>WHERE date = '2024-01-01'</code> on a date-partitioned table skips every other date folder</li><li>Zero file I/O for eliminated partitions</li><li>Coarse-grained — only works when filter is on the exact partition column</li></ul></div>
+      <div class="compare-col col-b"><div class="col-title">Data Skipping (file level)</div><ul><li>Operates on per-file statistics stored in the Delta transaction log</li><li>Delta records min/max value for each column in each Parquet file</li><li>When a filter can't possibly match a file's min/max range, the file is skipped</li><li>Works on any column — not just partition columns</li><li>Fine-grained — depends on how well data is physically co-located in files</li></ul></div>
+    </div>
+    <div class="callout insight"><span class="callout-icon">💡</span><div class="callout-text"><strong>They work together:</strong> Partition pruning eliminates directories first. Data skipping then eliminates Parquet files within the surviving directories. Liquid Clustering and Z-ORDER improve data skipping by ensuring rows with similar key values land in the same files — maximising the chance that a file's min/max range is narrow and can be fully skipped.</div></div>
+  </div>
+  <div class="section">
+    <div class="section-title">Statistics written to the delta log</div>
+    <table class="kv-table">
+      <tr><th>Stat</th><th>Stored per file for each column</th><th>Enables</th></tr>
+      <tr><td>minValues</td><td>Smallest value in the column</td><td>Skip if filter value &lt; min</td></tr>
+      <tr><td>maxValues</td><td>Largest value in the column</td><td>Skip if filter value &gt; max</td></tr>
+      <tr><td>nullCount</td><td>Number of null values</td><td>Skip if filter is NOT NULL and nullCount = rowCount</td></tr>
+      <tr><td>numRecords</td><td>Total rows in the file</td><td>Used for cardinality estimation by planner</td></tr>
+    </table>
+    <div class="callout rule"><span class="callout-icon">📋</span><div class="callout-text"><strong>Default stats depth:</strong> Delta collects stats for the first 32 columns (by position). Columns beyond position 32 have no stats and can't benefit from data skipping — a common gotcha on wide tables. Reorder important filter columns to the left.</div></div>
+  </div>
+  <div class="quiz-section">
+    <h3>Knowledge check</h3>
+    <div class="quiz-card"><div class="quiz-question" onclick="toggleQ(this)">A Delta table has 500 files. A query filters WHERE amount > 1000. Without clustering, how many files are read? After clustering by amount? <span class="quiz-chevron">⌄</span></div><div class="quiz-answer"><strong>Without clustering:</strong> amount values are scattered randomly across all files. The min/max per file likely spans the full range. Spark reads all 500 files.<br><br><strong>After clustering by amount:</strong> Files containing low amounts (all &lt; 1000) have a maxValue &lt; 1000 and are skipped entirely. In a well-clustered table, 70-95% of files may be skipped — Spark reads only the files whose max amount exceeds 1000.</div></div>
+    <div class="quiz-card"><div class="quiz-question" onclick="toggleQ(this)">Your table has 200 columns. Column 185 is heavily filtered in queries. Data skipping isn't working. Why? <span class="quiz-chevron">⌄</span></div><div class="quiz-answer">Delta only collects min/max statistics for the first 32 columns by default (configurable via <code>delta.dataSkippingNumIndexedCols</code>). Column 185 has no stats, so data skipping can't eliminate any files based on it. Fix: either increase <code>delta.dataSkippingNumIndexedCols</code> to cover the important column, or reorder the table schema to put frequently filtered columns in the first 32 positions.</div></div>
+  </div>
+  <div class="lesson-nav">
+    <button class="nav-btn" onclick="gotoLesson(1)">← Spark Internals</button>
+    <button class="mark-done-btn" id="done-2" onclick="markDone(2)">Mark as done ✓</button>
+    <button class="nav-btn primary" onclick="gotoLesson(3)">Next: Schema Evolution →</button>
+  </div>
+</div>
+
+<!-- LESSON 3 · SCHEMA EVOLUTION -->
+<div class="lesson-pane" id="lesson-3">
+  <div class="lesson-header">
+    <div class="lesson-eyebrow"><span class="lesson-num">Lesson 04 / 10</span><span class="chip chip-green">Delta Lake</span></div>
+    <h1>Schema Evolution in Delta Lake</h1>
+    <p class="subtitle">The follow-up questions that separate mid-level from senior answers — and why "just turn on mergeSchema" is never the complete answer.</p>
+  </div>
+  <div class="section">
+    <div class="section-title">Delta's default behaviour</div>
+    <div class="concept-box">By default, Delta Lake enforces <strong>strict schema enforcement</strong>. If your incoming DataFrame has a column that doesn't exist in the table, or a column with an incompatible type, the write fails immediately with a <code>AnalysisException</code>. This is intentional — it prevents accidental schema corruption from propagating silently into your lakehouse.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Schema change types and how Delta handles each</div>
+    <table class="kv-table">
+      <tr><th>Change type</th><th>Automatic support</th><th>How to handle</th></tr>
+      <tr><td>Add a new column</td><td>✅ With mergeSchema</td><td><code>df.write.option("mergeSchema","true")</code> or table property</td></tr>
+      <tr><td>Rename a column</td><td>❌ Not automatic</td><td><code>ALTER TABLE t RENAME COLUMN old TO new</code></td></tr>
+      <tr><td>Change column type (widening)</td><td>⚠ Partially</td><td>int→long is safe; string→int requires explicit CAST</td></tr>
+      <tr><td>Drop a column</td><td>❌ Not automatic</td><td><code>ALTER TABLE t DROP COLUMN col</code></td></tr>
+      <tr><td>Reorder columns</td><td>✅ Delta handles by name</td><td>Parquet is columnar — column order doesn't affect reads</td></tr>
+    </table>
+    <div class="callout trap"><span class="callout-icon">⚠</span><div class="callout-text"><strong>The senior interview trap:</strong> Saying "just use mergeSchema=true" without discussing backward/forward compatibility. If you add a column, downstream consumers using SELECT * now get an extra column they may not handle. If you drop a column, pipelines referencing it break. The senior answer includes: assess impact on downstream consumers before any schema change.</div></div>
+  </div>
+  <div class="section">
+    <div class="section-title">The remediation framework</div>
+    <div class="steps">
+      <div class="step"><div class="step-line"></div><div class="step-num">1</div><div class="step-body"><h4>Identify the drift</h4><p>Read the error message or compare incoming schema vs table schema programmatically: <code>spark.read.format("delta").load(path).schema</code> vs <code>incoming_df.schema</code>.</p></div></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">2</div><div class="step-body"><h4>Classify the change</h4><p>Is it additive (new column), structural (rename/type change), or destructive (drop)? Each requires a different response.</p></div></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">3</div><div class="step-body"><h4>Assess downstream impact</h4><p>Who reads this table? Do they use SELECT * (risky) or named columns (safer)? Check Unity Catalog lineage or query the system.access.audit log to find consumers.</p></div></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">4</div><div class="step-body"><h4>Apply the appropriate fix</h4><p>Additive → enable mergeSchema for this write. Structural → explicit DDL + coordinate with consumers. Destructive → deprecation period + consumer migration first.</p></div></div>
+      <div class="step"><div class="step-num">5</div><div class="step-body"><h4>Update data contracts &amp; documentation</h4><p>Update the schema documentation in Unity Catalog, notify downstream owners, and update any data contracts (expected column names, types, nullability).</p></div></div>
+    </div>
+  </div>
+  <div class="quiz-section">
+    <h3>Knowledge check</h3>
+    <div class="quiz-card"><div class="quiz-question" onclick="toggleQ(this)">A source renames a column from customer_name to full_name. Your pipeline breaks. Walk through your exact fix. <span class="quiz-chevron">⌄</span></div><div class="quiz-answer">This is a <strong>structural change</strong> — mergeSchema won't help (it only adds columns). Steps:<br><br>1. In the write path, add a transformation: <code>.withColumnRenamed("full_name", "customer_name")</code> to maintain backward compatibility until downstream is updated.<br>2. In Delta, run <code>ALTER TABLE t RENAME COLUMN customer_name TO full_name</code> to align the table schema.<br>3. Update downstream consumers to reference <code>full_name</code>.<br>4. Remove the withColumnRenamed transformation once all consumers are updated.<br><br>Never rename the column in Delta before updating consumers — you'll break them.</div></div>
+    <div class="quiz-card"><div class="quiz-question" onclick="toggleQ(this)">What's the difference between backward compatibility and forward compatibility in schema evolution? <span class="quiz-chevron">⌄</span></div><div class="quiz-answer"><strong>Backward compatibility:</strong> New schema can read data written by old schema. Example: adding a nullable column is backward compatible — old data just has nulls for the new column.<br><br><strong>Forward compatibility:</strong> Old schema can read data written by new schema. Example: if old readers ignore unknown columns, adding a column is forward compatible. If they enforce strict schema, it's not.<br><br>The senior answer: always check both directions. A change can be backward-compatible (new code reads old data fine) but forward-incompatible (old code crashes reading new data with the new column).</div></div>
+  </div>
+  <div class="lesson-nav">
+    <button class="nav-btn" onclick="gotoLesson(2)">← Partition Pruning</button>
+    <button class="mark-done-btn" id="done-3" onclick="markDone(3)">Mark as done ✓</button>
+    <button class="nav-btn primary" onclick="gotoLesson(4)">Next: Streaming →</button>
+  </div>
+</div>
+
+<!-- LESSON 4 · STRUCTURED STREAMING -->
+<div class="lesson-pane" id="lesson-4">
+  <div class="lesson-header">
+    <div class="lesson-eyebrow"><span class="lesson-num">Lesson 05 / 10</span><span class="chip chip-teal">Streaming</span></div>
+    <h1>Structured Streaming &amp; Watermarks</h1>
+    <p class="subtitle">Deduplication, stream-static joins, windowed rules engines, and exactly-once semantics — built from the fraud monitoring newsletter series.</p>
+  </div>
+  <div class="section">
+    <div class="section-title">The watermark concept</div>
+    <div class="concept-box">In streaming, events don't always arrive in order. A transaction that happened at 14:00 might arrive at 14:35 due to mobile network delays, Kafka lag, or upstream retries. <strong>The watermark defines how long Spark waits for late data before closing a time window and discarding its state.</strong><br><br><code>df.withWatermark("event_time", "30 minutes")</code> tells Spark: once the max event_time seen so far exceeds a window's end by 30 minutes, that window's state can be safely dropped. Events arriving after the watermark threshold are discarded.</div>
+    <div class="callout rule"><span class="callout-icon">📋</span><div class="callout-text"><strong>The calibration trade-off:</strong> Watermark too tight → late events discarded, incorrect aggregations. Watermark too loose → state accumulates indefinitely, OOM on executors. Profile your Kafka consumer lag and source timestamp distribution to find the right value. For fraud: 2 hours is common.</div></div>
+  </div>
+  <div class="section">
+    <div class="section-title">Deduplication in streaming</div>
+    <div class="concept-box">The naive approach — <code>dropDuplicates(["event_id"])</code> without a watermark — maintains state for every event_id ever seen. On a high-throughput Kafka topic, this causes unbounded state growth and eventually OOMs the executor.<br><br>The correct production approach (Spark 3.5+):<br><code>df.withWatermark("event_time", "2 hours").dropDuplicatesWithinWatermark(["event_id"])</code><br><br>This only tracks event_ids within the watermark window. Once the watermark advances past an event_time, that window's deduplication state is safely released.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">Window types</div>
+    <table class="kv-table">
+      <tr><th>Window type</th><th>Behaviour</th><th>Use case</th></tr>
+      <tr><td>Tumbling</td><td>Non-overlapping fixed intervals: [0:00–1:00), [1:00–2:00)</td><td>Hourly aggregations, batch-style windowed stats</td></tr>
+      <tr><td>Sliding</td><td>Overlapping intervals: every 30s for a 5-min window</td><td>Rolling averages, real-time velocity checks</td></tr>
+      <tr><td>Session</td><td>Gap-based: window closes after a period of inactivity</td><td>User session tracking, clickstream analysis</td></tr>
+    </table>
+  </div>
+  <div class="section">
+    <div class="section-title">Exactly-once semantics (the real answer)</div>
+    <div class="concept-box">Saying "Spark handles exactly-once" is a mid-level answer. The senior answer specifies the mechanism:<br><br>1. Kafka source with <code>startingOffsets</code> and checkpointing — Spark records the last committed offset to a checkpoint location.<br>2. <code>foreachBatch</code> with an idempotent write pattern — each micro-batch writes to Delta using MERGE with <code>(event_id, window_start)</code> as the idempotency key.<br>3. Kafka consumer offset is committed only <strong>after</strong> the Delta MERGE succeeds atomically.<br><br>If the job crashes mid-batch, it restarts from the last committed offset and re-processes the same events — the MERGE is idempotent, so re-processing produces the same result. This gives end-to-end exactly-once semantics.</div>
+  </div>
+  <div class="quiz-section">
+    <h3>Knowledge check</h3>
+    <div class="quiz-card"><div class="quiz-question" onclick="toggleQ(this)">What's wrong with dropDuplicates(["event_id"]) without a watermark? <span class="quiz-chevron">⌄</span></div><div class="quiz-answer">Without a watermark, Spark must maintain a deduplication state entry for every unique event_id ever seen since the stream started. On a high-throughput topic receiving millions of events per day, this state grows without bound. Eventually executor memory is exhausted, the state store overflows, and the job crashes or slows to a crawl. Always pair dropDuplicates with withWatermark, or use dropDuplicatesWithinWatermark (Spark 3.5+) to bound state to the watermark window.</div></div>
+    <div class="quiz-card"><div class="quiz-question" onclick="toggleQ(this)">You need to detect users who make 10+ transactions in any rolling 5-minute window. What window type and trigger? <span class="quiz-chevron">⌄</span></div><div class="quiz-answer"><strong>Window type:</strong> Sliding window — <code>window("event_time", "5 minutes", "30 seconds")</code>. A tumbling window would miss transactions that span the boundary. A sliding window with 30-second slide gives near-real-time detection with manageable state overlap.<br><br><strong>Trigger:</strong> <code>processingTime='10 seconds'</code> for sub-30-second latency while maintaining reasonable throughput. Pair with <code>withWatermark("event_time", "30 seconds")</code> to bound state. Alert when <code>count(*) > 10</code> in any window.</div></div>
+  </div>
+  <div class="lesson-nav">
+    <button class="nav-btn" onclick="gotoLesson(3)">← Schema Evolution</button>
+    <button class="mark-done-btn" id="done-4" onclick="markDone(4)">Mark as done ✓</button>
+    <button class="nav-btn primary" onclick="gotoLesson(5)">Next: Data Quality →</button>
+  </div>
+</div>
+
+<!-- LESSON 5 · DATA QUALITY -->
+<div class="lesson-pane" id="lesson-5">
+  <div class="lesson-header">
+    <div class="lesson-eyebrow"><span class="lesson-num">Lesson 06 / 10</span><span class="chip chip-amber">Data Quality</span></div>
+    <h1>6 Data Quality Checks for Every Pipeline</h1>
+    <p class="subtitle">The silent failures that broke executive dashboards for 5 days — and the checks that would have caught them in minutes.</p>
+  </div>
+  <div class="section">
+    <div class="section-title">Why silent failures are worse than job failures</div>
+    <div class="concept-box">A failed job triggers an alert in your monitoring system immediately. An on-call engineer gets paged, investigates, and fixes it. Data consumers see an error and know to wait.<br><br>A <strong>silent failure</strong> is when a pipeline runs successfully, writes data, but writes <em>wrong</em> data. No alert fires. The dashboard shows numbers. Executives make decisions based on those numbers. Days later, someone notices the revenue figures are 30% off. Now you're investigating root cause across a week of pipeline runs, rebuilding trust, and potentially reprocessing a week of data.</div>
+    <div class="callout rule"><span class="callout-icon">📋</span><div class="callout-text"><strong>The fail-fast principle:</strong> Build quality assertions <em>before</em> the write, not after. If the data doesn't pass quality checks, fail the job loudly. A failed job is recoverable; silently wrong data that propagates downstream is not.</div></div>
+  </div>
+  <div class="section">
+    <div class="section-title">The 6 essential checks</div>
+    <div class="steps">
+      <div class="step"><div class="step-line"></div><div class="step-num">1</div><div class="step-body"><h4>Null rate on critical columns</h4><p>Define acceptable null rates per column (e.g. <code>customer_id</code>: 0%, <code>email</code>: &lt;5%). Alert or fail if exceeded.</p></div></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">2</div><div class="step-body"><h4>Uniqueness / deduplication</h4><p>For tables with expected unique keys, assert <code>df.count() == df.dropDuplicates(["order_id"]).count()</code>. Unexpected duplicates indicate upstream re-sends or join explosions.</p></div></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">3</div><div class="step-body"><h4>Referential integrity</h4><p>Verify that foreign keys in fact tables have matching records in dimension tables. Orphaned fact rows indicate upstream pipeline issues and break star schema joins silently.</p></div></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">4</div><div class="step-body"><h4>Range bounds plausibility</h4><p>Check that numeric columns are within expected ranges (e.g. amount &gt; 0, age between 0 and 120). Extreme outliers from upstream bugs can skew aggregations dramatically.</p></div></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">5</div><div class="step-body"><h4>Schema conformance</h4><p>Verify column types and nullability match the expected schema before writing. Type mismatches (e.g. amount arriving as string) can either cause write failures (good) or silent type coercion (dangerous).</p></div></div>
+      <div class="step"><div class="step-num">6</div><div class="step-body"><h4>Row-count delta between runs</h4><p>Track <code>current_run_count / previous_run_count</code>. Alert if the ratio is outside a threshold (e.g. ±20% from the 7-day rolling average). This is the simplest proxy for completeness failures.</p></div></div>
+    </div>
+  </div>
+  <div class="quiz-section">
+    <h3>Knowledge check</h3>
+    <div class="quiz-card"><div class="quiz-question" onclick="toggleQ(this)">Your pipeline wrote 1.2M rows yesterday and 300K today. The job succeeded. What happened and how do you catch it? <span class="quiz-chevron">⌄</span></div><div class="quiz-answer">This is a completeness failure — a 75% row-count drop that the job itself didn't catch because the writes succeeded (just with less data). Root causes: a missed upstream Kafka partition, a source table refresh failure, a date filter bug writing only one day's data instead of the full backfill.<br><br><strong>Catch it with:</strong> The row-count delta check — alert if <code>today_count / 7day_avg</code> falls below 0.7 (30% drop threshold). This fires before the data reaches dashboards. Then investigate: check upstream source counts, review the job logs for partition skipping, verify the date filter in the pipeline code.</div></div>
+  </div>
+  <div class="lesson-nav">
+    <button class="nav-btn" onclick="gotoLesson(4)">← Streaming</button>
+    <button class="mark-done-btn" id="done-5" onclick="markDone(5)">Mark as done ✓</button>
+    <button class="nav-btn primary" onclick="gotoLesson(6)">Next: Compute &amp; Cost →</button>
+  </div>
+</div>
+
+<!-- LESSON 6 · COMPUTE SELECTION & COST -->
+<div class="lesson-pane" id="lesson-6">
+  <div class="lesson-header">
+    <div class="lesson-eyebrow"><span class="lesson-num">Lesson 07 / 10</span><span class="chip chip-amber">Cost</span><span class="chip chip-blue">Platform</span></div>
+    <h1>Compute Selection Guide</h1>
+    <p class="subtitle">Why scheduled jobs on All-Purpose clusters bleed thousands per month — and how to fix it in 15 minutes.</p>
+  </div>
+  <div class="section">
+    <div class="section-title">The four compute types</div>
+    <table class="kv-table">
+      <tr><th>Type</th><th>Best for</th><th>Cost</th><th>Key behaviour</th></tr>
+      <tr><td>All-Purpose cluster</td><td>Interactive notebooks, collaborative dev</td><td>Highest (~3× jobs)</td><td>Always-on; billed per DBU per hour regardless of actual work</td></tr>
+      <tr><td>Jobs cluster</td><td>Scheduled ETL, automated pipelines</td><td>~3× cheaper than All-Purpose</td><td>Spins up per run, terminates when done</td></tr>
+      <tr><td>SQL Warehouse</td><td>BI tools, dashboards, SQL queries</td><td>Per-query billing + auto-suspend</td><td>Shared across users; scales up/down; auto-suspends when idle</td></tr>
+      <tr><td>Serverless</td><td>Zero cluster management, fastest start</td><td>Premium DBU rate</td><td>No cluster config; instant start; Databricks manages infrastructure</td></tr>
+    </table>
+    <div class="callout trap"><span class="callout-icon">⚠</span><div class="callout-text"><strong>The most common cost mistake:</strong> Running scheduled nightly jobs on All-Purpose clusters. These jobs spin up at 2am, run for 45 minutes, and then the cluster sits idle until morning — billing DBUs the whole time. Moving to Jobs clusters is a 15-minute fix that typically reduces ETL compute cost by 60-70%.</div></div>
+  </div>
+  <div class="section">
+    <div class="section-title">5 cost reduction strategies</div>
+    <div class="ladder">
+      <div class="ladder-item"><span class="ladder-level" style="background:var(--blue-dim);color:var(--blue)">1</span><div class="ladder-text"><strong>Migrate scheduled jobs to Jobs clusters</strong> — single biggest win, typically 60-70% cost reduction for batch workloads. Takes 15 minutes in the Workflows UI.</div></div>
+      <div class="ladder-item"><span class="ladder-level" style="background:var(--blue-dim);color:var(--blue)">2</span><div class="ladder-text"><strong>Spot/preemptible instances for batch ETL</strong> — 60-80% cheaper than on-demand. Configure on-demand fallback for the driver node and set a max spot bid. Occasional interruptions are handled by Databricks' retry logic.</div></div>
+      <div class="ladder-item"><span class="ladder-level" style="background:var(--blue-dim);color:var(--blue)">3</span><div class="ladder-text"><strong>SQL Warehouse auto-suspend</strong> — set auto-suspend to 5-10 minutes. A warehouse left running overnight costs as much as a full day of queries.</div></div>
+      <div class="ladder-item"><span class="ladder-level" style="background:var(--blue-dim);color:var(--blue)">4</span><div class="ladder-text"><strong>Cluster policies</strong> — define max_workers caps per team in the admin console. Prevents runaway large clusters created by engineers who "just needed a quick test".</div></div>
+      <div class="ladder-item"><span class="ladder-level" style="background:var(--blue-dim);color:var(--blue)">5</span><div class="ladder-text"><strong>Cost attribution via system.billing.usage</strong> — tag all clusters by team and pipeline. Query <code>system.billing.usage</code> to identify the top 5 cost consumers each week.</div></div>
+    </div>
+  </div>
+  <div class="quiz-section">
+    <h3>Knowledge check</h3>
+    <div class="quiz-card"><div class="quiz-question" onclick="toggleQ(this)">Your BI team's SQL Warehouse runs 24/7 and barely gets queries after 6pm. What do you do? <span class="quiz-chevron">⌄</span></div><div class="quiz-answer">Enable auto-suspend with a 10-minute idle timeout. The warehouse will automatically suspend when no queries have run for 10 minutes, resuming in seconds when the next query arrives. For a warehouse unused from 6pm to 9am (15 hours), this eliminates 15 hours × DBU rate of wasted spend — typically thousands per month for a Medium or Large warehouse.</div></div>
+  </div>
+  <div class="lesson-nav">
+    <button class="nav-btn" onclick="gotoLesson(5)">← Data Quality</button>
+    <button class="mark-done-btn" id="done-6" onclick="markDone(6)">Mark as done ✓</button>
+    <button class="nav-btn primary" onclick="gotoLesson(7)">Next: Debugging →</button>
+  </div>
+</div>
+
+<!-- LESSON 7 · DEBUGGING MATURITY -->
+<div class="lesson-pane" id="lesson-7">
+  <div class="lesson-header">
+    <div class="lesson-eyebrow"><span class="lesson-num">Lesson 08 / 10</span><span class="chip chip-red">Debugging</span><span class="chip chip-purple">Spark</span></div>
+    <h1>The Debugging Maturity Ladder</h1>
+    <p class="subtitle">How engineers progress from trial-and-error to finding the one bottleneck that matters — and the 7-question framework that exposes where you are.</p>
+  </div>
+  <div class="section">
+    <div class="section-title">The maturity ladder</div>
+    <div class="ladder">
+      <div class="ladder-item"><span class="ladder-level" style="background:var(--red-dim);color:var(--red)">Junior</span><div class="ladder-text"><strong>Trial and error:</strong> Tweaks random configs hoping it gets faster. Increases <code>shuffle.partitions</code> without knowing if shuffles are even the bottleneck. Re-runs the job after each change with no systematic understanding of what changed.</div></div>
+      <div class="ladder-item"><span class="ladder-level" style="background:var(--amber-dim);color:var(--amber)">Mid</span><div class="ladder-text"><strong>Analysis paralysis:</strong> Reads every Spark optimisation doc, understands the techniques, but can't prioritise which one to apply to this specific job. Implements three improvements simultaneously and can't tell which one helped.</div></div>
+      <div class="ladder-item"><span class="ladder-level" style="background:var(--blue-dim);color:var(--blue)">Senior</span><div class="ladder-text"><strong>Diagnostic framework first:</strong> Opens Spark UI, finds the longest stage, checks task distribution for skew, looks at the SQL plan tab for missing pushdown — before touching any config. Identifies the single bottleneck, fixes it, and measures the improvement.</div></div>
+      <div class="ladder-item"><span class="ladder-level" style="background:var(--green-dim);color:var(--green)">Principal</span><div class="ladder-text"><strong>Proactive instrumentation:</strong> Adds stage-level metrics, data quality alerts, and SLA tracking before pipelines go to production. Owns the SLA rather than reacting to breaches.</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">The 7-question diagnostic chain</div>
+    <div class="steps">
+      <div class="step"><div class="step-line"></div><div class="step-num">1</div><div class="step-body"><h4>Spark UI → Stages tab: Which stage is longest?</h4><p>90% of runtimes live in 1-2 stages. Find it before doing anything else.</p></div></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">2</div><div class="step-body"><h4>Is the task duration distribution skewed?</h4><p>In the stage detail, check if p99 task duration is 5×+ the median. If yes: data skew. If tasks are uniformly slow: different problem.</p></div></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">3</div><div class="step-body"><h4>How large is the shuffle read/write?</h4><p>Excessively large shuffle suggests missing predicate pushdown or a join that could be broadcast instead of shuffle-merge.</p></div></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">4</div><div class="step-body"><h4>SQL tab: What join strategy is being used?</h4><p>Is a SortMergeJoin running where a BroadcastHashJoin should? Are predicates shown as pushed down to the scan, or applied after reading all data?</p></div></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">5</div><div class="step-body"><h4>What's the executor GC time?</h4><p>If GC time exceeds 10% of task time, the cluster is memory-starved. Increase executor memory or reduce parallelism.</p></div></div>
+      <div class="step"><div class="step-line"></div><div class="step-num">6</div><div class="step-body"><h4>What's the actual per-partition size?</h4><p>If average partition is &gt;512 MB, increase shuffle.partitions. If average is &lt;1 MB with thousands of tiny tasks, decrease it. Target 64-256 MB per partition.</p></div></div>
+      <div class="step"><div class="step-num">7</div><div class="step-body"><h4>Is data drift causing the slowdown?</h4><p>Did the data volume change? New join keys with higher cardinality? A 3× slowdown that started on a specific date often means upstream data characteristics changed, not Spark config.</p></div></div>
+    </div>
+  </div>
+  <div class="quiz-section">
+    <h3>Knowledge check</h3>
+    <div class="quiz-card"><div class="quiz-question" onclick="toggleQ(this)">A pipeline runs 6 hours against a 2-hour SLA. Your first action is to increase spark.sql.shuffle.partitions from 200 to 2000. Is this right? <span class="quiz-chevron">⌄</span></div><div class="quiz-answer">No — this is the junior/mid-level trap. Changing shuffle.partitions without first diagnosing the bottleneck may make things worse or have no effect at all.<br><br>The correct first action: open Spark UI → Stages tab → find the longest stage. Then check task distribution. If the longest stage has 200 uniformly slow tasks (not skewed), increasing partitions may help. But if the stage has 5 tasks that ran for 5 hours and 195 that finished in 2 minutes, the problem is data skew — more partitions won't fix that, you need AQE skew handling or salting on the join key.</div></div>
+  </div>
+  <div class="lesson-nav">
+    <button class="nav-btn" onclick="gotoLesson(6)">← Compute &amp; Cost</button>
+    <button class="mark-done-btn" id="done-7" onclick="markDone(7)">Mark as done ✓</button>
+    <button class="nav-btn primary" onclick="gotoLesson(8)">Next: Data Modelling →</button>
+  </div>
+</div>
+
+<!-- LESSON 8 · DATA MODELLING -->
+<div class="lesson-pane" id="lesson-8">
+  <div class="lesson-header">
+    <div class="lesson-eyebrow"><span class="lesson-num">Lesson 09 / 10</span><span class="chip chip-green">Modelling</span><span class="chip chip-blue">Architecture</span></div>
+    <h1>Why 3NF Is Killing Your Dashboards</h1>
+    <p class="subtitle">Stop normalising analytical tables. The textbook was written for a different database.</p>
+  </div>
+  <div class="section">
+    <div class="section-title">Why 3NF was designed for a different world</div>
+    <div class="concept-box">Third Normal Form (3NF) was designed for <strong>OLTP row-store databases</strong> (MySQL, PostgreSQL) in the 1970s. Its goals: minimise storage redundancy, maximise write consistency, avoid update anomalies. It achieves this by breaking data into many small, normalised tables with foreign key relationships.<br><br>Databricks stores data as <strong>columnar Parquet files</strong>, not row stores. Columnar storage already eliminates redundancy at the physical level (column encoding + compression). Joining 8 normalised tables = 7 shuffle stages = expensive at petabyte scale. The 3NF trade-off — storage vs compute — flips completely in a lakehouse.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">The lakehouse architecture pattern</div>
+    <div class="compare-grid">
+      <div class="compare-col col-a"><div class="col-title">Bronze (Raw)</div><ul><li>Exact copy of source data, no transformation</li><li>Schema-on-read, often JSON or Parquet</li><li>Append-only — never overwrite</li><li>Partitioned by ingestion_date for cheap time-travel</li><li>Audit trail for compliance and debugging</li></ul></div>
+      <div class="compare-col col-b"><div class="col-title">Silver (Curated)</div><ul><li>Cleaned, typed, deduplicated</li><li>Can be 3NF here for governance — normalised relationships</li><li>Schema enforcement enforced</li><li>Where data quality checks live</li><li>Single source of truth for domain entities</li></ul></div>
+    </div>
+    <div class="concept-box" style="margin-top:12px"><strong>Gold (Aggregated / Serving):</strong> Wide, denormalised tables pre-joined for specific analytical use cases. A Gold table for the "Sales Dashboard" might join customer, order, product, and campaign tables into one wide fact table — so dashboard queries read a single table with a single predicate pushdown rather than joining 4 tables with 3 shuffles. Storage is cheap; the join computation is not.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">SCD Type 2 with Delta MERGE</div>
+    <div class="concept-box">Slowly Changing Dimensions Type 2 (track historical values with effective dates) is implemented in Delta using MERGE:<br><br><strong>Pass 1:</strong> UPDATE existing rows where the key matches and the value has changed — set <code>is_current = false</code>, <code>effective_to = current_timestamp()</code>.<br><strong>Pass 2:</strong> INSERT new rows for changed or new keys — set <code>is_current = true</code>, <code>effective_from = current_timestamp()</code>, <code>effective_to = NULL</code>.<br><br>At 500M rows, use <strong>hash comparison</strong> in the WHEN MATCHED clause: <code>WHEN MATCHED AND source.row_hash != target.row_hash THEN UPDATE</code>. This skips unchanged rows without column-by-column comparison.</div>
+  </div>
+  <div class="quiz-section">
+    <h3>Knowledge check</h3>
+    <div class="quiz-card"><div class="quiz-question" onclick="toggleQ(this)">Why is a wide denormalised Gold table faster than a normalised Silver table for dashboard queries? <span class="quiz-chevron">⌄</span></div><div class="quiz-answer">Three reasons:<br><br>1. <strong>No shuffles:</strong> Joining 4 tables requires 3 shuffle stages in Spark. A single wide table is a single scan — zero shuffles. At PB scale, shuffle is the dominant cost.<br><br>2. <strong>Better predicate pushdown:</strong> A single-table scan can push predicates directly to Parquet file min/max stats. Multi-table joins must evaluate predicates after the join, forcing full scans of all tables.<br><br>3. <strong>Better column encoding:</strong> Wide tables allow Parquet to apply per-column compression across all rows. Columnar compression is most effective on columns with low cardinality (status, region) — which appear repeatedly in a denormalised wide table.</div></div>
+  </div>
+  <div class="lesson-nav">
+    <button class="nav-btn" onclick="gotoLesson(7)">← Debugging</button>
+    <button class="mark-done-btn" id="done-8" onclick="markDone(8)">Mark as done ✓</button>
+    <button class="nav-btn primary" onclick="gotoLesson(9)">Next: Interview Strategy →</button>
+  </div>
+</div>
+
+<!-- LESSON 9 · INTERVIEW STRATEGY -->
+<div class="lesson-pane" id="lesson-9">
+  <div class="lesson-header">
+    <div class="lesson-eyebrow"><span class="lesson-num">Lesson 10 / 10</span><span class="chip chip-amber">Career</span><span class="chip chip-red">Strategy</span></div>
+    <h1>Interview Strategy: From Correct to $200k</h1>
+    <p class="subtitle">Why two engineers with correct answers get different salary bands — and the signals that put you in the top tier.</p>
+  </div>
+  <div class="section">
+    <div class="section-title">Why two correct answers get different offers</div>
+    <div class="concept-box">The newsletter's core observation from 200+ interviews: being technically correct is table stakes at the senior level. Everyone interviewing for a $180-220k role can answer "what is Liquid Clustering." The differentiation happens in the follow-up questions:<br><br><strong>Mid-level answer:</strong> Picks a technology and explains it correctly.<br><strong>Senior answer:</strong> Asks clarifying questions about the use case, explains the decision framework, describes the trade-offs and costs, mentions what could go wrong.<br><br>The 3-round interview breakdown shows that Round 1 (technical screen) is passed equally by both. Round 2 (system design) and Round 3 (hiring manager) are where the gap opens — because system design and hiring manager rounds test <em>thinking patterns</em>, not knowledge recall.</div>
+  </div>
+  <div class="section">
+    <div class="section-title">3 signals that separate $180k from $220k</div>
+    <div class="ladder">
+      <div class="ladder-item"><span class="ladder-level" style="background:var(--amber-dim);color:var(--amber)">Signal 1</span><div class="ladder-text"><strong>Diagnostic before prescription.</strong> When asked "how would you fix this slow pipeline?", the senior engineer says "First, tell me what the Spark UI shows in the stages tab" rather than immediately listing fixes. The interviewer hears: this person won't make changes blindly.</div></div>
+      <div class="ladder-item"><span class="ladder-level" style="background:var(--amber-dim);color:var(--amber)">Signal 2</span><div class="ladder-text"><strong>Trade-offs and costs, unprompted.</strong> After giving a technical answer, the senior engineer adds: "The trade-off here is... and this would cost approximately... and I'd validate the decision by...". The interviewer hears: this person thinks about consequences, not just solutions.</div></div>
+      <div class="ladder-item"><span class="ladder-level" style="background:var(--amber-dim);color:var(--amber)">Signal 3</span><div class="ladder-text"><strong>Proactive questions that reveal production thinking.</strong> "What's the SLA on this pipeline?" "Who are the downstream consumers?" "What does the data volume look like over a month?" The interviewer hears: this person has built systems in production and knows what breaks them.</div></div>
+    </div>
+  </div>
+  <div class="section">
+    <div class="section-title">10 questions to ask the interviewer</div>
+    <table class="kv-table">
+      <tr><th>#</th><th>Question</th><th>What it signals</th></tr>
+      <tr><td>1</td><td>"What does the current pipeline monitoring look like?"</td><td>You think proactively about observability</td></tr>
+      <tr><td>2</td><td>"How do teams currently handle schema changes from upstream sources?"</td><td>You've dealt with schema drift at scale</td></tr>
+      <tr><td>3</td><td>"What's the data quality story — any silent failures in the last 6 months?"</td><td>You know the most dangerous failures are silent</td></tr>
+      <tr><td>4</td><td>"How are compute costs attributed to teams today?"</td><td>You think about platform economics</td></tr>
+      <tr><td>5</td><td>"What's the on-call rotation like for the data platform?"</td><td>You understand operational reality</td></tr>
+      <tr><td>6</td><td>"What's the biggest technical debt in the current pipeline architecture?"</td><td>You ask the uncomfortable question interviewers remember</td></tr>
+      <tr><td>7</td><td>"How does the team validate correctness of Gold layer tables?"</td><td>You think end-to-end, not just about writes</td></tr>
+      <tr><td>8</td><td>"What does a senior → principal progression look like on this team?"</td><td>You're thinking long-term, not just getting an offer</td></tr>
+      <tr><td>9</td><td>"How much autonomy does the team have over architectural decisions?"</td><td>You know the difference between IC and execution work</td></tr>
+      <tr><td>10</td><td>"What's the most important thing I could accomplish in the first 90 days?"</td><td>You're already thinking about impact, not onboarding</td></tr>
+    </table>
+  </div>
+  <div class="quiz-section">
+    <h3>Knowledge check</h3>
+    <div class="quiz-card"><div class="quiz-question" onclick="toggleQ(this)">An interviewer asks: "Should we use Liquid Clustering or partitioning for our new 3 TB table?" What's the senior response? <span class="quiz-chevron">⌄</span></div><div class="quiz-answer">The senior response starts with questions, not an answer:<br><br>"It depends on your query patterns. Can you tell me — what column do analysts most commonly filter on? How many distinct values does it have? Do you expect the access patterns to change as the product evolves? And what's the current query latency SLA?"<br><br>After hearing the answers: "Given that you filter primarily by customer_id (5M distinct values) and expect to add new filter dimensions as the product grows, I'd recommend Liquid Clustering by (customer_id, date). The high cardinality and evolving patterns are exactly where LC outperforms static partitioning. The trade-off is that existing data isn't immediately re-clustered — you'd run OPTIMIZE on a schedule. For a new 3 TB table, there's no migration cost."<br><br>The structure: clarify → framework → recommendation → trade-offs → validation. That's the $220k answer pattern.</div></div>
+  </div>
+  <div class="lesson-nav">
+    <button class="nav-btn" onclick="gotoLesson(8)">← Data Modelling</button>
+    <button class="mark-done-btn" id="done-9" onclick="markDone(9)">Mark as done ✓</button>
+    <button class="nav-btn primary" onclick="gotoLesson(0)" style="background:var(--green);border-color:var(--green)">🎉 Start over</button>
+  </div>
+</div>
+
+  </main>
+</div><!-- end view-learn -->
+
+<!-- ══════════════════════════════════════════
+     INTERVIEW PREP VIEW
+══════════════════════════════════════════ -->
+<div class="view" id="view-prep">
+  <div class="prep-shell">
+
+    <div class="prep-header">
+      <div class="eyebrow">Interview prep · Databricks</div>
+      <h1>Databricks Senior Data Engineer</h1>
+      <p>Synthesised from 25 newsletter issues · 3 difficulty tiers · 25 questions</p>
+    </div>
+
+    <nav class="tab-bar">
+      <button class="tab-btn active" onclick="showPane('study')">Study notes</button>
+      <button class="tab-btn" onclick="showPane('questions')">Question bank</button>
+      <button class="tab-btn" onclick="showPane('cheatsheet')">Cheat sheet</button>
+      <button class="tab-btn" onclick="showPane('tracker')">Progress tracker</button>
+    </nav>
+
+    <!-- STUDY NOTES -->
+    <div id="pane-study" class="pane active">
+      <div class="card-grid">
+        <div class="note-card"><div class="card-label">Storage optimisation</div><h3>Liquid Clustering vs Partitioning + Z-ORDER</h3><ul><li>Partitioning wins with stable, low-cardinality filter columns (&lt;1,000 distinct values)</li><li>Liquid Clustering wins when filter columns change, or cardinality is high (5M+ distinct values)</li><li>Mutually exclusive — cannot add CLUSTER BY to a table with partition columns</li><li>Migrating a 2 TB table = full rewrite: compute cost + downtime + downstream schema changes</li><li>Z-ORDER also mutually exclusive with CLUSTER BY — both use Hilbert space-filling curves</li><li>LC adds a tree-based balancer on top: handles skew and cardinality automatically</li><li>New tables → default LC. Existing stable partitioned tables → leave them</li></ul></div>
+        <div class="note-card"><div class="card-label">Spark internals</div><h3>SQL → Tasks: Catalyst + Tungsten pipeline</h3><ul><li>Parse → Analysis → Logical optimisation → Physical planning → Code gen → Tasks</li><li>Catalyst: constant folding, predicate pushdown, column pruning, join reordering</li><li>AQE: runtime partition coalescing, skew join splitting, join strategy switching</li><li>Tungsten: whole-stage code gen compiles plan to JVM bytecode — eliminates virtual dispatch</li><li>Partition pruning (directory-level) vs data skipping (file/row-level min/max stats)</li><li>Listing optimisation techniques = mid-level. Diagnostic framework first = senior</li></ul></div>
+        <div class="note-card"><div class="card-label">Delta Lake</div><h3>Schema evolution &amp; ACID guarantees</h3><ul><li>Default: strict enforcement — fails on any schema drift</li><li>mergeSchema=true: allows column additions only (not renames or drops)</li><li>Renames and type changes require explicit DDL: ALTER TABLE … RENAME COLUMN</li><li>Senior answer: discuss backward/forward compatibility impact on downstream consumers</li><li>ACID via optimistic concurrency + write-ahead log (_delta_log)</li><li>Time travel via versioned Parquet files — VACUUM controls retention (default 7 days)</li></ul></div>
+        <div class="note-card"><div class="card-label">Data quality</div><h3>6 essential pipeline checks</h3><ul><li>Null rate on critical columns</li><li>Uniqueness / deduplication</li><li>Referential integrity (FK lookup against dimension tables)</li><li>Range bounds plausibility (min/max sanity)</li><li>Schema conformance (types, nullability)</li><li>Row-count delta between runs — simplest freshness/completeness proxy</li><li>Silent failures (wrong data, no alert) are more dangerous than job failures</li></ul></div>
+        <div class="note-card"><div class="card-label">Streaming</div><h3>Structured Streaming &amp; watermarks</h3><ul><li>withWatermark() defines late-data tolerance; state is dropped beyond the threshold</li><li>dropDuplicatesWithinWatermark (Spark 3.5+): dedup within watermark window</li><li>Stream-static join: broadcast static Delta table into executor memory</li><li>Tumbling: non-overlapping fixed intervals. Session: gap-based grouping</li><li>Trigger.AvailableNow for catch-up batches; Trigger.Continuous for sub-second latency</li><li>Watermark too tight = missed late events; too loose = unbounded state memory</li></ul></div>
+        <div class="note-card"><div class="card-label">Compute &amp; cost</div><h3>Cluster type selection</h3><ul><li>All-Purpose: interactive notebooks — always-on, ~3× the DBU cost of Jobs clusters</li><li>Jobs clusters: ephemeral, spin up per run — use for all scheduled ETL</li><li>SQL Warehouses: BI/SQL, auto-suspend, per-query billing</li><li>Serverless: fastest cold start, no cluster management, premium price</li><li>Biggest waste: scheduled jobs running on All-Purpose clusters</li><li>Tag clusters by team/pipeline for cost attribution in system.billing.usage</li></ul></div>
+        <div class="note-card"><div class="card-label">Modelling</div><h3>Why not 3NF in Databricks</h3><ul><li>3NF minimises storage for OLTP row stores — wrong trade-off for columnar Parquet</li><li>Joins across 8+ normalised tables = multiple shuffle stages = expensive at PB scale</li><li>Lakehouse: bronze (raw) → silver (cleansed, 3NF for governance) → gold (wide, denormalised)</li><li>Wide star schema reduces join count; storage is cheap, CPU is not</li><li>Predicate pushdown is most effective on wide tables with few joins</li></ul></div>
+        <div class="note-card"><div class="card-label">Debugging</div><h3>Maturity ladder: junior → principal</h3><ul><li>Junior: trial and error — tweaks random configs</li><li>Mid: analysis paralysis — reads every doc, can't prioritise the bottleneck</li><li>Senior: diagnostic first — reads Spark UI, identifies the one bottleneck that matters</li><li>Principal: proactive — instruments pipelines before they fail; owns the SLA</li><li>Key signal: can you explain WHY a pipeline is slow before touching any config?</li></ul></div>
+      </div>
+      <div class="dtree">
+        <h3>Decision tree — Liquid Clustering vs Partitioning (for 2TB+ tables)</h3>
+        <div class="dt-row"><span class="dt-pill pill-q">Q1</span><span class="dt-text">Are filter columns <strong>stable</strong> and <strong>low-cardinality</strong> (&lt;1,000 distinct values)? Do all queries filter on the same column?</span></div>
+        <div class="dt-row"><span class="dt-pill pill-y">YES</span><span class="dt-text">→ Keep <strong>partitioning</strong>. Add Z-ORDER for a secondary filter within partitions. Migration cost exceeds gain for stable tables.</span></div>
+        <div class="dt-row"><span class="dt-pill pill-n">NO</span><span class="dt-text">→ Proceed to Q2.</span></div>
+        <div class="dt-row"><span class="dt-pill pill-q">Q2</span><span class="dt-text">Do filter columns change over time, or is cardinality high (&gt;100k distinct values)?</span></div>
+        <div class="dt-row"><span class="dt-pill pill-y">YES</span><span class="dt-text">→ Use <strong>Liquid Clustering</strong>. CLUSTER BY the columns analysts actually query. Re-key in future with ALTER TABLE — no full rewrite needed.</span></div>
+        <div class="dt-row"><span class="dt-pill pill-n">NO</span><span class="dt-text">→ Do downstream consumers depend on the physical file path layout (e.g. Hive-partitioned readers)? If yes, keep partitioning. Otherwise evaluate LC.</span></div>
+      </div>
+    </div>
+
+    <!-- QUESTION BANK -->
+    <div id="pane-questions" class="pane">
+      <div class="q-filter-bar">
+        <span class="label">Difficulty:</span>
+        <button class="filter-btn active-all" id="df-all" onclick="filterDiff('all')">All</button>
+        <button class="filter-btn" id="df-intermediate" onclick="filterDiff('intermediate')">🟡 Intermediate</button>
+        <button class="filter-btn" id="df-hard" onclick="filterDiff('hard')">🟠 Hard</button>
+        <button class="filter-btn" id="df-brutal" onclick="filterDiff('brutal')">🔴 Brutal</button>
+      </div>
+      <div class="topic-filters" id="topic-filters"></div>
+      <div class="q-count" id="q-count"></div>
+      <div class="q-list" id="q-list"></div>
+    </div>
+
+    <!-- CHEAT SHEET -->
+    <div id="pane-cheatsheet" class="pane">
+      <div class="cs-grid">
+        <div class="cs-card"><h3>Liquid Clustering</h3><div class="cs-row"><span class="cs-key">Algorithm</span><span class="cs-val">Hilbert curve + tree balancer</span></div><div class="cs-row"><span class="cs-key">Re-key cost</span><span class="cs-val good">ALTER TABLE → future writes only</span></div><div class="cs-row"><span class="cs-key">Combine with Z-ORDER</span><span class="cs-val bad">Mutually exclusive</span></div><div class="cs-row"><span class="cs-key">Combine with partitions</span><span class="cs-val bad">Mutually exclusive</span></div><div class="cs-row"><span class="cs-key">Best for</span><span class="cs-val">High cardinality, evolving patterns</span></div><div class="cs-row"><span class="cs-key">Avoid when</span><span class="cs-val warn">Stable low-cardinality access</span></div></div>
+        <div class="cs-card"><h3>Compute selection</h3><div class="cs-row"><span class="cs-key">Interactive notebooks</span><span class="cs-val">All-Purpose cluster</span></div><div class="cs-row"><span class="cs-key">Scheduled ETL</span><span class="cs-val good">Jobs cluster (~3× cheaper)</span></div><div class="cs-row"><span class="cs-key">BI / SQL dashboards</span><span class="cs-val">SQL Warehouse</span></div><div class="cs-row"><span class="cs-key">No cluster mgmt</span><span class="cs-val">Serverless (premium DBU)</span></div><div class="cs-row"><span class="cs-key">Biggest waste</span><span class="cs-val bad">Scheduled jobs on All-Purpose</span></div><div class="cs-row"><span class="cs-key">Cost attribution</span><span class="cs-val">system.billing.usage table</span></div></div>
+        <div class="cs-card"><h3>Schema evolution (Delta)</h3><div class="cs-row"><span class="cs-key">Default mode</span><span class="cs-val bad">Strict enforcement</span></div><div class="cs-row"><span class="cs-key">Add columns</span><span class="cs-val good">mergeSchema=true</span></div><div class="cs-row"><span class="cs-key">Rename column</span><span class="cs-val warn">Explicit DDL required</span></div><div class="cs-row"><span class="cs-key">Drop column</span><span class="cs-val warn">Not automatic — DDL required</span></div><div class="cs-row"><span class="cs-key">Time travel</span><span class="cs-val">Via _delta_log version files</span></div><div class="cs-row"><span class="cs-key">VACUUM default</span><span class="cs-val">7-day retention</span></div></div>
+        <div class="cs-card"><h3>Structured streaming</h3><div class="cs-row"><span class="cs-key">Watermark purpose</span><span class="cs-val">Late data tolerance</span></div><div class="cs-row"><span class="cs-key">Dedup (Spark 3.5+)</span><span class="cs-val">dropDuplicatesWithinWatermark</span></div><div class="cs-row"><span class="cs-key">State cleared</span><span class="cs-val">Event time &gt; watermark threshold</span></div><div class="cs-row"><span class="cs-key">Tumbling window</span><span class="cs-val">Non-overlapping fixed intervals</span></div><div class="cs-row"><span class="cs-key">Session window</span><span class="cs-val">Gap-based grouping</span></div><div class="cs-row"><span class="cs-key">Catch-up batches</span><span class="cs-val">Trigger.AvailableNow</span></div></div>
+        <div class="cs-card"><h3>6 data quality checks</h3><div class="cs-row"><span class="cs-key">1</span><span class="cs-val">Null rate on critical columns</span></div><div class="cs-row"><span class="cs-key">2</span><span class="cs-val">Uniqueness / deduplication</span></div><div class="cs-row"><span class="cs-key">3</span><span class="cs-val">Referential integrity (FK check)</span></div><div class="cs-row"><span class="cs-key">4</span><span class="cs-val">Range bounds plausibility</span></div><div class="cs-row"><span class="cs-key">5</span><span class="cs-val">Schema conformance</span></div><div class="cs-row"><span class="cs-key">6</span><span class="cs-val bad">Row-count delta between runs</span></div></div>
+        <div class="cs-card"><h3>Senior vs mid-level signals</h3><div class="cs-row"><span class="cs-key">Mid</span><span class="cs-val warn">Lists optimisation techniques</span></div><div class="cs-row"><span class="cs-key">Senior</span><span class="cs-val good">Diagnostic framework first</span></div><div class="cs-row"><span class="cs-key">Mid</span><span class="cs-val warn">Picks tech without asking why</span></div><div class="cs-row"><span class="cs-key">Senior</span><span class="cs-val good">Asks about query patterns first</span></div><div class="cs-row"><span class="cs-key">Mid</span><span class="cs-val warn">Correct answer</span></div><div class="cs-row"><span class="cs-key">Senior</span><span class="cs-val good">Answer + trade-off + cost</span></div><div class="cs-row"><span class="cs-key">Principal</span><span class="cs-val good">Instruments before failure</span></div></div>
+        <div class="cs-card"><h3>AQE key settings</h3><div class="cs-row"><span class="cs-key">Enable AQE</span><span class="cs-val">spark.sql.adaptive.enabled=true</span></div><div class="cs-row"><span class="cs-key">Skew join</span><span class="cs-val">adaptive.skewJoin.enabled=true</span></div><div class="cs-row"><span class="cs-key">Skew factor</span><span class="cs-val">skewedPartitionFactor (default 5×)</span></div><div class="cs-row"><span class="cs-key">Coalesce partitions</span><span class="cs-val">coalescePartitions.enabled=true</span></div><div class="cs-row"><span class="cs-key">Broadcast threshold</span><span class="cs-val">autoBroadcastJoinThreshold=10MB</span></div></div>
+        <div class="cs-card"><h3>Unity Catalog hierarchy</h3><div class="cs-row"><span class="cs-key">Level 1</span><span class="cs-val">Metastore (per cloud region)</span></div><div class="cs-row"><span class="cs-key">Level 2</span><span class="cs-val">Catalog (per tenant / environment)</span></div><div class="cs-row"><span class="cs-key">Level 3</span><span class="cs-val">Schema (per domain)</span></div><div class="cs-row"><span class="cs-key">Level 4</span><span class="cs-val">Table / View / Volume</span></div><div class="cs-row"><span class="cs-key">Access control</span><span class="cs-val">GRANT on any level — inherits down</span></div><div class="cs-row"><span class="cs-key">Data lineage</span><span class="cs-val">Automatic via system.lineage tables</span></div></div>
+      </div>
+    </div>
+
+    <!-- PROGRESS TRACKER -->
+    <div id="pane-tracker" class="pane">
+      <div class="progress-section">
+        <div class="overall-bar"><div class="overall-fill" id="overall-fill" style="width:0%"></div></div>
+        <div class="overall-label" id="overall-label">0 of 25 questions reviewed</div>
+        <h3>Click a topic to jump to its questions</h3>
+        <div class="progress-grid" id="prog-grid"></div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- end view-prep -->
+
+<script>
+// ═══════════════════════════════════════
+// MODE SWITCHER
+// ═══════════════════════════════════════
+function switchMode(mode) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('view-' + mode).classList.add('active');
+  document.getElementById('mode-' + mode).classList.add('active');
+  if (mode === 'prep') {
+    renderTopicFilters();
+    renderQuestions();
+  }
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════
+// LEARN VIEW — LESSON NAVIGATION
+// ═══════════════════════════════════════
+const TOTAL_LESSONS = 10;
+const lessonDone = new Set(JSON.parse(localStorage.getItem('db_teach_done') || '[]'));
+let currentLesson = 0;
+
+function saveLesson() { localStorage.setItem('db_teach_done', JSON.stringify([...lessonDone])); }
+
+function updateProgress() {
+  const pct = Math.round((lessonDone.size / TOTAL_LESSONS) * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-text').textContent = lessonDone.size;
+  for (let i = 0; i < TOTAL_LESSONS; i++) {
+    const nav = document.getElementById('nav-' + i);
+    if (nav) nav.classList.toggle('done', lessonDone.has(i));
+    const btn = document.getElementById('done-' + i);
+    if (btn) { btn.textContent = lessonDone.has(i) ? '✓ Done!' : 'Mark as done ✓'; btn.classList.toggle('marked', lessonDone.has(i)); }
+  }
+}
+
+function gotoLesson(n) {
+  document.querySelectorAll('.lesson-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+  document.getElementById('lesson-' + n).classList.add('active');
+  const nav = document.getElementById('nav-' + n);
+  if (nav) nav.classList.add('active');
+  currentLesson = n;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function markDone(n) {
+  if (lessonDone.has(n)) lessonDone.delete(n); else lessonDone.add(n);
+  saveLesson(); updateProgress();
+}
+
+function toggleQ(header) {
+  const card = header.closest('.quiz-card');
+  const ans = card.querySelector('.quiz-answer');
+  const chev = card.querySelector('.quiz-chevron');
+  const open = ans.classList.contains('open');
+  ans.classList.toggle('open', !open);
+  chev.classList.toggle('open', !open);
+}
+
+updateProgress();
+
+// ═══════════════════════════════════════
+// INTERVIEW PREP — QUESTIONS DATA
+// ═══════════════════════════════════════
+const questions = [
+  /* ── INTERMEDIATE ──────────────────────────── */
+  {level:"intermediate",topic:"Storage",q:"Explain the difference between Liquid Clustering and Hive-style partitioning. When would you choose each for a 2 TB Delta table?",a:`<strong>Partitioning</strong> physically splits data into subdirectories (e.g. <code>/date=2024-01-01/</code>). At query time, Spark can skip entire directories when the filter matches the partition column — directory-level elimination. Best for: stable, low-cardinality columns (&lt;1,000 distinct values) where all queries filter on the same column.<br><br><strong>Liquid Clustering</strong> (GA in DBR 13.3+) uses a Hilbert space-filling curve + tree-based balancer to co-locate rows with similar key values into the same Parquet files. At query time, Delta's data skipping reads per-file min/max statistics and eliminates files — file-level elimination. Best for: high-cardinality columns (customer_id = 5M+ values) or evolving access patterns.<br><br><strong>Key trade-off:</strong> Partitioning requires a full-table rewrite to change the partition key. LC allows <code>ALTER TABLE … CLUSTER BY (new_col)</code> — only future writes use the new key, no data migration required.<br><br><strong>Decision rule:</strong> If filter column has &lt;1,000 distinct values and won't change → partition. Otherwise → LC for new tables.`,tip:"Mention the mutual exclusivity: you can't use CLUSTER BY on a partitioned table, and you can't run ZORDER on a CLUSTER BY table.",trap:"Don't say 'LC is always better' — for stable, low-cardinality columns, partitioning still gives directory-level elimination which can be faster."},
+  {level:"intermediate",topic:"Spark Internals",q:"Walk me through what happens between writing a SQL query in a Databricks notebook and tasks running on executors.",a:`<strong>Step 1 — Parse:</strong> The SQL text is parsed into an Abstract Syntax Tree (AST). Column and table references are unresolved at this stage.<br><br><strong>Step 2 — Analyse:</strong> The Analyzer resolves column names and table references against the Spark Catalog (Hive Metastore or Unity Catalog). Output: a resolved logical plan.<br><br><strong>Step 3 — Logical Optimisation (Catalyst):</strong> Rule-based optimiser applies constant folding, predicate pushdown (move WHERE filters earlier), column pruning (drop unused columns), and join reordering. Output: optimised logical plan.<br><br><strong>Step 4 — Physical Planning:</strong> Catalyst generates multiple physical plan candidates (e.g. BroadcastHashJoin vs SortMergeJoin per join). Cost model selects the best physical plan.<br><br><strong>Step 5 — Code Generation (Tungsten):</strong> Whole-stage code gen compiles the physical plan into JVM bytecode — eliminates virtual dispatch overhead. This is why Spark is fast on modern CPUs.<br><br><strong>Step 6 — AQE (runtime):</strong> After each shuffle stage completes, AQE re-optimises remaining plan using actual partition statistics: coalesces small partitions, splits skewed ones, may switch join strategy.`,tip:"Distinguish logical (Catalyst) from physical (cost model + AQE). Most candidates conflate them.",trap:"Don't skip AQE — runtime adaptation is a major part of how Databricks runtime works, and omitting it signals gap in production knowledge."},
+  {level:"intermediate",topic:"Delta Lake",q:"What is optimistic concurrency in Delta Lake, and what happens when two writers try to modify the same table simultaneously?",a:`Delta Lake uses <strong>optimistic concurrency control</strong> rather than locking. When a writer begins a transaction, it reads the current version of the table's transaction log (<code>_delta_log</code>) without acquiring any lock. It performs its write (appending Parquet files), then attempts to commit by writing a new JSON entry to the transaction log.<br><br><strong>Conflict detection:</strong> When Writer B attempts to commit, Delta checks whether Writer A's committed changes overlap with Writer B's read set. If Writer A modified files that Writer B read (e.g., both are doing MERGE on overlapping partition ranges), Writer B's transaction is rejected with a ConcurrentModificationException.<br><br><strong>Resolution:</strong> Writer B must retry — re-read the current state and re-apply its changes. Delta provides automatic retry logic for some operations (e.g., streaming foreachBatch with idempotent writes).<br><br><strong>Key insight:</strong> Non-overlapping writes (different partition ranges) can succeed concurrently — Delta only rejects truly conflicting writes.`,tip:"Mention non-overlapping partitions can succeed concurrently — that's the nuance that separates senior answers.",trap:null},
+  {level:"intermediate",topic:"Unity Catalog",q:"What problem does Unity Catalog solve that workspace-level ACLs don't, and how is its three-level namespace structured?",a:`<strong>Problem UC solves:</strong> In workspace-level Hive metastore, access control is per-workspace — a user in Workspace A has no governed access to tables in Workspace B. There's no cross-workspace lineage, no centralised audit, and no fine-grained column or row-level security.<br><br><strong>Unity Catalog provides:</strong> A single metastore across all workspaces in a region. GRANT/REVOKE at any level (catalog, schema, table, column). Row-level security via dynamic views. Automatic data lineage via system tables. Centralised audit logs.<br><br><strong>Namespace:</strong> <code>catalog.schema.table</code> — three levels. Catalog = environment or tenant. Schema = domain or team. Table = the asset. Access granted at any level inherits downward.`,tip:"Mention system.access.audit and system.lineage tables — they show familiarity with UC's observability layer.",trap:"Don't describe UC as just 'a better Hive metastore' — the governance, lineage, and cross-workspace access are the actual differentiators."},
+  {level:"intermediate",topic:"PySpark",q:"Explain the difference between a narrow and wide transformation in Spark. Why does it matter for performance?",a:`<strong>Narrow transformation:</strong> Each output partition depends on at most one input partition. No data movement across the network. Examples: <code>filter()</code>, <code>map()</code>, <code>withColumn()</code>, <code>select()</code>. These can be pipelined within the same stage — Spark executes them as a single pass over each partition.<br><br><strong>Wide transformation:</strong> Each output partition may depend on multiple input partitions. Requires a <strong>shuffle</strong> — data must be moved across the network and re-partitioned. Examples: <code>groupBy().agg()</code>, <code>join()</code>, <code>distinct()</code>, <code>repartition()</code>.<br><br><strong>Why it matters:</strong> Shuffles are the dominant cost in Spark pipelines. Each shuffle: (1) serialises data to disk, (2) transfers it across the network, (3) deserialises on the other side. A query with 5 shuffles has 5× the network and disk I/O overhead of a query with 0 shuffles. Senior engineers minimise shuffles by: using broadcast joins for small tables, pushing filters before aggregations (reduces data shuffled), and partitioning on join keys upfront.`,tip:"The 'diagnostic first' answer: before optimising shuffles, verify they're the bottleneck by looking at shuffle bytes in Spark UI.",trap:"Don't say 'avoid all shuffles' — some (like joins on large tables) are unavoidable. The goal is to reduce the volume of data shuffled, not eliminate shuffles entirely."},
+  {level:"intermediate",topic:"Schema Evolution",q:"A source system starts sending a new column your pipeline doesn't expect. Describe exactly what happens and what you should do.",a:`<strong>What happens by default:</strong> If you write the new DataFrame to a Delta table without any option set, Delta raises an <code>AnalysisException</code>: "A schema mismatch detected when writing to the Delta table." The job fails immediately — no data is written. This is intentional: Delta's default is strict schema enforcement to prevent accidental corruption.<br><br><strong>If mergeSchema=true is set:</strong> Delta will automatically add the new column to the table schema and write the data. Existing rows will have NULL for the new column.<br><br><strong>Senior answer — what you should actually do:</strong><br>1. <strong>Identify</strong> the new column and its type from the error or from a schema comparison.<br>2. <strong>Assess downstream impact</strong>: who reads this table? Do they use SELECT * (risky — now they get an extra column) or named columns (safer)? Check UC lineage.<br>3. <strong>Decide</strong>: Is this additive (new optional column) → enable mergeSchema. Is this a type change → requires explicit DDL and testing.<br>4. <strong>Enable mergeSchema</strong> on the write if column addition is safe, or add explicit DDL: <code>ALTER TABLE t ADD COLUMN new_col STRING</code>.`,tip:"Mentioning the downstream impact assessment is the senior signal — most candidates just say 'use mergeSchema'.",trap:"Don't treat mergeSchema as a permanent setting on all pipelines — it can silently add columns on schema drift that downstream consumers aren't ready for."},
+  {level:"intermediate",topic:"Streaming",q:"What is a watermark in Spark Structured Streaming, and what happens to late-arriving events that fall outside the watermark?",a:`A <strong>watermark</strong> defines how long Spark will wait for late-arriving events before closing a time window and releasing its state. Defined as: <code>df.withWatermark("event_time", "30 minutes")</code>.<br><br><strong>Mechanism:</strong> Spark tracks the maximum event_time seen so far across all partitions. The watermark = (max event_time seen) - (delay threshold). Any window whose end time is before the watermark is considered complete — its aggregation is finalised and its state is dropped.<br><br><strong>Late events outside the watermark:</strong> Silently dropped. They arrive after the window state has been released, so Spark can't include them in the aggregation. The event is discarded without an error.<br><br><strong>Trade-off calibration:</strong> Watermark too tight (e.g., 1 minute) → many late events discarded, incorrect aggregations. Watermark too loose (e.g., 24 hours) → state for all open windows must be kept in executor memory, causing potential OOM as state grows unbounded.<br><br><strong>Production practice:</strong> Profile your Kafka consumer lag + source timestamp distribution to find p99 arrival delay, then add 20-30% buffer.`,tip:"Mention the impact on exactly-once semantics: late events dropped means your aggregation may under-count — important to flag to stakeholders.",trap:"Don't say 'late events cause errors' — they're silently dropped, which is actually the more dangerous behavior (silent data loss)."},
+  {level:"intermediate",topic:"Data Quality",q:"Your pipeline runs successfully but a senior analyst notices the revenue dashboard is 30% lower than expected. No alerts fired. How do you diagnose and prevent this?",a:`<strong>This is a silent failure</strong> — the worst kind because it passed all infrastructure checks (job success, no exceptions) but produced wrong data.<br><br><strong>Immediate diagnosis:</strong><br>1. Compare row counts: current run vs previous 7 days. A 30% revenue drop likely correlates with a 30% row-count drop in the upstream fact table.<br>2. Check the pipeline job history: did any upstream stage silently reduce its output? (e.g., a Kafka partition was missed, a date filter was off by one, a JOIN became an unintended LEFT JOIN that dropped rows)<br>3. Compare sum(revenue) in the current Delta table version vs the previous version via time travel: <code>SELECT sum(revenue) FROM orders VERSION AS OF 5</code>.<br>4. Check if new null values appeared in the amount column.<br><br><strong>Prevention — add quality gates before the write:</strong><br>• Row-count delta check: fail if <code>current_count / 7day_avg &lt; 0.8</code><br>• Revenue sum check: fail if revenue total deviates &gt;15% from rolling average<br>• Null rate check on amount column: fail if null rate &gt; 0<br>• Assert referential integrity: every order_id in fact table has a matching customer_id in dimension table`,tip:"Time travel (VERSION AS OF) for forensic comparison is the senior tool — it shows you can forensically isolate exactly when the problem started.",trap:"Don't just 'add monitoring' without being specific. Interviewers want to hear concrete metrics: row-count delta, revenue sum comparison, null rate thresholds."},
+  /* ── HARD ────────────────────────────────── */
+  {level:"hard",topic:"Storage",q:"You have a Delta table with 500M rows partitioned by region (10 values). 60% of queries filter by customer_id (5M distinct values). OPTIMIZE + ZORDER BY customer_id is taking 4 hours daily. What do you do?",a:`<strong>Diagnosis:</strong> ZORDER BY customer_id on a table partitioned by region must re-sort 500M rows across all 10 partitions every day. The 4-hour OPTIMIZE is re-processing all data even when most data hasn't changed — ZORDER is not incremental.<br><br><strong>Solution: Migrate to Liquid Clustering</strong><br>Step 1: Create a new table with <code>CLUSTER BY (customer_id)</code>. Liquid Clustering is incremental — OPTIMIZE only re-clusters files that were written since the last OPTIMIZE, not the entire table.<br>Step 2: Backfill via <code>CREATE TABLE new_table CLUSTER BY (customer_id) AS SELECT * FROM old_table</code>. This is a full rewrite (one-time cost).<br>Step 3: Update downstream references to the new table.<br>Step 4: Drop the old table after validation.<br><br><strong>Expected improvement:</strong> Daily OPTIMIZE from 4 hours → minutes, because only the day's new files need re-clustering, not the full 500M rows.<br><br><strong>Trade-off:</strong> One-time migration cost + period of dual-table maintenance during cutover.`,tip:"Specifically mention that LC is incremental while ZORDER is not — this is the key technical reason LC wins at scale.",trap:"Don't suggest just increasing the OPTIMIZE cluster size — scaling compute doesn't fix the fundamental problem that ZORDER re-processes all data."},
+  {level:"hard",topic:"Spark Internals",q:"A Spark job takes 3 hours. The Spark UI shows one stage takes 2.5 hours, with 200 tasks where 2 tasks take 2 hours and 198 take 3 minutes. What's wrong and how do you fix it?",a:`<strong>This is data skew.</strong> Two tasks are processing ~50× more data than the other 198. The stage can't complete until those 2 tasks finish, making the entire job 2.5 hours regardless of the other 198 tasks completing in 3 minutes.<br><br><strong>Diagnosis:</strong> In Spark UI → Stage detail → check the task metrics. The 2 slow tasks will show much higher input size and shuffle read bytes than the others. Also check the join key distribution — 90% of rows likely share 1-2 values of the join/aggregation key.<br><br><strong>Fix 1 — AQE skew join handling (if not already enabled):</strong><br><code>spark.conf.set("spark.sql.adaptive.skewJoin.enabled", "true")</code><br><code>spark.conf.set("spark.sql.adaptive.skewJoin.skewedPartitionFactor", "3")</code> (lower from default 5 to detect skew earlier)<br><br><strong>Fix 2 — Manual salting (if AQE isn't sufficient):</strong><br>Add a random salt column (0-199) to the join key, creating 200 sub-partitions from what was 1 hot partition. Aggregate twice: first by (key, salt), then by (key) to remove the salt.<br><br><strong>Fix 3 — Isolate and broadcast the skewed keys:</strong> If only a few keys are hot (e.g., NULL or "UNKNOWN"), filter them out, handle separately, then union.`,tip:"The salting pattern with two-pass aggregation shows production experience — it's the correct answer when AQE alone doesn't resolve the skew.",trap:"Don't suggest increasing spark.sql.shuffle.partitions — that creates 200 more unbalanced tasks, not 200 balanced ones."},
+  {level:"hard",topic:"Delta Lake",q:"Describe exactly how Delta Lake achieves ACID transactions. What is the role of the _delta_log, and what happens during a concurrent write conflict?",a:`<strong>Delta's ACID mechanism:</strong><br><strong>Atomicity:</strong> Writes are committed by adding a single JSON entry to the <code>_delta_log</code> directory (e.g., <code>00000000000000000001.json</code>). The commit either succeeds (file written) or fails (no file) — there's no partial state.<br><br><strong>Consistency:</strong> Each commit includes a schema check. If the incoming data's schema doesn't match the table's schema (and mergeSchema isn't set), the commit is rejected before any files are written.<br><br><strong>Isolation:</strong> Delta uses <strong>optimistic concurrency</strong>. Writers don't lock — they read the current log version, write data files, then attempt to commit. If two writers commit simultaneously, Delta checks for conflicts in their read sets and write sets.<br><br><strong>Durability:</strong> Once the commit JSON is written to object storage (S3, ADLS, GCS), it's durable. Object storage's atomic PUT operation guarantees this.<br><br><strong>Concurrent conflict resolution:</strong> Writer B's commit checks: "Did any files I read get modified by a concurrent commit?" If yes and the modification overlaps Writer B's writes → <code>ConcurrentModificationException</code>, Writer B retries. If the modifications are to non-overlapping data → both commits succeed (e.g., two writers appending to different partitions).`,tip:"Mention non-overlapping appends succeed concurrently — this shows you understand the granularity of conflict detection.",trap:null},
+  {level:"hard",topic:"PySpark",q:"When would you use a broadcast variable over a broadcast join in PySpark, and what are the memory implications of each?",a:`<strong>Broadcast join</strong> (via <code>broadcast()</code> hint or autoBroadcastJoinThreshold): Used when joining a large DataFrame with a small one. Spark serialises the small DataFrame and ships it to every executor's memory. The join happens locally without any shuffle. Threshold default: 10 MB; can be tuned up to available executor memory.<br><br><strong>Broadcast variable</strong> (via <code>sc.broadcast()</code>): Used when you need to share a read-only Python object (dict, list, lookup table) across all tasks in a UDF or map operation — not for DataFrame joins. The object is serialised once per executor (not per task), reducing network transfer. Example: broadcasting an error code master table for UDF lookup.<br><br><strong>Memory implication difference:</strong> A broadcast join replicates an entire DataFrame's data to executor memory and is managed by Spark's memory manager. A broadcast variable replicates a serialised Python object to executor JVM memory and persists until explicitly unpersisted — it is not garbage collected automatically.`,tip:"The sc.broadcast() vs broadcast join distinction is a common senior interview differentiator.",trap:"Don't say they're equivalent — one is for DataFrame joins, the other is for UDF/map lookups."},
+  {level:"hard",topic:"Unity Catalog",q:"How would you implement column-level security and row-level security in Unity Catalog, and what are the trade-offs of each approach?",a:`<strong>Column-level security:</strong> Grant SELECT on specific columns by granting privileges on the table and then using column masks (in UC preview) or by creating a view that exposes only permitted columns. The view approach is production-stable: <code>CREATE VIEW secure_view AS SELECT col1, col2 FROM sensitive_table</code> and grant SELECT on the view, not the table. Trade-off: view proliferation; every consumer combination needs a separate view.<br><br><strong>Row-level security:</strong> Implemented via <strong>dynamic views</strong> using <code>current_user()</code> or <code>is_member()</code> in the WHERE clause: <code>WHERE region = user_region_mapping(current_user())</code>. The mapping is a separate lookup table. Trade-off: the view must be maintained as the access policy evolves; predicate pushdown may not propagate through the view to the underlying table, impacting performance.<br><br><strong>Unity Catalog native:</strong> Row filters and column masks are GA in Databricks Runtime 13+ — applied transparently at the metastore level without views. This is the preferred production approach as it centralises policy management.`,tip:"Mention Unity Catalog native row filters (DBR 13+) — it shows you track platform releases.",trap:null},
+  /* ── BRUTAL ────────────────────────────────── */
+  {level:"brutal",topic:"System Design",q:"Design a multi-tenant Databricks lakehouse for a global fintech serving 50 enterprise clients. Each requires data isolation, SLA guarantees, and the ability to query 10+ years of transaction history. Cover compute topology, storage layout, Unity Catalog structure, and cost controls.",a:`<strong>Storage:</strong> Single ADLS Gen2 / S3 account per cloud region. Per-tenant storage container (not prefix) for hard isolation — container-level IAM prevents cross-tenant access even via misconfigured queries. Unity Catalog metastore → catalog per tenant → schemas per domain (raw, curated, serving). External locations locked to tenant storage via UC storage credentials.<br><br><strong>Compute topology:</strong> Shared Jobs clusters for non-sensitive ETL (cost saving with cluster policies capping max workers). Isolated SQL Warehouses per SLA tier — Standard for internal, Pro for client-facing. Serverless for ad-hoc queries to avoid cluster management overhead. All clusters tagged with tenant_id for cost attribution via system.billing.usage.<br><br><strong>Historical query (10+ years):</strong> Partition bronze tables by ingestion_date. Use Liquid Clustering on transaction_date + account_id for gold tables (high cardinality, mixed access patterns). OPTIMIZE + VACUUM schedule to control small-file accumulation. For very cold data (&gt;3 years), use Delta's external table strategy pointing to object storage archive tier (S3 Glacier Instant Retrieval).<br><br><strong>SLA guarantees:</strong> Photon-enabled Pro SQL Warehouses with auto-scaling for client-facing queries. Query result caching enabled. Materialised Gold tables refreshed on schedule. Job retry with exponential backoff; SLA defined in timeout config.<br><br><strong>Cost controls:</strong> Cluster policies to cap max workers per team. Budget alerts per workspace in Cost Management. Spot instances for all batch ETL with on-demand fallback for drivers. VACUUM on a weekly schedule to remove obsolete Parquet files.`,tip:"Mention the container-level vs prefix isolation detail — it's the kind of security nuance hiring managers probe for.",trap:"Don't skip the cold data archiving strategy — 10+ years of data at PB scale is explicitly a cost problem."},
+  {level:"brutal",topic:"Spark Internals",q:"A SortMergeJoin on two 500 GB tables runs for 4 hours. AQE is enabled. Your colleague says 'just broadcast one table.' Explain why that's wrong and what you would actually do.",a:`<strong>Why the suggestion is wrong:</strong> AQE's autoBroadcastJoinThreshold defaults to 10 MB. If Spark hasn't broadcast either table, it's because neither fits within the threshold. Broadcasting a 500 GB table would OOM every executor immediately — executor heap is typically 4-16 GB.<br><br><strong>What's actually happening:</strong> SortMergeJoin requires a full sort of both sides across shuffle partitions. With 500 GB inputs and 200 shuffle partitions, each partition is ~2.5 GB. If data is skewed on the join key (a handful of account_ids dominate), AQE's skew join handling should split those partitions — check if <code>spark.sql.adaptive.skewJoin.enabled = true</code> and whether the skew factor threshold is calibrated (default: 5× median partition size).<br><br><strong>Actual diagnostic steps:</strong><br>1. Check partition size distribution in Spark UI — is p99 >> median? → Skew.<br>2. If skew: tune <code>skewedPartitionFactor</code> or manually salt the join key (append random suffix to large-side key, explode on small side).<br>3. If no skew but sort is slow: increase <code>spark.sql.shuffle.partitions</code> to reduce per-partition size below 128 MB.<br>4. Check if join predicate allows pushing filters down to reduce input sizes before the join.`,tip:"The key insight is diagnosing skew vs partition size — these require different fixes.",trap:"Don't suggest increasing shuffle.partitions without checking for skew first — that makes skew worse."},
+  {level:"brutal",topic:"Schema Evolution",q:"You inherit a pipeline receiving 300 different JSON event types on a single Kafka topic, each with a different schema that changes without notice. Design a schema-drift-resilient architecture guaranteeing no data loss, type-safe downstream consumption, and scalability to 1M events/second.",a:`<strong>Bronze layer (schema-agnostic ingest):</strong> Land everything as raw strings — <code>kafka_value STRING, kafka_key STRING, event_type STRING, ingested_at TIMESTAMP</code>. No schema enforcement at this layer. Partition by ingestion_date. This guarantees zero data loss regardless of schema change — the raw bytes are always preserved.<br><br><strong>Schema registry:</strong> Deploy Confluent Schema Registry (or AWS Glue Schema Registry). Producers register Avro/Protobuf schemas per event_type per version. The schema_id is embedded as a 4-byte prefix in each Kafka message. Consumers resolve the schema at read time — no hardcoded schema in pipeline code.<br><br><strong>Silver layer — metadata-driven, per-event-type tables:</strong> A framework reads the registry, auto-generates DDL for each event_type, and writes to isolated Delta tables. On backward-compatible changes (new column): trigger <code>ALTER TABLE ... ADD COLUMN</code> automatically. On breaking changes (type change, column removal): route to a quarantine Delta table and alert for manual triage.<br><br><strong>At 1M events/second:</strong> Use Structured Streaming with 10-second micro-batch intervals. Parallelise Silver writers by event_type using <code>foreachBatch</code> with a thread pool executor. Delta's concurrent write support (optimistic concurrency) prevents serialisation bottlenecks across event_type writers.<br><br><strong>Gold layer:</strong> Materialised views or scheduled notebooks flatten per-event-type Silver tables into analyst-facing wide tables. Unity Catalog lineage tracks Silver → Gold transformations automatically.`,tip:"The schema registry + bronze raw string pattern is the production-grade answer — it decouples schema discovery from ingest.",trap:"Don't try to infer schemas at ingest time — it fails silently on breaking changes and loses data."},
+  {level:"brutal",topic:"System Design",q:"An interviewer asks: 'If I gave you no existing monitoring, how would you know if our Databricks platform is running well?' Design a full observability stack from scratch.",a:`<strong>Pipeline health — data layer:</strong> Track null rate, row-count delta, and schema conformance per pipeline run. Write results to a <code>pipeline_quality_log</code> Delta table. Alert if row count drops &gt;20% from the 7-day rolling average. Use Delta Expectations or Great Expectations for declarative rule management.<br><br><strong>Compute efficiency — cost layer:</strong> Query <code>system.billing.usage</code> and <code>system.compute.clusters</code> to compute DBU cost per pipeline, team, and workspace. Alert on All-Purpose cluster idle time &gt;30 min. Track Jobs cluster spin-up latency trends to detect cold-start degradation.<br><br><strong>Job reliability:</strong> Track success rate, p50/p95/p99 job duration, and SLA breach rate from <code>system.workflow.job_run_timeline</code>. Alert on 3× rolling average breach. Page the on-call engineer for Tier-1 SLA violations.<br><br><strong>Data freshness:</strong> Monitor _delta_log commit timestamps per critical table. Alert if a table hasn't been written within its expected cadence + 20% buffer. This catches silent upstream failures before consumers notice.<br><br><strong>Query performance:</strong> Use the SQL Warehouse query history API to track p95 query latency per warehouse. Alert on sustained latency above SLA threshold.<br><br><strong>Escalation:</strong> Tier-1 (data quality) → on-call data engineer. Tier-2 (SLA breach) → engineering lead + stakeholder. Tier-3 (platform outage) → platform team + Databricks support ticket.`,tip:"Mentioning system.billing.usage and system.workflow tables shows you know Databricks system tables — a strong differentiator.",trap:"Don't just say 'set up alerts on job failures' — that only catches Tier-3 issues. Silent data quality failures are the hard part."},
+  {level:"brutal",topic:"PySpark",q:"You have a PySpark job that shuffles 2 TB across 200 executors and takes 3 hours. Profiling shows 80% of the time is in a single aggregation stage. Write a concrete plan to fix it — include actual Spark config values and code patterns.",a:`<strong>Step 1 — Diagnose skew:</strong> In Spark UI, check the stage's task duration distribution. If p99 task is &gt;5× the median, you have key skew in the aggregation.<br><br><strong>Fix skew with salting:</strong><br><code>SALT = 200<br>df_salted = df.withColumn("salt", (rand() * SALT).cast("int"))<br>       .withColumn("salted_key", concat(col("agg_key"), lit("_"), col("salt")))<br>agg1 = df_salted.groupBy("salted_key").agg(sum("value").alias("partial_sum"))<br>agg2 = agg1.withColumn("agg_key", split(col("salted_key"), "_")[0])<br>           .groupBy("agg_key").agg(sum("partial_sum"))</code><br><br><strong>Step 2 — Tune AQE skew join config:</strong><br><code>spark.conf.set("spark.sql.adaptive.skewJoin.enabled", "true")</code><br><code>spark.conf.set("spark.sql.adaptive.skewJoin.skewedPartitionFactor", "3")</code> (lower from default 5 to detect skew earlier)<br><br><strong>Step 3 — Reduce shuffle partition size:</strong><br>Current: 2 TB / 200 partitions = ~10 GB per partition (way too large). Target: ~128 MB per partition → 2 TB / 128 MB = ~16,000 partitions.<br><code>spark.conf.set("spark.sql.shuffle.partitions", "16000")</code><br><br><strong>Step 4 — Enable Photon:</strong> If running on Databricks Runtime, ensure the cluster type supports Photon — it accelerates aggregation operations 2-5×.`,tip:"The salting pattern with two-pass aggregation is the production answer to key skew — know it cold.",trap:"Don't tune shuffle.partitions without addressing skew first — you'll just create 16,000 unbalanced tasks instead of 200."},
+  {level:"brutal",topic:"Streaming",q:"Design a stateful streaming pipeline in Databricks that detects when a user's transaction velocity exceeds 10 transactions in any rolling 5-minute window, with exactly-once semantics and sub-30-second latency.",a:`<strong>Architecture:</strong><br><strong>Source:</strong> Kafka topic of transaction events (user_id, amount, event_time, transaction_id).<br><br><strong>Watermark + sliding window:</strong><br><code>df.withWatermark("event_time", "30 seconds")<br>  .groupBy(window("event_time", "5 minutes", "30 seconds"), "user_id")<br>  .agg(count("*").alias("tx_count"))<br>  .filter(col("tx_count") > 10)</code><br><br><strong>Exactly-once semantics:</strong> Use <code>foreachBatch</code> with Delta MERGE — each micro-batch writes to a staging table, then merges into the alerts table using (user_id, window_start) as the idempotency key. Kafka consumer offset committed only after successful MERGE commit. This satisfies exactly-once end-to-end.<br><br><strong>Sub-30-second latency:</strong> Set <code>trigger(processingTime='10 seconds')</code> for 10-second micro-batches. Use a Jobs cluster with Photon enabled. Pre-provision the cluster (no cold start). Use a streaming checkpoint location on ADLS/S3 (not DBFS) for durability.<br><br><strong>State management:</strong> The sliding window creates overlapping state — Spark maintains state for each window. With 30-second watermark, state is bounded. Monitor StateStore memory via Spark UI metrics to ensure it doesn't grow unbounded.`,tip:"The MERGE idempotency pattern is what actually achieves exactly-once — don't just say 'Spark handles it'.",trap:"Don't use a tumbling window when the requirement says 'rolling' — they're different and produce different results."},
+  {level:"brutal",topic:"Unity Catalog",q:"Your organisation wants to migrate 200 legacy Hive metastore tables to Unity Catalog with zero downtime and without breaking 150 downstream notebooks and dashboards. Design the migration plan.",a:`<strong>Phase 1 — Inventory and impact assessment:</strong> Use <code>SHOW TABLES IN hive_metastore.*</code> and query system.access.audit logs to identify which tables are accessed by which notebooks/jobs and at what frequency. Prioritise high-value, high-frequency tables first.<br><br><strong>Phase 2 — Upgrade to External Tables in UC:</strong> For each table, use <code>CREATE TABLE catalog.schema.table_name LIKE hive_metastore.db.table_name COPY GRANTS LOCATION 's3://...'</code> — the data stays in place, only the metadata moves. This is zero-downtime because reads/writes continue to the same files.<br><br><strong>Phase 3 — Create aliases in hive_metastore:</strong> For the 150 downstream consumers that still reference <code>hive_metastore.db.table</code>, create views in the legacy metastore that point to the UC table. This gives downstream consumers time to update their references without breaking immediately.<br><br><strong>Phase 4 — Update downstream references:</strong> Systematically update notebooks and dashboard queries to use the three-part UC name (<code>catalog.schema.table</code>). Use the Databricks search API to find references. Run in batches, validating each batch before proceeding.<br><br><strong>Phase 5 — Remove legacy aliases:</strong> After 30 days with no hive_metastore references detected in audit logs, drop the alias views and decommission the legacy metastore.<br><br><strong>Rollback:</strong> Since data was never moved (external table pattern), rollback at any phase is dropping the UC table definition — no data recovery needed.`,tip:"The external table pattern (data stays in place) is the zero-downtime key — mention it explicitly.",trap:"Don't suggest a CTAS (CREATE TABLE AS SELECT) approach — it moves data, creates downtime, and doubles storage costs."}
+];
+
+// ═══════════════════════════════════════
+// INTERVIEW PREP — LOGIC
+// ═══════════════════════════════════════
+let currentDiff = 'all';
+let currentTopic = 'all';
+const reviewedSet = new Set(JSON.parse(localStorage.getItem('db_reviewed') || '[]'));
+
+function allTopics() {
+  const t = [...new Set(questions.map(q => q.topic))].sort();
+  return ['all', ...t];
+}
+
+function renderTopicFilters() {
+  const el = document.getElementById('topic-filters');
+  if (!el) return;
+  el.innerHTML = allTopics().map(t =>
+    `<button class="topic-btn ${t === currentTopic ? 'active' : ''}" onclick="setTopic('${t}')">${t === 'all' ? 'All topics' : t}</button>`
+  ).join('');
+}
+
+function setTopic(t) { currentTopic = t; renderTopicFilters(); renderQuestions(); }
+
+function filterDiff(d) {
+  currentDiff = d;
+  document.querySelectorAll('.filter-btn').forEach(b => { b.className = 'filter-btn'; });
+  document.getElementById('df-' + d).className = 'filter-btn active-' + d;
+  renderQuestions();
+}
+
+function renderQuestions() {
+  const filtered = questions.filter(q => {
+    const dMatch = currentDiff === 'all' || q.level === currentDiff;
+    const tMatch = currentTopic === 'all' || q.topic === currentTopic;
+    return dMatch && tMatch;
+  });
+  const countEl = document.getElementById('q-count');
+  if (countEl) countEl.innerHTML = `Showing <span>${filtered.length}</span> of ${questions.length} questions`;
+  const list = document.getElementById('q-list');
+  if (!list) return;
+  list.innerHTML = filtered.map((q) => {
+    const globalIdx = questions.indexOf(q);
+    const done = reviewedSet.has(globalIdx);
+    const levelClass = {'intermediate':'badge-intermediate','hard':'badge-hard','brutal':'badge-brutal'}[q.level];
+    const levelLabel = {'intermediate':'🟡 Intermediate','hard':'🟠 Hard','brutal':'🔴 Brutal'}[q.level];
+    return `<div class="q-card ${done ? 'reviewed' : ''}">
+      <div class="q-head" onclick="toggleQPrep(${globalIdx}, this)">
+        <div class="q-meta">
+          <div class="q-badges">
+            <span class="badge ${levelClass}">${levelLabel}</span>
+            <span class="badge badge-topic">${q.topic}</span>
+            ${done ? '<span class="badge" style="background:rgba(62,207,142,.15);color:#3ecf8e">✓ reviewed</span>' : ''}
+          </div>
+          <div class="q-text">${q.q}</div>
+        </div>
+        <div class="q-chevron" id="chev-${globalIdx}">⌄</div>
+      </div>
+      <div class="q-answer" id="ans-${globalIdx}">
+        <div class="answer-block">
+          ${q.a}
+          ${q.tip ? `<div class="tip">💡 <strong>Senior signal:</strong> ${q.tip}</div>` : ''}
+          ${q.trap ? `<div class="trap">⚠ <strong>Common trap:</strong> ${q.trap}</div>` : ''}
+        </div>
+        <div style="margin-top:10px;display:flex;gap:8px;align-items:center;">
+          <button onclick="markReviewed(${globalIdx})" style="font-size:12px;padding:5px 12px;border-radius:5px;border:1px solid ${done ? 'rgba(62,207,142,0.4)' : 'rgba(255,255,255,0.1)'};background:${done ? 'rgba(62,207,142,0.1)' : 'transparent'};color:${done ? '#3ecf8e' : '#6c7280'};cursor:pointer;font-family:var(--sans);">
+            ${done ? '✓ Marked as reviewed' : 'Mark as reviewed'}
+          </button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleQPrep(idx, head) {
+  const ans = document.getElementById('ans-' + idx);
+  const chev = document.getElementById('chev-' + idx);
+  const open = ans.classList.contains('open');
+  ans.classList.toggle('open', !open);
+  chev.style.transform = open ? '' : 'rotate(180deg)';
+}
+
+function markReviewed(idx) {
+  if (reviewedSet.has(idx)) reviewedSet.delete(idx); else reviewedSet.add(idx);
+  localStorage.setItem('db_reviewed', JSON.stringify([...reviewedSet]));
+  renderQuestions();
+  renderTracker();
+}
+
+function renderTracker() {
+  const pct = Math.round((reviewedSet.size / questions.length) * 100);
+  const fillEl = document.getElementById('overall-fill');
+  const labelEl = document.getElementById('overall-label');
+  if (fillEl) fillEl.style.width = pct + '%';
+  if (labelEl) labelEl.innerHTML = `<span>${reviewedSet.size}</span> of ${questions.length} questions reviewed — ${pct}% complete`;
+
+  const byTopic = {};
+  questions.forEach((q, i) => {
+    if (!byTopic[q.topic]) byTopic[q.topic] = { total: 0, done: 0 };
+    byTopic[q.topic].total++;
+    if (reviewedSet.has(i)) byTopic[q.topic].done++;
+  });
+
+  const grid = document.getElementById('prog-grid');
+  if (grid) grid.innerHTML = Object.entries(byTopic).sort(([a],[b])=>a.localeCompare(b)).map(([topic, {total, done}]) =>
+    `<div class="prog-card ${done === total ? 'done' : ''}" onclick="switchMode('prep');showPane('questions');setTopic('${topic}')">
+      <div class="prog-num">${done}/${total}</div>
+      <div class="prog-label">${topic}</div>
+    </div>`
+  ).join('');
+}
+
+function showPane(name) {
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('pane-' + name).classList.add('active');
+  const names = ['study','questions','cheatsheet','tracker'];
+  document.querySelectorAll('.tab-btn')[names.indexOf(name)].classList.add('active');
+  if (name === 'tracker') renderTracker();
+}
+
+// init prep view
+renderTopicFilters();
+renderQuestions();
+</script>
+</body>
+</html>

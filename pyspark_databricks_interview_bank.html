@@ -1,0 +1,1990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PySpark & Databricks Interview Bank</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Inter:wght@300;400;500;600;700&display=swap');
+
+  :root {
+    --bg:        #0d1117;
+    --surface:   #161b22;
+    --card:      #1c2330;
+    --border:    #2d3748;
+    --accent:    #e36d28;
+    --accent2:   #3b82f6;
+    --accent3:   #10b981;
+    --accent4:   #8b5cf6;
+    --accent5:   #f59e0b;
+    --text:      #e6edf3;
+    --muted:     #8b949e;
+    --code-bg:   #0d1117;
+    --tag-sql:   rgba(59,130,246,0.15);
+    --tag-win:   rgba(139,92,246,0.15);
+    --tag-agg:   rgba(16,185,129,0.15);
+    --tag-join:  rgba(245,158,11,0.15);
+    --tag-adv:   rgba(227,109,40,0.15);
+    --tag-db:    rgba(239,68,68,0.15);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ─── HEADER ─── */
+  .header {
+    background: linear-gradient(135deg, #1a0a00 0%, #0d1117 50%, #0a0d1a 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 32px 40px 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .header::before {
+    content: '';
+    position: absolute;
+    top: -60px; right: -60px;
+    width: 300px; height: 300px;
+    background: radial-gradient(circle, rgba(227,109,40,0.12) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .header-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .header-title {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+    line-height: 1.2;
+  }
+  .header-title span { color: var(--accent); }
+  .header-sub {
+    color: var(--muted);
+    font-size: 13px;
+    margin-top: 6px;
+    font-weight: 400;
+  }
+  .header-stats {
+    display: flex;
+    gap: 20px;
+    flex-shrink: 0;
+  }
+  .stat-pill {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 8px 16px;
+    text-align: center;
+  }
+  .stat-pill .num { font-size: 22px; font-weight: 700; color: var(--accent); font-family: 'JetBrains Mono', monospace; }
+  .stat-pill .lbl { font-size: 10px; color: var(--muted); text-transform: uppercase; letter-spacing: 0.8px; }
+
+  /* ─── TABS ─── */
+  .tabs {
+    display: flex;
+    gap: 2px;
+    margin-top: 24px;
+    overflow-x: auto;
+    padding-bottom: 0;
+  }
+  .tab-btn {
+    background: none;
+    border: none;
+    border-bottom: 3px solid transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    padding: 10px 18px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .tab-btn:hover { color: var(--text); }
+  .tab-btn.active {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+  }
+  .tab-icon { font-size: 14px; }
+
+  /* ─── MAIN ─── */
+  .main { padding: 28px 40px; max-width: 1200px; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ─── SEARCH / FILTER BAR ─── */
+  .toolbar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+  .search-box {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    padding: 8px 14px 8px 36px;
+    width: 260px;
+    outline: none;
+    position: relative;
+    transition: border-color 0.2s;
+  }
+  .search-box:focus { border-color: var(--accent); }
+  .search-wrap { position: relative; }
+  .search-wrap::before {
+    content: '⌕';
+    position: absolute;
+    left: 10px; top: 50%;
+    transform: translateY(-50%);
+    color: var(--muted);
+    font-size: 16px;
+    pointer-events: none;
+  }
+  .filter-btn {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 12px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    padding: 7px 14px;
+    transition: all 0.2s;
+  }
+  .filter-btn:hover, .filter-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(227,109,40,0.08);
+  }
+  .count-badge {
+    margin-left: auto;
+    font-size: 12px;
+    color: var(--muted);
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* ─── QUESTION CARDS ─── */
+  .q-list { display: flex; flex-direction: column; gap: 14px; }
+
+  .q-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+    transition: border-color 0.2s;
+  }
+  .q-card:hover { border-color: #3d4a5c; }
+
+  .q-header {
+    align-items: flex-start;
+    cursor: pointer;
+    display: flex;
+    gap: 14px;
+    padding: 16px 20px;
+    user-select: none;
+  }
+  .q-num {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    flex-shrink: 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    min-width: 32px;
+    padding: 4px 6px;
+    text-align: center;
+  }
+  .q-meta { flex: 1; }
+  .q-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    line-height: 1.4;
+  }
+  .q-tags { display: flex; gap: 6px; margin-top: 6px; flex-wrap: wrap; }
+  .tag {
+    border-radius: 4px;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    padding: 2px 8px;
+    text-transform: uppercase;
+  }
+  .tag-window  { background: var(--tag-win);  color: #a78bfa; border: 1px solid rgba(139,92,246,0.3); }
+  .tag-agg     { background: var(--tag-agg);  color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
+  .tag-join    { background: var(--tag-join); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+  .tag-string  { background: var(--tag-sql);  color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+  .tag-date    { background: var(--tag-sql);  color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+  .tag-basics  { background: rgba(156,163,175,0.12); color: #9ca3af; border: 1px solid rgba(156,163,175,0.2); }
+  .tag-advanced{ background: var(--tag-adv);  color: #fb923c; border: 1px solid rgba(227,109,40,0.3); }
+  .tag-databricks{ background: var(--tag-db); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+  .tag-perf    { background: rgba(236,72,153,0.12); color: #f472b6; border: 1px solid rgba(236,72,153,0.3); }
+  .tag-hard    { background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); }
+  .tag-medium  { background: rgba(245,158,11,0.12); color: #fbbf24; border: 1px solid rgba(245,158,11,0.2); }
+  .tag-easy    { background: rgba(16,185,129,0.10); color: #34d399; border: 1px solid rgba(16,185,129,0.2); }
+
+  .q-chevron {
+    color: var(--muted);
+    flex-shrink: 0;
+    font-size: 16px;
+    margin-top: 2px;
+    transition: transform 0.25s;
+  }
+  .q-card.open .q-chevron { transform: rotate(180deg); }
+
+  .q-body {
+    border-top: 1px solid var(--border);
+    display: none;
+    padding: 20px;
+  }
+  .q-card.open .q-body { display: block; }
+
+  .answer-label {
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+  .answer-text {
+    color: #c9d1d9;
+    font-size: 13.5px;
+    line-height: 1.75;
+  }
+  .answer-text p { margin-bottom: 10px; }
+  .answer-text ul { padding-left: 20px; margin-bottom: 10px; }
+  .answer-text li { margin-bottom: 4px; }
+
+  pre {
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.65;
+    margin: 14px 0;
+    overflow-x: auto;
+    padding: 16px 18px;
+    color: #e6edf3;
+  }
+
+  .kw  { color: #ff7b72; }
+  .fn  { color: #d2a8ff; }
+  .str { color: #a5d6ff; }
+  .cm  { color: #8b949e; font-style: italic; }
+  .num { color: #79c0ff; }
+  .op  { color: #ff7b72; }
+
+  .tip-box {
+    background: rgba(227,109,40,0.08);
+    border: 1px solid rgba(227,109,40,0.25);
+    border-radius: 8px;
+    margin-top: 14px;
+    padding: 12px 16px;
+  }
+  .tip-box .tip-label {
+    color: var(--accent);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+  .tip-box p { color: #c9d1d9; font-size: 13px; margin: 0; }
+
+  .output-box {
+    background: #090d12;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11.5px;
+    margin-top: 10px;
+    overflow-x: auto;
+    padding: 12px 16px;
+    color: #7ee787;
+  }
+  .output-label {
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  /* ─── CHEATSHEET ─── */
+  .cheat-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+    gap: 16px;
+  }
+  .cheat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .cheat-card-head {
+    padding: 12px 16px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .cheat-card-head .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .cheat-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+  }
+  .cheat-table td {
+    padding: 8px 16px;
+    border-bottom: 1px solid rgba(45,55,72,0.5);
+    vertical-align: top;
+  }
+  .cheat-table tr:last-child td { border-bottom: none; }
+  .cheat-table .fn-cell {
+    font-family: 'JetBrains Mono', monospace;
+    color: #d2a8ff;
+    font-size: 11.5px;
+    white-space: nowrap;
+  }
+  .cheat-table .desc-cell { color: var(--muted); }
+
+  /* ─── PROGRESS / TRACKER ─── */
+  .progress-section { margin-bottom: 28px; }
+  .progress-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 10px;
+  }
+  .progress-title { font-size: 13px; font-weight: 600; color: var(--text); }
+  .progress-val { font-size: 13px; font-family: 'JetBrains Mono', monospace; color: var(--accent); }
+  .progress-bar {
+    background: var(--card);
+    border-radius: 4px;
+    height: 6px;
+    overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: linear-gradient(90deg, var(--accent), #f97316);
+    transition: width 0.5s ease;
+  }
+
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  .cat-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 16px;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+  .cat-card:hover { border-color: #3d4a5c; }
+  .cat-icon { font-size: 22px; margin-bottom: 8px; }
+  .cat-name { font-size: 13px; font-weight: 600; color: var(--text); }
+  .cat-count { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .cat-bar {
+    background: var(--bg);
+    border-radius: 3px;
+    height: 3px;
+    margin-top: 10px;
+    overflow: hidden;
+  }
+  .cat-fill { height: 100%; border-radius: 3px; }
+
+  .section-heading {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin-bottom: 6px;
+  }
+  .section-sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-bottom: 22px;
+  }
+
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #3d4a5c; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 640px) {
+    .header { padding: 20px 16px 0; }
+    .main { padding: 20px 16px; }
+    .header-stats { display: none; }
+    .cheat-grid { grid-template-columns: 1fr; }
+    .category-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div>
+      <div class="header-title">PySpark &amp; <span>Databricks</span> Interview Bank</div>
+      <div class="header-sub">Window Functions · Joins · Aggregations · Databricks Internals · Delta Lake · Performance</div>
+    </div>
+    <div class="header-stats">
+      <div class="stat-pill"><div class="num">75+</div><div class="lbl">Questions</div></div>
+      <div class="stat-pill"><div class="num">6</div><div class="lbl">Categories</div></div>
+      <div class="stat-pill"><div class="num">30+</div><div class="lbl">Code Snippets</div></div>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('conceptual')"><span class="tab-icon">🧠</span>Conceptual</button>
+    <button class="tab-btn" onclick="showTab('window')"><span class="tab-icon">🪟</span>Window Functions</button>
+    <button class="tab-btn" onclick="showTab('coding')"><span class="tab-icon">💻</span>Coding Scenarios</button>
+    <button class="tab-btn" onclick="showTab('databricks')"><span class="tab-icon">🔷</span>Databricks</button>
+    <button class="tab-btn" onclick="showTab('cheatsheet')"><span class="tab-icon">📋</span>Cheat Sheet</button>
+  </div>
+</div>
+
+<div class="main">
+
+<!-- ═══════════════════════════════════════════════════════ CONCEPTUAL -->
+<div id="tab-conceptual" class="section active">
+  <div class="section-heading">Conceptual Questions</div>
+  <div class="section-sub">Core PySpark theory, internals, and performance — most frequently tested in screening rounds</div>
+  <div class="toolbar">
+    <div class="search-wrap">
+      <input class="search-box" id="search-conceptual" placeholder="Search questions…" oninput="filterCards('conceptual')">
+    </div>
+    <button class="filter-btn active" onclick="filterTag(this,'conceptual','all')">All</button>
+    <button class="filter-btn" onclick="filterTag(this,'conceptual','basics')">Basics</button>
+    <button class="filter-btn" onclick="filterTag(this,'conceptual','perf')">Performance</button>
+    <button class="filter-btn" onclick="filterTag(this,'conceptual','advanced')">Advanced</button>
+    <span class="count-badge" id="count-conceptual"></span>
+  </div>
+  <div class="q-list" id="list-conceptual">
+
+    <div class="q-card" data-tags="basics easy">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q1</div>
+        <div class="q-meta">
+          <div class="q-title">What is PySpark and how does it differ from Pandas?</div>
+          <div class="q-tags"><span class="tag tag-basics">Basics</span><span class="tag tag-easy">Easy</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <p>PySpark is the Python API for Apache Spark — a distributed computing framework that processes data across a cluster of machines. Unlike Pandas (single-machine, in-memory), PySpark splits data into partitions spread across executor nodes, enabling petabyte-scale processing.</p>
+          <ul>
+            <li><strong>Pandas:</strong> in-memory, single machine, mutable DataFrames, eager execution</li>
+            <li><strong>PySpark:</strong> distributed, immutable DataFrames, lazy evaluation, Catalyst optimizer</li>
+          </ul>
+          <p>PySpark DataFrames are fault-tolerant via lineage (DAG) — if a partition fails, Spark recomputes it from source transformations.</p>
+        </div>
+        <div class="tip-box"><div class="tip-label">Interview Tip</div><p>Mention lazy evaluation unprompted — it shows depth. "Transformations build a logical plan; execution happens only when an action like <code>count()</code> or <code>write()</code> is triggered."</p></div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="basics easy">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q2</div>
+        <div class="q-meta">
+          <div class="q-title">What is lazy evaluation and why does Spark use it?</div>
+          <div class="q-tags"><span class="tag tag-basics">Basics</span><span class="tag tag-easy">Easy</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <p>Transformations (<code>filter</code>, <code>join</code>, <code>withColumn</code>) don't execute immediately — they build a logical plan (DAG). Execution triggers only on an <strong>action</strong> (<code>count()</code>, <code>show()</code>, <code>write()</code>).</p>
+          <p><strong>Why:</strong> Spark's Catalyst optimizer can then inspect the full plan, push filters down to the scan, eliminate unused columns, reorder joins, and fuse stages — producing a much more efficient physical plan than executing eagerly step-by-step.</p>
+        </div>
+        <div class="tip-box"><div class="tip-label">Interview Tip</div><p>Follow-up is often: "How do you debug a slow pipeline?" — Answer: use <code>explain(True)</code> to print the physical plan and identify missing predicate pushdowns or unexpected shuffles.</p></div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="basics easy">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q3</div>
+        <div class="q-meta">
+          <div class="q-title">RDD vs DataFrame vs Dataset — what are the differences?</div>
+          <div class="q-tags"><span class="tag tag-basics">Basics</span><span class="tag tag-easy">Easy</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <ul>
+            <li><strong>RDD:</strong> Low-level, untyped, no schema, no Catalyst optimization, supports any data type. Use only when you need fine-grained control over partitioning/serialization.</li>
+            <li><strong>DataFrame:</strong> Schema-aware, distributed table. Catalyst optimizer + Tungsten execution. Best performance for structured data in Python/Scala/Java/R.</li>
+            <li><strong>Dataset:</strong> Typed DataFrame (Scala/Java only). Compile-time type safety. Not available in PySpark.</li>
+          </ul>
+          <p>In PySpark, always prefer <strong>DataFrame API</strong>. RDDs are used only for legacy code or custom transformations Spark SQL doesn't support.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="basics medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q4</div>
+        <div class="q-meta">
+          <div class="q-title">What is the difference between repartition() and coalesce()?</div>
+          <div class="q-tags"><span class="tag tag-basics">Basics</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <ul>
+            <li><strong>repartition(n):</strong> Wide transformation — full shuffle across the cluster. Can increase OR decrease partitions. Produces evenly balanced partitions. Use before a heavy groupBy/join on skewed data.</li>
+            <li><strong>coalesce(n):</strong> Narrow transformation — no full shuffle. Can only <em>decrease</em> partitions by merging adjacent ones. Faster, but can produce uneven partitions. Use before writing to reduce output files.</li>
+          </ul>
+          <pre><span class="cm"># 200 → 8 partitions before write (narrow, fast)</span>
+df.coalesce(<span class="num">8</span>).write.parquet(output_path)
+
+<span class="cm"># Re-shuffle to fix skew before join</span>
+df.repartition(<span class="num">200</span>, col(<span class="str">"customer_id"</span>)).join(...)</pre>
+        </div>
+        <div class="tip-box"><div class="tip-label">Interview Tip</div><p>Key distinction: <code>coalesce</code> can't increase partitions. If you call <code>coalesce(500)</code> on a 200-partition DF, you still get 200. Use <code>repartition</code> to increase.</p></div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="basics medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q5</div>
+        <div class="q-meta">
+          <div class="q-title">Narrow vs Wide transformations — explain with examples</div>
+          <div class="q-tags"><span class="tag tag-basics">Basics</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <ul>
+            <li><strong>Narrow:</strong> Each input partition maps to exactly one output partition. No data moves across the network. Examples: <code>filter()</code>, <code>map()</code>, <code>withColumn()</code>, <code>select()</code>, <code>coalesce()</code>.</li>
+            <li><strong>Wide:</strong> Data from multiple input partitions is required to compute each output partition. Causes a <strong>shuffle</strong> (network I/O). Examples: <code>groupBy()</code>, <code>join()</code>, <code>repartition()</code>, <code>distinct()</code>, <code>orderBy()</code>.</li>
+          </ul>
+          <p>Shuffles are the main performance cost in Spark. Minimise them by filtering early, broadcasting small tables, and using partition-aware joins.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="perf medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q6</div>
+        <div class="q-meta">
+          <div class="q-title">What is a Broadcast Join and when should you use it?</div>
+          <div class="q-tags"><span class="tag tag-perf">Performance</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <p>A broadcast join sends the <em>smaller</em> DataFrame to every executor node so each executor can join locally without shuffling the large DataFrame. Eliminates the most expensive operation in a standard sort-merge join.</p>
+          <pre><span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> broadcast
+
+<span class="cm"># dim_products is small (< 10MB) — broadcast it</span>
+result = fact_orders.join(
+    broadcast(dim_products),
+    <span class="str">"product_id"</span>, <span class="str">"inner"</span>
+)</pre>
+          <p><strong>When to use:</strong> Right-side table &lt; 10MB (default <code>spark.sql.autoBroadcastJoinThreshold</code> = 10MB). Spark auto-broadcasts below this threshold; use explicit hint to force it.</p>
+        </div>
+        <div class="tip-box"><div class="tip-label">Interview Tip</div><p>Mention the config: <code>spark.conf.set("spark.sql.autoBroadcastJoinThreshold", 50*1024*1024)</code> to raise the threshold to 50MB. Or <code>-1</code> to disable auto-broadcast.</p></div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="perf medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q7</div>
+        <div class="q-meta">
+          <div class="q-title">How do you handle data skew in PySpark?</div>
+          <div class="q-tags"><span class="tag tag-perf">Performance</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <p>Data skew = one partition holds far more data than others → that task runs long while others idle (straggler problem). Solutions:</p>
+          <ul>
+            <li><strong>Salting:</strong> Append a random suffix to the join key to spread one hot key across multiple partitions, then aggregate back.</li>
+            <li><strong>Broadcast join:</strong> If the smaller side is small enough, broadcast it and skip the shuffle entirely.</li>
+            <li><strong>Repartition by column:</strong> <code>df.repartition(200, col("key"))</code> distributes by hash more evenly.</li>
+            <li><strong>AQE (Adaptive Query Execution):</strong> Spark 3+ auto-detects skew at runtime and splits large partitions. Enable with <code>spark.sql.adaptive.enabled = true</code>.</li>
+          </ul>
+          <pre><span class="cm"># Salting example</span>
+<span class="kw">import</span> pyspark.sql.functions <span class="kw">as</span> F
+n_salt = <span class="num">20</span>
+df_salted = df.withColumn(<span class="str">"salt"</span>, (F.rand() * n_salt).cast(<span class="str">"int"</span>))
+df_salted = df_salted.withColumn(<span class="str">"skewed_key_salted"</span>,
+    F.concat(col(<span class="str">"skewed_key"</span>), F.lit(<span class="str">"_"</span>), col(<span class="str">"salt"</span>)))</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="perf advanced">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q8</div>
+        <div class="q-meta">
+          <div class="q-title">cache() vs persist() — what's the difference?</div>
+          <div class="q-tags"><span class="tag tag-perf">Performance</span><span class="tag tag-advanced">Advanced</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <p><code>cache()</code> is shorthand for <code>persist(StorageLevel.MEMORY_AND_DISK)</code> — stores in memory, spills to disk if needed.</p>
+          <p><code>persist()</code> gives full control over storage level:</p>
+          <ul>
+            <li><code>MEMORY_ONLY</code> — fastest, but evicts if memory is full (recomputes from lineage)</li>
+            <li><code>MEMORY_AND_DISK</code> — spills overflow to disk</li>
+            <li><code>DISK_ONLY</code> — for very large DFs that don't fit in memory</li>
+            <li><code>MEMORY_ONLY_SER</code> — serialized format, more GC-friendly but slower to read</li>
+          </ul>
+          <pre>df.persist(StorageLevel.MEMORY_AND_DISK)
+df.count() <span class="cm"># trigger materialisation</span>
+<span class="cm"># ... reuse df many times ...</span>
+df.unpersist() <span class="cm"># release when done</span></pre>
+        </div>
+        <div class="tip-box"><div class="tip-label">Interview Tip</div><p>Always call an action after <code>persist()</code> to actually materialise it. And always call <code>unpersist()</code> when done — Spark doesn't auto-release cached data promptly.</p></div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="advanced hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q9</div>
+        <div class="q-meta">
+          <div class="q-title">How does Adaptive Query Execution (AQE) work in Spark 3?</div>
+          <div class="q-tags"><span class="tag tag-advanced">Advanced</span><span class="tag tag-hard">Hard</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <p>AQE re-optimises query plans at runtime using actual intermediate statistics, rather than relying only on pre-execution estimates. Three key features:</p>
+          <ul>
+            <li><strong>Dynamic partition coalescing:</strong> After a shuffle, merges small post-shuffle partitions to reduce task overhead.</li>
+            <li><strong>Dynamic skew handling:</strong> Detects skewed shuffle partitions and splits them into smaller tasks automatically.</li>
+            <li><strong>Dynamic join strategy switching:</strong> Can convert a sort-merge join to a broadcast join if the build side turns out to be small after filtering.</li>
+          </ul>
+          <pre>spark.conf.set(<span class="str">"spark.sql.adaptive.enabled"</span>, <span class="str">"true"</span>)
+spark.conf.set(<span class="str">"spark.sql.adaptive.coalescePartitions.enabled"</span>, <span class="str">"true"</span>)
+spark.conf.set(<span class="str">"spark.sql.adaptive.skewJoin.enabled"</span>, <span class="str">"true"</span>)</pre>
+          <p>AQE is enabled by default in Databricks Runtime 7.3+.</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="basics medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q10</div>
+        <div class="q-meta">
+          <div class="q-title">What is SparkSession and what replaced SQLContext / HiveContext?</div>
+          <div class="q-tags"><span class="tag tag-basics">Basics</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <p>SparkSession (introduced in Spark 2.0) is the unified entry point, merging <code>SparkContext</code>, <code>SQLContext</code>, and <code>HiveContext</code> into one object. It is the single interface for all Spark functionality: DataFrame API, SQL queries, streaming, and catalog operations.</p>
+          <pre><span class="kw">from</span> pyspark.sql <span class="kw">import</span> SparkSession
+
+spark = SparkSession.builder \
+    .appName(<span class="str">"MyPipeline"</span>) \
+    .config(<span class="str">"spark.sql.shuffle.partitions"</span>, <span class="str">"200"</span>) \
+    .enableHiveSupport() \
+    .getOrCreate()
+
+<span class="cm"># Access the underlying SparkContext if needed</span>
+sc = spark.sparkContext</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="advanced hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q11</div>
+        <div class="q-meta">
+          <div class="q-title">Explain the Catalyst Optimizer and Tungsten execution engine</div>
+          <div class="q-tags"><span class="tag tag-advanced">Advanced</span><span class="tag tag-hard">Hard</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <p><strong>Catalyst Optimizer</strong> — Spark SQL's query optimiser. Passes through 4 phases:</p>
+          <ul>
+            <li><strong>Analysis:</strong> Resolves column names and types against the catalog.</li>
+            <li><strong>Logical Optimization:</strong> Rule-based rewrites — predicate pushdown, constant folding, column pruning.</li>
+            <li><strong>Physical Planning:</strong> Generates multiple physical plans (e.g., broadcast vs sort-merge join), selects the cheapest via cost model.</li>
+            <li><strong>Code Generation:</strong> Tungsten generates bytecode (whole-stage codegen) that runs at near-native speed.</li>
+          </ul>
+          <p><strong>Tungsten</strong> — Memory and CPU efficiency layer: off-heap memory management, cache-aware computation, SIMD-style vectorised operations, and whole-stage code generation to eliminate virtual function dispatch overhead.</p>
+        </div>
+        <div class="tip-box"><div class="tip-label">Interview Tip</div><p>Use <code>df.explain(True)</code> to print all four Catalyst plans: Parsed → Analyzed → Optimized Logical → Physical. Interviewers love candidates who know this.</p></div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="basics medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q12</div>
+        <div class="q-meta">
+          <div class="q-title">distinct() vs dropDuplicates() — what is the difference?</div>
+          <div class="q-tags"><span class="tag tag-basics">Basics</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <ul>
+            <li><code>distinct()</code> — considers <em>all selected columns</em>. If you've selected 3 columns, all 3 must match for a row to be considered a duplicate.</li>
+            <li><code>dropDuplicates(['col1', 'col2'])</code> — deduplicates based only on the <em>specified subset</em> of columns. More flexible: keeps one row per unique combination of the named keys.</li>
+          </ul>
+          <pre><span class="cm"># All columns must match</span>
+df.select(<span class="str">"customer_id"</span>, <span class="str">"email"</span>).distinct()
+
+<span class="cm"># Only customer_id determines uniqueness (keeps first by default)</span>
+df.dropDuplicates([<span class="str">"customer_id"</span>])</pre>
+          <p>For SCD Type 2 deduplication on business keys, always use <code>dropDuplicates(['key1', 'key2'])</code>.</p>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- /list -->
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ WINDOW FUNCTIONS -->
+<div id="tab-window" class="section">
+  <div class="section-heading">Window Function Questions</div>
+  <div class="section-sub">Top 15 window function patterns — the most tested topic in senior DE interviews</div>
+  <div class="toolbar">
+    <div class="search-wrap">
+      <input class="search-box" id="search-window" placeholder="Search questions…" oninput="filterCards('window')">
+    </div>
+    <button class="filter-btn active" onclick="filterTag(this,'window','all')">All</button>
+    <button class="filter-btn" onclick="filterTag(this,'window','ranking')">Ranking</button>
+    <button class="filter-btn" onclick="filterTag(this,'window','laglead')">Lag/Lead</button>
+    <button class="filter-btn" onclick="filterTag(this,'window','running')">Running</button>
+    <span class="count-badge" id="count-window"></span>
+  </div>
+  <div class="q-list" id="list-window">
+
+    <div class="q-card" data-tags="ranking medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">W1</div>
+        <div class="q-meta">
+          <div class="q-title">Find the highest salary employee in each department</div>
+          <div class="q-tags"><span class="tag tag-window">Window</span><span class="tag tag-medium">Medium</span><span style="background:rgba(59,130,246,0.12);color:#60a5fa;border:1px solid rgba(59,130,246,0.3)" class="tag">Ranking</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer — row_number() over partition, filter == 1</div>
+        <pre><span class="kw">from</span> pyspark.sql <span class="kw">import</span> Window
+<span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> row_number, col
+
+w = Window.partitionBy(<span class="str">"department"</span>).orderBy(col(<span class="str">"salary"</span>).desc())
+
+result = (df
+    .withColumn(<span class="str">"rn"</span>, row_number().over(w))
+    .filter(col(<span class="str">"rn"</span>) == <span class="num">1</span>)
+    .select(<span class="str">"department"</span>, <span class="str">"employee_id"</span>, <span class="str">"salary"</span>)
+)</pre>
+        <div class="output-label">Output</div>
+        <div class="output-box">department  | employee_id | salary
+Engineering |  E001       | 120000
+Sales       |  S042       |  98000
+Finance     |  F007       | 115000</div>
+        <div class="tip-box"><div class="tip-label">Interview Tip</div><p>Use <code>row_number()</code> here, not <code>rank()</code>. If two people tie for top salary, <code>rank()</code> returns both — which may not be desired. <code>row_number()</code> always returns exactly 1 winner (arbitrary tie-break).</p></div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="ranking medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">W2</div>
+        <div class="q-meta">
+          <div class="q-title">Find the top N employees per department (Top 3)</div>
+          <div class="q-tags"><span class="tag tag-window">Window</span><span class="tag tag-medium">Medium</span><span style="background:rgba(59,130,246,0.12);color:#60a5fa;border:1px solid rgba(59,130,246,0.3)" class="tag">Ranking</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <pre><span class="kw">from</span> pyspark.sql <span class="kw">import</span> Window
+<span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> row_number, col
+
+w = Window.partitionBy(<span class="str">"department"</span>).orderBy(col(<span class="str">"salary"</span>).desc())
+
+df_top3 = (df
+    .withColumn(<span class="str">"rn"</span>, row_number().over(w))
+    .filter(col(<span class="str">"rn"</span>) &lt;= <span class="num">3</span>)
+    .select(<span class="str">"department"</span>, <span class="str">"employee_id"</span>, <span class="str">"employee_name"</span>, <span class="str">"salary"</span>, <span class="str">"rn"</span>)
+)</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="ranking medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">W3</div>
+        <div class="q-meta">
+          <div class="q-title">rank() vs dense_rank() vs row_number() — explain with example</div>
+          <div class="q-tags"><span class="tag tag-window">Window</span><span class="tag tag-medium">Medium</span><span style="background:rgba(59,130,246,0.12);color:#60a5fa;border:1px solid rgba(59,130,246,0.3)" class="tag">Ranking</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text"><p>For salaries <strong>1000, 1000, 800</strong> within a partition:</p></div>
+        <pre>row_number: <span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>   <span class="cm"># always unique, arbitrary tie-break</span>
+rank:       <span class="num">1</span>, <span class="num">1</span>, <span class="num">3</span>   <span class="cm"># ties share rank, next rank skipped (gap)</span>
+dense_rank: <span class="num">1</span>, <span class="num">1</span>, <span class="num">2</span>   <span class="cm"># ties share rank, NO gap</span></pre>
+        <pre><span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> rank, dense_rank, row_number
+
+w = Window.partitionBy(<span class="str">"dept"</span>).orderBy(col(<span class="str">"salary"</span>).desc())
+df.withColumn(<span class="str">"rn"</span>,         row_number().over(w)) \
+  .withColumn(<span class="str">"rank"</span>,       rank().over(w)) \
+  .withColumn(<span class="str">"dense_rank"</span>, dense_rank().over(w))</pre>
+        <div class="tip-box"><div class="tip-label">Interview Tip</div><p>Use <code>dense_rank</code> for "second highest salary" queries — it guarantees the next distinct salary is always rank 2, regardless of how many people share rank 1.</p></div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="ranking medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">W4</div>
+        <div class="q-meta">
+          <div class="q-title">Get the second highest salary in each department</div>
+          <div class="q-tags"><span class="tag tag-window">Window</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer — use dense_rank to handle ties correctly</div>
+        <pre><span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> dense_rank, col
+<span class="kw">from</span> pyspark.sql <span class="kw">import</span> Window
+
+w = Window.partitionBy(<span class="str">"department"</span>).orderBy(col(<span class="str">"salary"</span>).desc())
+
+result = (df
+    .withColumn(<span class="str">"dr"</span>, dense_rank().over(w))
+    .filter(col(<span class="str">"dr"</span>) == <span class="num">2</span>)
+    .select(<span class="str">"department"</span>, <span class="str">"employee_id"</span>, <span class="str">"salary"</span>)
+)</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="ranking medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">W5</div>
+        <div class="q-meta">
+          <div class="q-title">Deduplicate records using row_number (SCD / dedup pattern)</div>
+          <div class="q-tags"><span class="tag tag-window">Window</span><span class="tag tag-medium">Medium</span><span class="tag tag-databricks">Databricks</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <pre><span class="kw">from</span> pyspark.sql <span class="kw">import</span> Window
+<span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> row_number, col
+
+<span class="cm"># Business keys: key1, key2. Keep latest by ingest timestamp.</span>
+w = Window.partitionBy(<span class="str">"key1"</span>, <span class="str">"key2"</span>).orderBy(col(<span class="str">"ingest_ts"</span>).desc())
+
+dedup_df = (df
+    .withColumn(<span class="str">"rn"</span>, row_number().over(w))
+    .filter(col(<span class="str">"rn"</span>) == <span class="num">1</span>)
+    .drop(<span class="str">"rn"</span>)
+)</pre>
+        <div class="tip-box"><div class="tip-label">Production Pattern</div><p>This is the standard Bronze→Silver deduplication pattern in Medallion Architecture. Always order by ingest/update timestamp descending so row_number == 1 is the most recent record per business key.</p></div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="laglead medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">W6</div>
+        <div class="q-meta">
+          <div class="q-title">Calculate month-over-month revenue growth percentage</div>
+          <div class="q-tags"><span class="tag tag-window">Window</span><span class="tag tag-medium">Medium</span><span style="background:rgba(245,158,11,0.12);color:#fbbf24;border:1px solid rgba(245,158,11,0.2)" class="tag">Lag/Lead</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <pre><span class="kw">from</span> pyspark.sql <span class="kw">import</span> Window
+<span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> lag, col, round
+
+w = Window.orderBy(col(<span class="str">"year"</span>), col(<span class="str">"month"</span>))
+
+result = (df
+    .withColumn(<span class="str">"prev_revenue"</span>, lag(<span class="str">"revenue"</span>, <span class="num">1</span>).over(w))
+    .withColumn(<span class="str">"mom_growth_pct"</span>,
+        round((col(<span class="str">"revenue"</span>) - col(<span class="str">"prev_revenue"</span>)) / col(<span class="str">"prev_revenue"</span>) * <span class="num">100</span>, <span class="num">2</span>))
+    .drop(<span class="str">"prev_revenue"</span>)
+)</pre>
+        <div class="tip-box"><div class="tip-label">Interview Tip</div><p>The first row in the partition returns <code>null</code> for <code>lag()</code> — there's no prior period. Use <code>lag('col', 1, 0)</code> to default to 0. But for growth %, <code>null</code> is correct (can't divide by zero anyway).</p></div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="laglead medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">W7</div>
+        <div class="q-meta">
+          <div class="q-title">Find the difference between current and next row's price (lead)</div>
+          <div class="q-tags"><span class="tag tag-window">Window</span><span class="tag tag-medium">Medium</span><span style="background:rgba(245,158,11,0.12);color:#fbbf24;border:1px solid rgba(245,158,11,0.2)" class="tag">Lag/Lead</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <pre><span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> lead, col
+
+w = Window.orderBy(col(<span class="str">"date"</span>))
+
+result = (df
+    .withColumn(<span class="str">"next_price"</span>, lead(<span class="str">"price"</span>, <span class="num">1</span>).over(w))
+    .withColumn(<span class="str">"diff"</span>, col(<span class="str">"next_price"</span>) - col(<span class="str">"price"</span>))
+    .drop(<span class="str">"next_price"</span>)
+)</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="running medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">W8</div>
+        <div class="q-meta">
+          <div class="q-title">Calculate a running total (cumulative sum) of sales</div>
+          <div class="q-tags"><span class="tag tag-window">Window</span><span class="tag tag-medium">Medium</span><span style="background:rgba(16,185,129,0.10);color:#34d399;border:1px solid rgba(16,185,129,0.2)" class="tag">Running</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <pre><span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> sum <span class="kw">as</span> _sum, col
+<span class="kw">from</span> pyspark.sql <span class="kw">import</span> Window
+
+w = Window.orderBy(col(<span class="str">"date"</span>)) \
+    .rowsBetween(Window.unboundedPreceding, Window.currentRow)
+
+result = df.withColumn(<span class="str">"running_total"</span>, _sum(col(<span class="str">"sales"</span>)).over(w))</pre>
+        <div class="tip-box"><div class="tip-label">Frame Syntax</div><p><code>rowsBetween(unboundedPreceding, currentRow)</code> = "from the start of the partition to the current row." This is the correct frame for running totals. Without <code>rowsBetween</code>, the default frame is <code>rangeBetween(unboundedPreceding, currentRow)</code> which can include future rows with the same order value.</p></div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="running medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">W9</div>
+        <div class="q-meta">
+          <div class="q-title">Calculate a 7-day moving average of temperature</div>
+          <div class="q-tags"><span class="tag tag-window">Window</span><span class="tag tag-medium">Medium</span><span style="background:rgba(16,185,129,0.10);color:#34d399;border:1px solid rgba(16,185,129,0.2)" class="tag">Running</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <pre><span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> avg, col
+<span class="kw">from</span> pyspark.sql <span class="kw">import</span> Window
+
+<span class="cm"># -6 = 6 rows back, 0 = current row → 7-day window</span>
+w = Window.orderBy(col(<span class="str">"date"</span>).asc()) \
+    .rowsBetween(<span class="op">-</span><span class="num">6</span>, Window.currentRow)
+
+result = df.withColumn(<span class="str">"moving_avg_7d"</span>, avg(col(<span class="str">"temperature"</span>)).over(w))</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="running medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">W10</div>
+        <div class="q-meta">
+          <div class="q-title">Find the first and last purchase date for each user</div>
+          <div class="q-tags"><span class="tag tag-window">Window</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <pre><span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> first, last, col
+<span class="kw">from</span> pyspark.sql <span class="kw">import</span> Window
+
+w = Window.partitionBy(<span class="str">"user_id"</span>).orderBy(col(<span class="str">"purchase_date"</span>).asc()) \
+    .rowsBetween(Window.unboundedPreceding, Window.unboundedFollowing)
+
+result = (df
+    .withColumn(<span class="str">"first_purchase_date"</span>, first(col(<span class="str">"purchase_date"</span>)).over(w))
+    .withColumn(<span class="str">"last_purchase_date"</span>,  last(col(<span class="str">"purchase_date"</span>)).over(w))
+    .select(<span class="str">"user_id"</span>, <span class="str">"first_purchase_date"</span>, <span class="str">"last_purchase_date"</span>)
+    .distinct()
+)</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="ranking hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">W11</div>
+        <div class="q-meta">
+          <div class="q-title">Get the most frequent rating for each product</div>
+          <div class="q-tags"><span class="tag tag-window">Window</span><span class="tag tag-hard">Hard</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer — count + row_number mode trick</div>
+        <pre><span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> count, row_number, col
+<span class="kw">from</span> pyspark.sql <span class="kw">import</span> Window
+
+<span class="cm"># Step 1: count occurrences</span>
+temp = df.groupBy(<span class="str">"product_id"</span>, <span class="str">"rating"</span>) \
+         .agg(count(<span class="str">"*"</span>).alias(<span class="str">"cnt"</span>))
+
+<span class="cm"># Step 2: rank ratings within each product by frequency</span>
+w = Window.partitionBy(<span class="str">"product_id"</span>).orderBy(col(<span class="str">"cnt"</span>).desc())
+
+result = (temp
+    .withColumn(<span class="str">"rn"</span>, row_number().over(w))
+    .filter(col(<span class="str">"rn"</span>) == <span class="num">1</span>)
+    .select(<span class="str">"product_id"</span>, <span class="str">"rating"</span>, <span class="str">"cnt"</span>)
+)</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="running hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">W12</div>
+        <div class="q-meta">
+          <div class="q-title">Calculate each transaction's % and cumulative % contribution per customer</div>
+          <div class="q-tags"><span class="tag tag-window">Window</span><span class="tag tag-hard">Hard</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <pre><span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> sum <span class="kw">as</span> _sum, col, round
+<span class="kw">from</span> pyspark.sql <span class="kw">import</span> Window
+
+w     = Window.partitionBy(<span class="str">"customer_id"</span>).orderBy(col(<span class="str">"txn_date"</span>).asc())
+w_all = Window.partitionBy(<span class="str">"customer_id"</span>)
+
+df = (df
+    .withColumn(<span class="str">"running_amount"</span>, _sum(col(<span class="str">"amount"</span>)).over(w))
+    .withColumn(<span class="str">"total_amount"</span>,   _sum(col(<span class="str">"amount"</span>)).over(w_all))
+    .withColumn(<span class="str">"contrib_pct"</span>,
+        round(col(<span class="str">"amount"</span>) / col(<span class="str">"total_amount"</span>) * <span class="num">100</span>, <span class="num">2</span>))
+    .withColumn(<span class="str">"cumulative_contrib_pct"</span>,
+        round(col(<span class="str">"running_amount"</span>) / col(<span class="str">"total_amount"</span>) * <span class="num">100</span>, <span class="num">2</span>))
+)</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="laglead hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">W13</div>
+        <div class="q-meta">
+          <div class="q-title">Detect gaps in sequence numbers (gaps-and-islands)</div>
+          <div class="q-tags"><span class="tag tag-window">Window</span><span class="tag tag-hard">Hard</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <pre><span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> lag, col
+<span class="kw">from</span> pyspark.sql <span class="kw">import</span> Window
+
+w = Window.partitionBy(<span class="str">"entity_id"</span>).orderBy(col(<span class="str">"seq_num"</span>).asc())
+
+df_gaps = (df
+    .withColumn(<span class="str">"prev_seq"</span>, lag(col(<span class="str">"seq_num"</span>), <span class="num">1</span>).over(w))
+    .withColumn(<span class="str">"diff"</span>, col(<span class="str">"seq_num"</span>) - col(<span class="str">"prev_seq"</span>))
+    .filter(
+        (col(<span class="str">"prev_seq"</span>).isNotNull()) &amp; (col(<span class="str">"diff"</span>) &gt; <span class="num">1</span>)
+    )
+    .select(<span class="str">"entity_id"</span>, <span class="str">"prev_seq"</span>, <span class="str">"seq_num"</span>, <span class="str">"diff"</span>)
+)</pre>
+        <div class="tip-box"><div class="tip-label">Use Case</div><p>Classic gaps-and-islands. The filter catches rows where the jump from the previous sequence number is greater than 1, indicating a gap. Real-world use: audit trail completeness checks, event stream continuity validation.</p></div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="ranking hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">W14</div>
+        <div class="q-meta">
+          <div class="q-title">Assign sequential ranks to students with same-rank ties (no gaps)</div>
+          <div class="q-tags"><span class="tag tag-window">Window</span><span class="tag tag-hard">Hard</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer — use dense_rank() for tie-aware continuous ranking</div>
+        <pre><span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> dense_rank, col
+<span class="kw">from</span> pyspark.sql <span class="kw">import</span> Window
+
+w = Window.orderBy(col(<span class="str">"marks"</span>).desc())
+
+result = df.withColumn(<span class="str">"rank"</span>, dense_rank().over(w)) \
+           .orderBy(col(<span class="str">"rank"</span>))</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="running hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">W15</div>
+        <div class="q-meta">
+          <div class="q-title">Fetch the latest record per customer (dedup by recency)</div>
+          <div class="q-tags"><span class="tag tag-window">Window</span><span class="tag tag-medium">Medium</span><span class="tag tag-databricks">Databricks</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <pre><span class="kw">from</span> pyspark.sql <span class="kw">import</span> Window
+<span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> row_number, col
+
+w = Window.partitionBy(<span class="str">"customer_id"</span>).orderBy(col(<span class="str">"updated_at"</span>).desc())
+
+result = (df
+    .withColumn(<span class="str">"rn"</span>, row_number().over(w))
+    .filter(col(<span class="str">"rn"</span>) == <span class="num">1</span>)
+    .select(<span class="str">"customer_id"</span>, <span class="str">"updated_at"</span>, <span class="str">"other_columns"</span>)
+)</pre>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ CODING SCENARIOS -->
+<div id="tab-coding" class="section">
+  <div class="section-heading">Coding Scenarios</div>
+  <div class="section-sub">Hands-on HackerRank-style questions — joins, aggregations, advanced transformations</div>
+  <div class="toolbar">
+    <div class="search-wrap">
+      <input class="search-box" id="search-coding" placeholder="Search questions…" oninput="filterCards('coding')">
+    </div>
+    <button class="filter-btn active" onclick="filterTag(this,'coding','all')">All</button>
+    <button class="filter-btn" onclick="filterTag(this,'coding','join')">Joins</button>
+    <button class="filter-btn" onclick="filterTag(this,'coding','agg')">Aggregations</button>
+    <button class="filter-btn" onclick="filterTag(this,'coding','advanced')">Advanced</button>
+    <span class="count-badge" id="count-coding"></span>
+  </div>
+  <div class="q-list" id="list-coding">
+
+    <div class="q-card" data-tags="agg easy">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">C1</div>
+        <div class="q-meta">
+          <div class="q-title">Compute total salary, avg salary, min, max per department</div>
+          <div class="q-tags"><span class="tag tag-agg">Aggregation</span><span class="tag tag-easy">Easy</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <pre><span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> sum <span class="kw">as</span> _sum, avg, min <span class="kw">as</span> _min, max <span class="kw">as</span> _max, count, round
+
+agg_df = df.groupBy(<span class="str">"department"</span>).agg(
+    _sum(<span class="str">"salary"</span>).alias(<span class="str">"total_salary"</span>),
+    round(avg(<span class="str">"salary"</span>), <span class="num">2</span>).alias(<span class="str">"avg_salary"</span>),
+    _min(<span class="str">"salary"</span>).alias(<span class="str">"min_salary"</span>),
+    _max(<span class="str">"salary"</span>).alias(<span class="str">"max_salary"</span>),
+    count(<span class="str">"*"</span>).alias(<span class="str">"headcount"</span>)
+).orderBy(<span class="str">"department"</span>)</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="agg medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">C2</div>
+        <div class="q-meta">
+          <div class="q-title">Find departments with more than 3 employees (HAVING equivalent)</div>
+          <div class="q-tags"><span class="tag tag-agg">Aggregation</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer — filter() after agg() = SQL HAVING</div>
+        <pre><span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> count, col
+
+df.groupBy(<span class="str">"department"</span>) \
+  .agg(count(<span class="str">"emp_id"</span>).alias(<span class="str">"emp_count"</span>)) \
+  .filter(col(<span class="str">"emp_count"</span>) &gt; <span class="num">3</span>) \
+  .orderBy(col(<span class="str">"emp_count"</span>).desc())</pre>
+        <div class="tip-box"><div class="tip-label">Interview Trap</div><p>There is NO <code>.having()</code> method in PySpark. Always apply <code>.filter()</code> on the aggregated DataFrame.</p></div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="agg medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">C3</div>
+        <div class="q-meta">
+          <div class="q-title">Find employees earning above their department average</div>
+          <div class="q-tags"><span class="tag tag-agg">Aggregation</span><span class="tag tag-window">Window</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <pre><span class="kw">from</span> pyspark.sql <span class="kw">import</span> Window
+<span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> avg, col
+
+w = Window.partitionBy(<span class="str">"department"</span>)
+
+result = df.withColumn(<span class="str">"dept_avg"</span>, avg(<span class="str">"salary"</span>).over(w)) \
+           .filter(col(<span class="str">"salary"</span>) &gt; col(<span class="str">"dept_avg"</span>)) \
+           .drop(<span class="str">"dept_avg"</span>)</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="join medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">C4</div>
+        <div class="q-meta">
+          <div class="q-title">Explain all 6 join types with use cases</div>
+          <div class="q-tags"><span class="tag tag-join">Join</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-text">
+          <p>All 6 PySpark join types and when to use them:</p>
+        </div>
+        <pre><span class="cm"># Inner  — only matching rows on both sides</span>
+orders.join(products, <span class="str">"product_id"</span>, <span class="str">"inner"</span>)
+
+<span class="cm"># Left   — all orders, nulls if no product match</span>
+orders.join(products, <span class="str">"product_id"</span>, <span class="str">"left"</span>)
+
+<span class="cm"># Right  — all products, nulls if no order match</span>
+orders.join(products, <span class="str">"product_id"</span>, <span class="str">"right"</span>)
+
+<span class="cm"># Full   — all rows from both, nulls where no match</span>
+orders.join(products, <span class="str">"product_id"</span>, <span class="str">"full"</span>)
+
+<span class="cm"># Left Anti  — orders with NO matching product (orphans)</span>
+orders.join(products, <span class="str">"product_id"</span>, <span class="str">"left_anti"</span>)
+
+<span class="cm"># Left Semi  — orders WHERE product exists (no product cols)</span>
+orders.join(products, <span class="str">"product_id"</span>, <span class="str">"left_semi"</span>)</pre>
+        <div class="tip-box"><div class="tip-label">Most Tested</div><p><code>left_anti</code> is a favourite: "Find orders referencing products that don't exist in the product master." It returns left rows with NO match in the right DF, and includes NO right-side columns.</p></div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="join medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">C5</div>
+        <div class="q-meta">
+          <div class="q-title">Multi-table join: orders + products + customers</div>
+          <div class="q-tags"><span class="tag tag-join">Join</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <pre><span class="cm"># Chain joins — fact table + dimensions</span>
+enriched = (orders_df
+    .join(products_df.select(<span class="str">"product_id"</span>, <span class="str">"product_name"</span>, <span class="str">"category"</span>),
+          on=<span class="str">"product_id"</span>, how=<span class="str">"left"</span>)
+    .join(customers_df.select(<span class="str">"customer_id"</span>, <span class="str">"customer_name"</span>, <span class="str">"city"</span>),
+          on=<span class="str">"customer_id"</span>, how=<span class="str">"left"</span>)
+)</pre>
+        <div class="tip-box"><div class="tip-label">Best Practice</div><p>Always <code>.select()</code> only needed columns from dimension tables before joining. This prevents column explosion and avoids ambiguous column name errors in Spark.</p></div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="agg medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">C6</div>
+        <div class="q-meta">
+          <div class="q-title">Pivot: total salary by employee name across departments</div>
+          <div class="q-tags"><span class="tag tag-agg">Aggregation</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <pre><span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> sum <span class="kw">as</span> _sum
+
+pivot_df = df.groupBy(<span class="str">"name"</span>) \
+             .pivot(<span class="str">"department"</span>) \
+             .agg(_sum(<span class="str">"salary"</span>)) \
+             .fillna(<span class="num">0</span>) \
+             .orderBy(<span class="str">"name"</span>)</pre>
+        <div class="tip-box"><div class="tip-label">Performance Tip</div><p>Explicitly pass known distinct values to <code>pivot("col", ["A","B","C"])</code> to avoid Spark scanning the entire column to discover unique values — can save a full shuffle.</p></div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="advanced hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">C7</div>
+        <div class="q-meta">
+          <div class="q-title">Count null values in each column dynamically</div>
+          <div class="q-tags"><span class="tag tag-advanced">Advanced</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <pre><span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> col, sum <span class="kw">as</span> _sum, when
+
+null_counts = df.select([
+    _sum(when(col(c).isNull(), <span class="num">1</span>).otherwise(<span class="num">0</span>)).alias(c)
+    <span class="kw">for</span> c <span class="kw">in</span> df.columns
+])
+null_counts.show()</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="advanced hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">C8</div>
+        <div class="q-meta">
+          <div class="q-title">Find employee pairs in the same department (self-join)</div>
+          <div class="q-tags"><span class="tag tag-join">Join</span><span class="tag tag-advanced">Advanced</span><span class="tag tag-hard">Hard</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <pre>e1 = df.alias(<span class="str">"e1"</span>)
+e2 = df.alias(<span class="str">"e2"</span>)
+
+pairs = e1.join(
+    e2,
+    (col(<span class="str">"e1.department"</span>) == col(<span class="str">"e2.department"</span>)) &amp;
+    (col(<span class="str">"e1.emp_id"</span>) &lt; col(<span class="str">"e2.emp_id"</span>)),  <span class="cm"># avoid (A,B) and (B,A) duplicates</span>
+    <span class="str">"inner"</span>
+).select(
+    col(<span class="str">"e1.department"</span>).alias(<span class="str">"department"</span>),
+    col(<span class="str">"e1.name"</span>).alias(<span class="str">"emp1"</span>),
+    col(<span class="str">"e2.name"</span>).alias(<span class="str">"emp2"</span>)
+)</pre>
+        <div class="tip-box"><div class="tip-label">Key Insight</div><p>The <code>e1.emp_id &lt; e2.emp_id</code> condition prevents (A,B) and (B,A) from both appearing. Without it, you get duplicate pairs and self-pairs (A,A).</p></div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="advanced medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">C9</div>
+        <div class="q-meta">
+          <div class="q-title">Extract phone digits using regexp_replace + substring</div>
+          <div class="q-tags"><span class="tag tag-string">String</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <pre><span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> regexp_replace, substring, col
+
+<span class="cm"># '+91-9876543210' → '9876543210'</span>
+df = df.withColumn(
+    <span class="str">"mobile"</span>,
+    substring(regexp_replace(col(<span class="str">"phone"</span>), <span class="str">r'[+\-]'</span>, <span class="str">''</span>), <span class="num">3</span>, <span class="num">10</span>)
+)</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="advanced medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">C10</div>
+        <div class="q-meta">
+          <div class="q-title">Find the month with highest total salary paid</div>
+          <div class="q-tags"><span class="tag tag-agg">Aggregation</span><span class="tag tag-date">Date</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <pre><span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> to_date, date_format, sum <span class="kw">as</span> _sum, col, desc
+
+result = (df
+    .withColumn(<span class="str">"month"</span>, date_format(to_date(<span class="str">"join_date"</span>), <span class="str">"yyyy-MM"</span>))
+    .groupBy(<span class="str">"month"</span>)
+    .agg(_sum(<span class="str">"salary"</span>).alias(<span class="str">"total_salary"</span>))
+    .orderBy(desc(<span class="str">"total_salary"</span>))
+    .limit(<span class="num">1</span>)
+)</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="advanced medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">C11</div>
+        <div class="q-meta">
+          <div class="q-title">Use lit(), split(), and explode() together</div>
+          <div class="q-tags"><span class="tag tag-advanced">Advanced</span><span class="tag tag-string">String</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <pre><span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> lit, explode, split, col
+
+<span class="cm"># Add static column</span>
+df = df.withColumn(<span class="str">"company"</span>, lit(<span class="str">"TechCorp"</span>))
+
+<span class="cm"># Split location into words, then explode into separate rows</span>
+<span class="cm"># 'San Francisco' → rows: 'San', 'Francisco'</span>
+df_exp = df.withColumn(<span class="str">"location_word"</span>, explode(split(col(<span class="str">"location"</span>), <span class="str">" "</span>)))</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="advanced hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">C12</div>
+        <div class="q-meta">
+          <div class="q-title">SCD Type 2 — detect new and changed records using MERGE</div>
+          <div class="q-tags"><span class="tag tag-databricks">Databricks</span><span class="tag tag-advanced">Advanced</span><span class="tag tag-hard">Hard</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer — two-step approach: expire old, insert new</div>
+        <pre><span class="kw">from</span> delta.tables <span class="kw">import</span> DeltaTable
+
+delta_tbl = DeltaTable.forName(spark, <span class="str">"catalog.schema.customers"</span>)
+
+<span class="cm"># Step 1: Expire changed records</span>
+delta_tbl.alias(<span class="str">"tgt"</span>).merge(
+    incoming.alias(<span class="str">"src"</span>),
+    <span class="str">"tgt.customer_id = src.customer_id AND tgt.is_current = true"</span>
+).whenMatchedUpdate(
+    condition=<span class="str">"tgt.email != src.email OR tgt.city != src.city"</span>,
+    set={<span class="str">"is_current"</span>: <span class="str">"false"</span>, <span class="str">"end_date"</span>: <span class="str">"current_date()"</span>}
+).execute()
+
+<span class="cm"># Step 2: Insert new / updated as active rows</span>
+new_rows = incoming.withColumn(<span class="str">"is_current"</span>, lit(<span class="kw">True</span>)) \
+                   .withColumn(<span class="str">"start_date"</span>, current_date()) \
+                   .withColumn(<span class="str">"end_date"</span>, lit(<span class="kw">None</span>).cast(<span class="str">"date"</span>))
+new_rows.write.format(<span class="str">"delta"</span>).mode(<span class="str">"append"</span>) \
+        .saveAsTable(<span class="str">"catalog.schema.customers"</span>)</pre>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ DATABRICKS -->
+<div id="tab-databricks" class="section">
+  <div class="section-heading">Databricks-Specific Questions</div>
+  <div class="section-sub">Delta Lake, Unity Catalog, Auto Loader, Structured Streaming, Medallion — Databricks interview essentials</div>
+  <div class="toolbar">
+    <div class="search-wrap">
+      <input class="search-box" id="search-databricks" placeholder="Search questions…" oninput="filterCards('databricks')">
+    </div>
+    <button class="filter-btn active" onclick="filterTag(this,'databricks','all')">All</button>
+    <button class="filter-btn" onclick="filterTag(this,'databricks','delta')">Delta Lake</button>
+    <button class="filter-btn" onclick="filterTag(this,'databricks','catalog')">Unity Catalog</button>
+    <button class="filter-btn" onclick="filterTag(this,'databricks','streaming')">Streaming</button>
+    <span class="count-badge" id="count-databricks"></span>
+  </div>
+  <div class="q-list" id="list-databricks">
+
+    <div class="q-card" data-tags="delta medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">D1</div>
+        <div class="q-meta">
+          <div class="q-title">What is Delta Lake and what are its key features?</div>
+          <div class="q-tags"><span class="tag tag-databricks">Delta Lake</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <p>Delta Lake is an open-source storage layer that brings ACID transactions to Apache Spark and big data workloads. It stores data as Parquet files with a transaction log (<code>_delta_log/</code>) that records every change.</p>
+          <ul>
+            <li><strong>ACID transactions:</strong> Serialisable isolation via the transaction log. No partial writes.</li>
+            <li><strong>Time Travel:</strong> Query data as it was at any previous version or timestamp.</li>
+            <li><strong>Schema enforcement &amp; evolution:</strong> Rejects writes with incompatible schema; allows evolution with <code>mergeSchema</code>.</li>
+            <li><strong>Upserts via MERGE:</strong> Efficient upsert/delete operations without full rewrites.</li>
+            <li><strong>Scalable metadata:</strong> Transaction log avoids full directory listings for large tables.</li>
+            <li><strong>Auto-optimise:</strong> Compacts small files and writes optimised files automatically.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="delta medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">D2</div>
+        <div class="q-meta">
+          <div class="q-title">Explain VACUUM, OPTIMIZE, and Z-ORDER — and when to use each</div>
+          <div class="q-tags"><span class="tag tag-databricks">Delta Lake</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <ul>
+            <li><strong>VACUUM:</strong> Removes data files no longer referenced by the transaction log (and older than the retention threshold, default 7 days). Reclaims storage but <strong>breaks time travel</strong> beyond the retention window.</li>
+            <li><strong>OPTIMIZE:</strong> Compacts many small files into larger ones (target ~1GB). Reduces file-open overhead on reads. Does NOT reorder data.</li>
+            <li><strong>Z-ORDER BY:</strong> Co-locates related data in the same files using multi-dimensional clustering. Dramatically improves query performance when filtering on z-ordered columns. Typically combined with OPTIMIZE.</li>
+          </ul>
+          <pre><span class="cm">-- Compact small files</span>
+OPTIMIZE catalog.schema.orders;
+
+<span class="cm">-- Compact + co-locate data for common filter columns</span>
+OPTIMIZE catalog.schema.orders
+ZORDER BY (customer_id, order_date);
+
+<span class="cm">-- Remove stale files older than 7 days</span>
+VACUUM catalog.schema.orders RETAIN <span class="num">168</span> HOURS;</pre>
+        </div>
+        <div class="tip-box"><div class="tip-label">Interview Tip</div><p>Z-ORDER is best on high-cardinality columns you filter on frequently (customer_id, device_id). It degrades with too many columns — keep it to 1-3 per table. For append-mostly tables, prefer <strong>Liquid Clustering</strong> (Databricks Runtime 13.3+) — it's incremental and doesn't require full rewrites.</p></div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="delta medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">D3</div>
+        <div class="q-meta">
+          <div class="q-title">How does Delta Lake Time Travel work?</div>
+          <div class="q-tags"><span class="tag tag-databricks">Delta Lake</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <pre><span class="cm">-- By version number</span>
+SELECT * FROM catalog.schema.orders VERSION AS OF <span class="num">5</span>;
+
+<span class="cm">-- By timestamp</span>
+SELECT * FROM catalog.schema.orders
+TIMESTAMP AS OF <span class="str">'2024-01-15 00:00:00'</span>;
+
+<span class="cm">-- In PySpark</span>
+df = spark.read.format(<span class="str">"delta"</span>) \
+    .option(<span class="str">"versionAsOf"</span>, <span class="num">5</span>) \
+    .load(<span class="str">"/path/to/table"</span>)
+
+<span class="cm">-- See history</span>
+DESCRIBE HISTORY catalog.schema.orders;</pre>
+        <div class="tip-box"><div class="tip-label">Use Case</div><p>Time travel is used for: (1) auditing/debugging — compare current vs previous version, (2) reproducing ML training data at a point in time, (3) rollback — <code>RESTORE TABLE orders TO VERSION AS OF 3</code>.</p></div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="delta hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">D4</div>
+        <div class="q-meta">
+          <div class="q-title">What are Deletion Vectors in Delta Lake?</div>
+          <div class="q-tags"><span class="tag tag-databricks">Delta Lake</span><span class="tag tag-hard">Hard</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <p>Deletion Vectors (DVs) are a performance optimisation for DELETE and MERGE operations on Delta Lake tables. Instead of rewriting entire Parquet files when rows are deleted/updated, Spark writes a small sidecar file (<code>.dv</code>) that records which row IDs in the original file are logically deleted.</p>
+          <ul>
+            <li>Reads filter out DV-marked rows on the fly.</li>
+            <li>DML operations (DELETE, UPDATE, MERGE) become much faster — no file rewrite needed immediately.</li>
+            <li>DVs are cleaned up during OPTIMIZE, which rewrites affected files at that point.</li>
+          </ul>
+          <pre><span class="cm">-- Enable deletion vectors</span>
+ALTER TABLE catalog.schema.orders
+SET TBLPROPERTIES (<span class="str">'delta.enableDeletionVectors'</span> = <span class="str">'true'</span>);</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="catalog medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">D5</div>
+        <div class="q-meta">
+          <div class="q-title">What is Unity Catalog and what problems does it solve?</div>
+          <div class="q-tags"><span class="tag tag-databricks">Databricks</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <p>Unity Catalog is Databricks' unified governance layer for all data and AI assets. It provides a 3-level namespace: <code>catalog.schema.table</code> and solves:</p>
+          <ul>
+            <li><strong>Centralised access control:</strong> GRANT/REVOKE at catalog, schema, table, column, or row level — across all workspaces in an account.</li>
+            <li><strong>Data lineage:</strong> Automatic column-level lineage tracking — know where data came from and where it flows.</li>
+            <li><strong>Auditing:</strong> All data access events logged automatically.</li>
+            <li><strong>PII tagging:</strong> Tag columns with sensitivity labels, apply dynamic data masking.</li>
+            <li><strong>Cross-workspace sharing:</strong> Delta Sharing to share data across teams/organisations without copying.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="catalog medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">D6</div>
+        <div class="q-meta">
+          <div class="q-title">What is Medallion Architecture (Bronze → Silver → Gold)?</div>
+          <div class="q-tags"><span class="tag tag-databricks">Databricks</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <ul>
+            <li><strong>Bronze (Raw):</strong> Raw ingestion layer. Data arrives exactly as-is from source. No transformations. Schema-on-read. Append-only. Acts as the immutable source of truth for replay.</li>
+            <li><strong>Silver (Cleaned):</strong> Deduplicated, validated, type-cast, PII-masked, schema-enforced. One row per business key per event. Quality-checked with DQ rules. Serves as the canonical cleansed dataset.</li>
+            <li><strong>Gold (Aggregated):</strong> Business-level aggregates, KPIs, denormalised fact+dimension tables. Optimised for consumption by BI tools, ML models, and downstream APIs.</li>
+          </ul>
+        </div>
+        <div class="tip-box"><div class="tip-label">Production Pattern</div><p>In each layer, partition tables on date columns and Z-ORDER on filter columns. Write to Unity Catalog managed tables. Use Auto Loader for Bronze ingestion, DeltaTable MERGE for Silver upserts, and scheduled Gold refresh jobs.</p></div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="streaming medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">D7</div>
+        <div class="q-meta">
+          <div class="q-title">What is Auto Loader and why use it over spark.read?</div>
+          <div class="q-tags"><span class="tag tag-databricks">Databricks</span><span class="tag tag-medium">Medium</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <p>Auto Loader (<code>cloudFiles</code>) is Databricks' incremental ingestion framework. It continuously monitors a cloud storage path for new files and processes only new arrivals — without re-scanning the entire directory.</p>
+          <ul>
+            <li><strong>File notification mode:</strong> Uses cloud events (S3 SQS / Azure Event Grid) for near-real-time file discovery. Scales to millions of files without directory listing.</li>
+            <li><strong>Directory listing mode:</strong> Periodic scan, simpler setup.</li>
+            <li><strong>Schema inference + evolution:</strong> Infers schema from incoming files and handles new columns with <code>rescuedDataColumn</code>.</li>
+          </ul>
+          <pre>df = spark.readStream.format(<span class="str">"cloudFiles"</span>) \
+    .option(<span class="str">"cloudFiles.format"</span>, <span class="str">"json"</span>) \
+    .option(<span class="str">"cloudFiles.schemaLocation"</span>, schema_path) \
+    .load(source_path)
+
+df.writeStream.format(<span class="str">"delta"</span>) \
+    .option(<span class="str">"checkpointLocation"</span>, checkpoint_path) \
+    .trigger(availableNow=<span class="kw">True</span>) \
+    .toTable(<span class="str">"catalog.bronze.events"</span>)</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="streaming hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">D8</div>
+        <div class="q-meta">
+          <div class="q-title">Structured Streaming — watermarks and late-arriving data</div>
+          <div class="q-tags"><span class="tag tag-databricks">Databricks</span><span class="tag tag-advanced">Advanced</span><span class="tag tag-hard">Hard</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <p>A <strong>watermark</strong> tells Spark how long to wait for late-arriving events before closing a time window. <code>withWatermark("event_time", "10 minutes")</code> means: tolerate data up to 10 minutes late. After the threshold, the window state is dropped.</p>
+        </div>
+        <pre>df.withWatermark(<span class="str">"event_time"</span>, <span class="str">"10 minutes"</span>) \
+  .groupBy(
+      window(col(<span class="str">"event_time"</span>), <span class="str">"5 minutes"</span>),
+      col(<span class="str">"device_id"</span>)
+  ) \
+  .agg(_sum(<span class="str">"value"</span>).alias(<span class="str">"total"</span>))</pre>
+        <div class="tip-box"><div class="tip-label">Production Pattern</div><p>For a two-band read strategy: process the latest window normally; use a <code>LOOKBACK_HOURS</code> window to catch late data from prior periods and MERGE it into the target Delta table rather than reprocessing from scratch.</p></div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="delta hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">D9</div>
+        <div class="q-meta">
+          <div class="q-title">What is FSCK REPAIR TABLE and when do you need it?</div>
+          <div class="q-tags"><span class="tag tag-databricks">Delta Lake</span><span class="tag tag-hard">Hard</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <p><code>FSCK REPAIR TABLE</code> fixes inconsistencies between a Delta table's transaction log and the actual files on storage. This can occur when files are deleted externally (not through Delta operations) or when storage-level corruption occurs.</p>
+          <ul>
+            <li>Without REPAIR: queries fail with "file not found" errors even though the transaction log references those files.</li>
+            <li>With <code>DRY RUN</code>: shows what would be fixed without making changes.</li>
+          </ul>
+          <pre>FSCK REPAIR TABLE catalog.schema.events;
+
+<span class="cm">-- Preview only, no changes</span>
+FSCK REPAIR TABLE catalog.schema.events DRY RUN;</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="delta hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">D10</div>
+        <div class="q-meta">
+          <div class="q-title">Deep clone vs shallow clone in Delta Lake</div>
+          <div class="q-tags"><span class="tag tag-databricks">Delta Lake</span><span class="tag tag-hard">Hard</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <ul>
+            <li><strong>Deep Clone:</strong> Copies all data files + transaction log to the destination. Fully independent — changes to source don't affect clone. Use for backups, cross-catalog migration.</li>
+            <li><strong>Shallow Clone:</strong> Copies only the transaction log, references the original data files. Much faster and cheap, but dependent on the source — if source files are vacuumed, clone breaks. Use for dev/test environments.</li>
+          </ul>
+          <pre><span class="cm">-- Deep clone (full copy)</span>
+CREATE TABLE catalog_dev.schema.orders
+DEEP CLONE catalog_prod.schema.orders;
+
+<span class="cm">-- Shallow clone (metadata only)</span>
+CREATE TABLE catalog_dev.schema.orders
+SHALLOW CLONE catalog_prod.schema.orders;</pre>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-card" data-tags="catalog hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">D11</div>
+        <div class="q-meta">
+          <div class="q-title">What are Databricks Asset Bundles (DABs) and how do they enable CI/CD?</div>
+          <div class="q-tags"><span class="tag tag-databricks">Databricks</span><span class="tag tag-advanced">Advanced</span><span class="tag tag-hard">Hard</span></div>
+        </div>
+        <div class="q-chevron">▾</div>
+      </div>
+      <div class="q-body">
+        <div class="answer-label">Answer</div>
+        <div class="answer-text">
+          <p>DABs are Databricks' native IaC framework — define jobs, pipelines, clusters, and permissions in YAML (<code>databricks.yml</code>), version-control them in Git, and deploy via CLI or CI/CD pipelines.</p>
+          <ul>
+            <li>Bundle project: notebooks, Python wheels, job definitions, environment-specific overrides (dev/staging/prod).</li>
+            <li><code>databricks bundle validate</code> → checks schema correctness.</li>
+            <li><code>databricks bundle deploy --target prod</code> → deploys all resources to the target workspace.</li>
+            <li><code>databricks bundle run pipeline_job</code> → triggers the deployed job.</li>
+          </ul>
+        </div>
+        <div class="tip-box"><div class="tip-label">Real Use</div><p>DABs replaced legacy Terraform + REST API scripts for Databricks CI/CD. They natively understand Databricks resource types (Delta Live Tables, Jobs, Model Serving endpoints) and support variable substitution across environments.</p></div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════ CHEAT SHEET -->
+<div id="tab-cheatsheet" class="section">
+  <div class="section-heading">Quick Reference Cheat Sheet</div>
+  <div class="section-sub">Most-used functions grouped by category — print and keep handy</div>
+  <div class="cheat-grid">
+
+    <div class="cheat-card">
+      <div class="cheat-card-head"><div class="dot" style="background:#a78bfa"></div>Window Functions</div>
+      <table class="cheat-table">
+        <tr><td class="fn-cell">row_number().over(w)</td><td class="desc-cell">Unique sequential, breaks ties arbitrarily</td></tr>
+        <tr><td class="fn-cell">rank().over(w)</td><td class="desc-cell">Same rank for ties, gaps after</td></tr>
+        <tr><td class="fn-cell">dense_rank().over(w)</td><td class="desc-cell">Same rank for ties, no gaps</td></tr>
+        <tr><td class="fn-cell">lag(col, n).over(w)</td><td class="desc-cell">Value n rows before current row</td></tr>
+        <tr><td class="fn-cell">lead(col, n).over(w)</td><td class="desc-cell">Value n rows after current row</td></tr>
+        <tr><td class="fn-cell">sum(col).over(w)</td><td class="desc-cell">Running / partition-wide sum</td></tr>
+        <tr><td class="fn-cell">avg(col).over(w)</td><td class="desc-cell">Running / partition-wide avg</td></tr>
+        <tr><td class="fn-cell">first(col).over(w)</td><td class="desc-cell">First value in ordered window</td></tr>
+        <tr><td class="fn-cell">last(col).over(w)</td><td class="desc-cell">Last value in ordered window</td></tr>
+      </table>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-head"><div class="dot" style="background:#34d399"></div>Aggregation Functions</div>
+      <table class="cheat-table">
+        <tr><td class="fn-cell">count("col")</td><td class="desc-cell">Count non-null values</td></tr>
+        <tr><td class="fn-cell">count("*")</td><td class="desc-cell">Count all rows including nulls</td></tr>
+        <tr><td class="fn-cell">sum("col")</td><td class="desc-cell">Sum of numeric column</td></tr>
+        <tr><td class="fn-cell">avg("col")</td><td class="desc-cell">Mean value</td></tr>
+        <tr><td class="fn-cell">min("col") / max("col")</td><td class="desc-cell">Min / max value</td></tr>
+        <tr><td class="fn-cell">countDistinct("col")</td><td class="desc-cell">Unique value count</td></tr>
+        <tr><td class="fn-cell">round(expr, 2)</td><td class="desc-cell">Round to n decimal places</td></tr>
+        <tr><td class="fn-cell">collect_list("col")</td><td class="desc-cell">Collect values into array (ordered)</td></tr>
+        <tr><td class="fn-cell">collect_set("col")</td><td class="desc-cell">Collect distinct values into array</td></tr>
+      </table>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-head"><div class="dot" style="background:#fbbf24"></div>Join Types</div>
+      <table class="cheat-table">
+        <tr><td class="fn-cell">inner</td><td class="desc-cell">Only matching rows from both sides</td></tr>
+        <tr><td class="fn-cell">left</td><td class="desc-cell">All left rows, nulls if no right match</td></tr>
+        <tr><td class="fn-cell">right</td><td class="desc-cell">All right rows, nulls if no left match</td></tr>
+        <tr><td class="fn-cell">full / outer</td><td class="desc-cell">All rows from both, nulls where no match</td></tr>
+        <tr><td class="fn-cell">left_anti</td><td class="desc-cell">Left rows with NO match in right</td></tr>
+        <tr><td class="fn-cell">left_semi</td><td class="desc-cell">Left rows WHERE match exists (no right cols)</td></tr>
+        <tr><td class="fn-cell">cross</td><td class="desc-cell">Cartesian product (use with caution!)</td></tr>
+      </table>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-head"><div class="dot" style="background:#60a5fa"></div>String Functions</div>
+      <table class="cheat-table">
+        <tr><td class="fn-cell">trim(col)</td><td class="desc-cell">Remove leading/trailing spaces</td></tr>
+        <tr><td class="fn-cell">initcap(col)</td><td class="desc-cell">Title Case each word</td></tr>
+        <tr><td class="fn-cell">upper(col) / lower(col)</td><td class="desc-cell">All caps / all lowercase</td></tr>
+        <tr><td class="fn-cell">concat(c1, lit("_"), c2)</td><td class="desc-cell">Concatenate with separator</td></tr>
+        <tr><td class="fn-cell">substring(col, pos, len)</td><td class="desc-cell">Extract by character position</td></tr>
+        <tr><td class="fn-cell">regexp_replace(col, p, r)</td><td class="desc-cell">Replace by regex pattern</td></tr>
+        <tr><td class="fn-cell">regexp_extract(col, p, g)</td><td class="desc-cell">Extract by regex group</td></tr>
+        <tr><td class="fn-cell">split(col, delim)</td><td class="desc-cell">Split string into array</td></tr>
+        <tr><td class="fn-cell">explode(col)</td><td class="desc-cell">Array into multiple rows</td></tr>
+      </table>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-head"><div class="dot" style="background:#fb923c"></div>Date Functions</div>
+      <table class="cheat-table">
+        <tr><td class="fn-cell">to_date(col, "fmt")</td><td class="desc-cell">String → DateType</td></tr>
+        <tr><td class="fn-cell">to_timestamp(col, "fmt")</td><td class="desc-cell">String → TimestampType</td></tr>
+        <tr><td class="fn-cell">current_date()</td><td class="desc-cell">Today's date</td></tr>
+        <tr><td class="fn-cell">datediff(end, start)</td><td class="desc-cell">Days between two dates</td></tr>
+        <tr><td class="fn-cell">months_between(end, start)</td><td class="desc-cell">Months between (Double)</td></tr>
+        <tr><td class="fn-cell">add_months(col, n)</td><td class="desc-cell">Add n months</td></tr>
+        <tr><td class="fn-cell">date_add(col, n)</td><td class="desc-cell">Add n days</td></tr>
+        <tr><td class="fn-cell">year(col) / month(col)</td><td class="desc-cell">Extract year or month number</td></tr>
+        <tr><td class="fn-cell">date_format(col, "fmt")</td><td class="desc-cell">Format as display string</td></tr>
+      </table>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-head"><div class="dot" style="background:#f87171"></div>Delta Lake / Databricks</div>
+      <table class="cheat-table">
+        <tr><td class="fn-cell">OPTIMIZE tbl ZORDER BY</td><td class="desc-cell">Compact + co-locate data</td></tr>
+        <tr><td class="fn-cell">VACUUM tbl RETAIN n HOURS</td><td class="desc-cell">Remove stale files</td></tr>
+        <tr><td class="fn-cell">DESCRIBE HISTORY tbl</td><td class="desc-cell">Show all table versions</td></tr>
+        <tr><td class="fn-cell">VERSION AS OF n</td><td class="desc-cell">Time travel by version</td></tr>
+        <tr><td class="fn-cell">RESTORE TABLE TO VERSION</td><td class="desc-cell">Roll back to prior version</td></tr>
+        <tr><td class="fn-cell">MERGE INTO tgt USING src</td><td class="desc-cell">Upsert / SCD / dedup</td></tr>
+        <tr><td class="fn-cell">FSCK REPAIR TABLE</td><td class="desc-cell">Fix log vs file mismatches</td></tr>
+        <tr><td class="fn-cell">DEEP CLONE / SHALLOW CLONE</td><td class="desc-cell">Full copy vs metadata-only copy</td></tr>
+      </table>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-head"><div class="dot" style="background:#9ca3af"></div>Window Frame Syntax</div>
+      <table class="cheat-table">
+        <tr><td class="fn-cell">partitionBy("col")</td><td class="desc-cell">Group rows (like GROUP BY)</td></tr>
+        <tr><td class="fn-cell">orderBy(col.asc())</td><td class="desc-cell">Sequence within partition</td></tr>
+        <tr><td class="fn-cell">rowsBetween(-6, 0)</td><td class="desc-cell">7-row sliding window</td></tr>
+        <tr><td class="fn-cell">rowsBetween(unboundedPreceding, currentRow)</td><td class="desc-cell">Running total frame</td></tr>
+        <tr><td class="fn-cell">rowsBetween(unboundedPreceding, unboundedFollowing)</td><td class="desc-cell">Entire partition</td></tr>
+        <tr><td class="fn-cell">lag(col, 1, default)</td><td class="desc-cell">Previous row; default avoids null</td></tr>
+        <tr><td class="fn-cell">lead(col, 1, default)</td><td class="desc-cell">Next row; null on last row</td></tr>
+      </table>
+    </div>
+
+    <div class="cheat-card">
+      <div class="cheat-card-head"><div class="dot" style="background:#f472b6"></div>Performance Checklist</div>
+      <table class="cheat-table">
+        <tr><td class="fn-cell">broadcast(small_df)</td><td class="desc-cell">Avoid shuffle for small tables &lt;10MB</td></tr>
+        <tr><td class="fn-cell">df.cache()</td><td class="desc-cell">Materialise reused DFs in memory</td></tr>
+        <tr><td class="fn-cell">filter early</td><td class="desc-cell">Pushdown filters before joins</td></tr>
+        <tr><td class="fn-cell">select before join</td><td class="desc-cell">Drop unused columns to reduce shuffle</td></tr>
+        <tr><td class="fn-cell">AQE enabled</td><td class="desc-cell">Auto-handles skew, small files, join type</td></tr>
+        <tr><td class="fn-cell">repartition(n, col)</td><td class="desc-cell">Fix skew by redistributing on key</td></tr>
+        <tr><td class="fn-cell">coalesce(n)</td><td class="desc-cell">Reduce output files before write</td></tr>
+        <tr><td class="fn-cell">df.explain(True)</td><td class="desc-cell">Inspect physical plan for bottlenecks</td></tr>
+      </table>
+    </div>
+
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+  function showTab(name) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+    event.currentTarget.classList.add('active');
+    updateCount(name);
+  }
+
+  function toggle(header) {
+    const card = header.closest('.q-card');
+    card.classList.toggle('open');
+  }
+
+  function filterCards(section) {
+    const search = document.getElementById('search-' + section);
+    const list   = document.getElementById('list-' + section);
+    if (!list || !search) return;
+    const q = search.value.toLowerCase();
+    const activeTag = list.dataset.filterTag || 'all';
+    let count = 0;
+    list.querySelectorAll('.q-card').forEach(card => {
+      const text = card.textContent.toLowerCase();
+      const tags = card.dataset.tags || '';
+      const matchSearch = !q || text.includes(q);
+      const matchTag    = activeTag === 'all' || tags.includes(activeTag);
+      const show = matchSearch && matchTag;
+      card.style.display = show ? '' : 'none';
+      if (show) count++;
+    });
+    const badge = document.getElementById('count-' + section);
+    if (badge) badge.textContent = count + ' questions';
+  }
+
+  function filterTag(btn, section, tag) {
+    const list = document.getElementById('list-' + section);
+    if (!list) return;
+    list.dataset.filterTag = tag;
+    btn.closest('.toolbar').querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    filterCards(section);
+  }
+
+  function updateCount(section) {
+    const list = document.getElementById('list-' + section);
+    if (!list) return;
+    const total = list.querySelectorAll('.q-card').length;
+    const badge = document.getElementById('count-' + section);
+    if (badge) badge.textContent = total + ' questions';
+  }
+
+  // Init counts on load
+  ['conceptual','window','coding','databricks'].forEach(s => {
+    setTimeout(() => updateCount(s), 0);
+  });
+</script>
+</body>
+</html>
