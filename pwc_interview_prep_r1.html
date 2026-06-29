@@ -1,0 +1,1264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PwC Interview Prep — Databricks Data Engineer</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a18; min-height: 100vh; }
+
+  .header { background: #2d2d2b; color: #f0ede6; padding: 2rem 2rem 1.5rem; }
+  .header h1 { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
+  .header p { font-size: 13px; color: #a09d97; }
+  .header .meta { display: flex; gap: 1.5rem; margin-top: 1rem; flex-wrap: wrap; }
+  .meta-badge { font-size: 12px; background: rgba(255,255,255,0.08); border: 0.5px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; color: #d0cdc7; }
+  .meta-badge span { color: #7db8f0; font-weight: 500; }
+
+  .tabs { display: flex; gap: 0; background: #e8e6e0; border-bottom: 1px solid #d0cdc7; overflow-x: auto; }
+  .tab { padding: 12px 20px; font-size: 13px; font-weight: 500; cursor: pointer; color: #6b6965; border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.15s; user-select: none; }
+  .tab:hover { color: #1a1a18; }
+  .tab.active { color: #1a1a18; border-bottom-color: #3b6fd4; background: #f5f4f0; }
+
+  .content { padding: 1.5rem 2rem; max-width: 900px; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .q-card { background: #fff; border: 0.5px solid #d8d5ce; border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+  .q-header { display: flex; align-items: flex-start; gap: 12px; padding: 16px 18px; cursor: pointer; }
+  .q-header:hover { background: #fafaf8; }
+  .q-num { font-size: 11px; font-weight: 500; color: #9d9a94; min-width: 28px; margin-top: 2px; }
+  .q-text { font-size: 14px; font-weight: 500; line-height: 1.5; flex: 1; }
+  .q-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .tag { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 4px; }
+  .tag-easy { background: #e8f4e8; color: #2d6b2d; }
+  .tag-medium { background: #fff3e0; color: #8b5a00; }
+  .tag-hard { background: #fde8e8; color: #8b2020; }
+  .tag-brutal { background: #1a1a18; color: #f0ede6; }
+  .chevron { font-size: 12px; color: #9d9a94; transition: transform 0.2s; }
+  .q-card.open .chevron { transform: rotate(180deg); }
+
+  .q-answer { display: none; padding: 0 18px 18px 58px; border-top: 0.5px solid #ece9e2; padding-top: 14px; }
+  .q-card.open .q-answer { display: block; }
+  .q-answer p { font-size: 13px; line-height: 1.7; color: #3d3d3a; margin-bottom: 8px; }
+  .q-answer ul { font-size: 13px; line-height: 1.7; color: #3d3d3a; padding-left: 18px; margin-bottom: 8px; }
+  .q-answer li { margin-bottom: 4px; }
+  .q-answer code { font-family: 'SF Mono', Menlo, monospace; font-size: 12px; background: #f0ede6; padding: 1px 5px; border-radius: 4px; color: #2d4d8a; }
+  .q-answer pre { background: #1e1e1c; color: #d4d0c8; font-family: 'SF Mono', Menlo, monospace; font-size: 12px; padding: 14px 16px; border-radius: 8px; overflow-x: auto; line-height: 1.6; margin: 10px 0; }
+  .q-answer .hint { background: #f0f6ff; border-left: 3px solid #3b6fd4; border-radius: 0 6px 6px 0; padding: 10px 14px; font-size: 13px; color: #1a3a6b; margin-top: 8px; }
+  .q-answer .warn { background: #fff8e8; border-left: 3px solid #d4930a; border-radius: 0 6px 6px 0; padding: 10px 14px; font-size: 13px; color: #6b4800; margin-top: 8px; }
+
+  .section-label { font-size: 11px; font-weight: 500; color: #9d9a94; text-transform: uppercase; letter-spacing: 0.06em; margin: 1.5rem 0 0.75rem; }
+  .section-label:first-child { margin-top: 0; }
+
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .filter-btn { font-size: 12px; padding: 5px 12px; border-radius: 6px; border: 0.5px solid #d8d5ce; background: #fff; cursor: pointer; color: #4a4844; font-weight: 500; }
+  .filter-btn.active { background: #1a1a18; color: #f0ede6; border-color: #1a1a18; }
+  .filter-btn:hover:not(.active) { background: #f0ede6; }
+
+  .progress-bar { background: #e8e6e0; border-radius: 4px; height: 6px; margin-top: 6px; overflow: hidden; }
+  .progress-fill { height: 100%; border-radius: 4px; transition: width 0.3s; }
+
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+  .stat-card { background: #fff; border: 0.5px solid #d8d5ce; border-radius: 10px; padding: 14px 16px; }
+  .stat-label { font-size: 11px; color: #9d9a94; margin-bottom: 4px; }
+  .stat-val { font-size: 22px; font-weight: 500; }
+
+  .profile-box { background: #fff; border: 0.5px solid #d8d5ce; border-radius: 12px; padding: 18px; margin-bottom: 1.5rem; }
+  .profile-box h3 { font-size: 14px; font-weight: 500; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .profile-box h3::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #3b6fd4; }
+  .profile-row { display: flex; gap: 8px; margin-bottom: 6px; font-size: 13px; color: #4a4844; }
+  .profile-key { color: #9d9a94; min-width: 100px; }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip { font-size: 11px; background: #f0ede6; color: #4a4844; padding: 3px 8px; border-radius: 4px; }
+
+  .timeline-row { display: flex; flex-direction: column; gap: 10px; }
+  .timeline-item { display: flex; gap: 12px; font-size: 13px; }
+  .t-dot { width: 8px; height: 8px; border-radius: 50%; background: #3b6fd4; margin-top: 5px; flex-shrink: 0; }
+  .t-body { flex: 1; }
+  .t-title { font-weight: 500; margin-bottom: 2px; }
+  .t-sub { color: #9d9a94; font-size: 12px; }
+
+  .star-tip { background: #f0f6ff; border-radius: 10px; padding: 16px 18px; margin-bottom: 10px; }
+  .star-label { font-size: 11px; font-weight: 500; color: #3b6fd4; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 6px; }
+  .star-text { font-size: 13px; line-height: 1.7; color: #3d3d3a; }
+
+  .check-item { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: #3d3d3a; margin-bottom: 8px; cursor: pointer; }
+  .check-box { width: 16px; height: 16px; border: 1.5px solid #d8d5ce; border-radius: 4px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .check-item.checked .check-box { background: #3b6fd4; border-color: #3b6fd4; }
+  .check-item.checked .check-box::after { content: '✓'; font-size: 10px; color: white; font-weight: 700; }
+  .check-item.checked > span { color: #9d9a94; text-decoration: line-through; }
+
+  @media (max-width: 600px) {
+    .content { padding: 1rem; }
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+    .header { padding: 1.25rem 1rem 1rem; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>PwC Interview Prep — Databricks Data Engineer</h1>
+  <p>Interviewer: Pranay Goswami · Senior Associate, PwC India · Ex-Cognizant · Azure Data Engineer</p>
+  <div class="meta">
+    <div class="meta-badge">Duration: <span>~60 min</span></div>
+    <div class="meta-badge">Format: <span>Initial screening</span></div>
+    <div class="meta-badge">Interviewer stack: <span>ADF · Synapse · Databricks · PySpark · ADLS</span></div>
+    <div class="meta-badge">Your edge: <span>Unity Catalog · Delta Lake · DABs · SCD2</span></div>
+  </div>
+</div>
+
+<div class="tabs" id="tabBar">
+  <div class="tab active" data-tab="overview">Overview</div>
+  <div class="tab" data-tab="conceptual">Conceptual Q&A</div>
+  <div class="tab" data-tab="pyspark">PySpark Coding</div>
+  <div class="tab" data-tab="sql">SQL Coding</div>
+  <div class="tab" data-tab="checklist">Day-of Checklist</div>
+</div>
+
+<div class="content">
+
+  <!-- OVERVIEW TAB -->
+  <div class="section active" id="tab-overview">
+    <div class="profile-box">
+      <h3>Interviewer intel</h3>
+      <div class="profile-row"><span class="profile-key">Current role</span> Senior Associate @ PwC India</div>
+      <div class="profile-row"><span class="profile-key">Prior exp</span> Cognizant (Oct 2021 – Aug 2025, 3 yrs 11 mos)</div>
+      <div class="profile-row"><span class="profile-key">Certifications</span> 3× Azure Certified, Microsoft Fabric</div>
+      <div class="profile-row"><span class="profile-key">Focus areas</span> Gold-layer pipelines, star schema, Medallion, ADF orchestration, SCD Type-1, ADLS, Power BI</div>
+      <div class="profile-row"><span class="profile-key">Shared context</span> Both from Kolkata, both worked in data engineering on Azure/Databricks stack</div>
+      <div class="chip-row">
+        <span class="chip">Azure Databricks</span><span class="chip">PySpark</span><span class="chip">Delta Lake</span>
+        <span class="chip">ADF</span><span class="chip">Azure Synapse</span><span class="chip">Power BI</span>
+        <span class="chip">Azure Data Lake Gen2</span><span class="chip">Performance Tuning</span><span class="chip">ETL</span>
+      </div>
+    </div>
+
+    <div class="profile-box">
+      <h3>Interview structure (estimated 60 min)</h3>
+      <div class="timeline-row">
+        <div class="timeline-item"><div class="t-dot"></div><div class="t-body"><div class="t-title">0–5 min — Intro & role fit</div><div class="t-sub">Walk me through your background. Why PwC? Why this role?</div></div></div>
+        <div class="timeline-item"><div class="t-dot"></div><div class="t-body"><div class="t-title">5–25 min — Conceptual deep dive</div><div class="t-sub">Delta Lake, Unity Catalog, Medallion arch, streaming, SCD, schema drift, ADF comparison</div></div></div>
+        <div class="timeline-item"><div class="t-dot"></div><div class="t-body"><div class="t-title">25–50 min — Coding round</div><div class="t-sub">PySpark transformation problem + SQL window/aggregation problem</div></div></div>
+        <div class="timeline-item"><div class="t-dot"></div><div class="t-body"><div class="t-title">50–60 min — Your questions + wrap-up</div><div class="t-sub">Prepare 2-3 smart questions for him</div></div></div>
+      </div>
+    </div>
+
+    <div class="profile-box">
+      <h3>Your angle against his background</h3>
+      <div style="font-size:13px; color:#3d3d3a; line-height:1.8;">
+        <p style="margin-bottom:10px;">He implemented <strong>SCD Type-1</strong> — you did <strong>SCD Type-2 MERGE</strong> with first-run guard and watermark filtering. Lead with that delta.</p>
+        <p style="margin-bottom:10px;">He uses <strong>ADF for orchestration</strong> — you understand the ADF vs DABs (Databricks Asset Bundles) trade-off. Be ready to compare.</p>
+        <p style="margin-bottom:10px;">He worked with <strong>Bronze→Silver→Gold</strong> pipelines at Cognizant — you can speak to schema drift handling, auto loader, and PII masking at Unity Catalog level, which is deeper governance than typical.</p>
+        <p>He's 3× Azure certified, not Databricks certified. <strong>Your Databricks Data Engineer Associate cert is your differentiator</strong> — anchor any Databricks-specific answer to it.</p>
+      </div>
+    </div>
+
+    <div class="profile-box">
+      <h3>Recommended intro (30-second pitch)</h3>
+      <div class="star-tip">
+        <div class="star-label">Your opening</div>
+        <div class="star-text">
+          "I'm a Certified Databricks Data Engineer with 4-plus years at TCS, working on an energy technology client. My core work has been building production Bronze-to-Silver-to-Gold pipelines using PySpark, Delta Lake, and Unity Catalog on the Databricks Lakehouse. I've shipped a config-driven schema drift framework that cut pipeline failures by 40%, a PII masking layer covering 15-plus sensitive columns under Unity Catalog governance, and an SCD Type-2 merge pipeline for CSR employee data. I'm looking to bring that depth into a consulting environment like PwC, where I can apply it across multiple client verticals."
+        </div>
+      </div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-label">Conceptual Qs</div><div class="stat-val" style="color:#3b6fd4;">20</div></div>
+      <div class="stat-card"><div class="stat-label">PySpark Coding Qs</div><div class="stat-val" style="color:#d4930a;">10</div></div>
+      <div class="stat-card"><div class="stat-label">SQL Coding Qs</div><div class="stat-val" style="color:#8b2020;">10</div></div>
+      <div class="stat-card"><div class="stat-label">Total questions</div><div class="stat-val">40</div></div>
+    </div>
+  </div>
+
+  <!-- CONCEPTUAL TAB -->
+  <div class="section" id="tab-conceptual">
+    <div class="filter-bar" id="conceptual-filters">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="easy">Easy</button>
+      <button class="filter-btn" data-filter="medium">Medium</button>
+      <button class="filter-btn" data-filter="hard">Hard</button>
+      <button class="filter-btn" data-filter="brutal">Brutal</button>
+    </div>
+
+    <div class="section-label">Delta Lake & Storage</div>
+
+    <div class="q-card" data-diff="easy">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q1</div>
+        <div class="q-text">What is Delta Lake and how does it differ from a plain Parquet data lake?</div>
+        <div class="q-right"><span class="tag tag-easy">Easy</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <p>Delta Lake adds an ACID transaction layer on top of Parquet files via a JSON-based transaction log (<code>_delta_log</code>). Key differences:</p>
+        <ul>
+          <li>ACID transactions — concurrent reads/writes are safe</li>
+          <li>Schema enforcement and evolution</li>
+          <li>Time travel — query older snapshots with <code>VERSION AS OF</code> or <code>TIMESTAMP AS OF</code></li>
+          <li>MERGE, UPDATE, DELETE operations (not possible on plain Parquet)</li>
+          <li>Optimized compaction via <code>OPTIMIZE</code> and <code>VACUUM</code></li>
+        </ul>
+        <div class="hint">Hook to your work: "In my project, Delta Lake's MERGE was critical for SCD Type-2 updates on the Employee Dimension table — plain Parquet would have required full rewrites."</div>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q2</div>
+        <div class="q-text">Explain VACUUM and OPTIMIZE. When would you run each, and what are the risks?</div>
+        <div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <p><strong>OPTIMIZE</strong> compacts small files into larger ones (default 1 GB target), improving read performance. Can include Z-ORDER to co-locate related data. Safe to run anytime — does not delete files.</p>
+        <p><strong>VACUUM</strong> physically deletes files older than the retention threshold (default 7 days). Risk: if you VACUUM with a threshold lower than 7 days and a stream is reading from that table, you can break the stream by removing files it hasn't consumed yet. Also breaks time travel beyond the retained window.</p>
+        <div class="warn">PwC risk angle: In a consulting context, VACUUM must be governed. Never set retention below 7 days without explicit sign-off — audit and compliance teams need historical versions.</div>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q3</div>
+        <div class="q-text">What is Liquid Clustering in Databricks, and when would you prefer it over Z-ORDER or partitioning?</div>
+        <div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <p>Liquid Clustering (DBR 13.3+) is an incremental data layout optimization that replaces static partitioning and Z-ORDER. Key advantages:</p>
+        <ul>
+          <li>Clustering columns can be changed without rewriting the table</li>
+          <li>Clustering happens incrementally — no need to rewrite the full table on OPTIMIZE</li>
+          <li>Avoids the "too many small partitions" problem caused by high-cardinality partition keys</li>
+          <li>Better for tables with multiple frequent filter columns</li>
+        </ul>
+        <p>Prefer Liquid Clustering when: column cardinality is high, filter columns change over time, or you want to avoid partition skew. Prefer partitioning when downstream tools (e.g., ADF, ADLS file system) need folder-level access.</p>
+        <pre>-- Enable liquid clustering
+CREATE TABLE my_table
+CLUSTER BY (event_date, region)
+AS SELECT * FROM source;</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="brutal">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q4</div>
+        <div class="q-text">How does the Delta transaction log handle concurrent write conflicts? What happens when two writers hit the same table simultaneously?</div>
+        <div class="q-right"><span class="tag tag-brutal">Brutal</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <p>Delta uses optimistic concurrency control. Each writer reads the current version N, performs its operation, then tries to commit as version N+1 by writing a new JSON entry to <code>_delta_log/</code>.</p>
+        <p>If two writers both read version N and both try to write N+1, the second commit fails with a <code>ConcurrentModificationException</code>. Delta then checks if the conflict is resolvable:</p>
+        <ul>
+          <li><strong>No overlap</strong> (e.g., writes touch different partitions) — Delta retries automatically</li>
+          <li><strong>Overlapping files</strong> — the second writer must re-read and retry from scratch</li>
+        </ul>
+        <p>Isolation levels: Delta supports <strong>Serializable</strong> (default, strongest) and <strong>WriteSerializable</strong> (weaker but allows more concurrency — concurrent appends are not treated as conflicting).</p>
+        <div class="hint">This matters for streaming + batch concurrent writes. Use <code>delta.isolationLevel = WriteSerializable</code> for append-only streaming tables to reduce conflicts.</div>
+      </div>
+    </div>
+
+    <div class="section-label">Unity Catalog & Governance</div>
+
+    <div class="q-card" data-diff="easy">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q5</div>
+        <div class="q-text">What is Unity Catalog and what problem does it solve vs the legacy Hive Metastore?</div>
+        <div class="q-right"><span class="tag tag-easy">Easy</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <p>Unity Catalog (UC) is Databricks' unified governance layer for data and AI. It introduces a 3-level namespace: <code>catalog.schema.table</code>.</p>
+        <p>Problems it solves vs Hive Metastore:</p>
+        <ul>
+          <li>Hive Metastore is workspace-scoped — UC is account-scoped (one governance plane across workspaces)</li>
+          <li>Column-level and row-level security (not possible in HMS)</li>
+          <li>Built-in lineage tracking at column level</li>
+          <li>Fine-grained RBAC with centralized audit logs</li>
+          <li>Manages not just tables but also ML models, volumes (files), and functions</li>
+        </ul>
+        <div class="hint">Your project angle: "I implemented PII masking at Unity Catalog level using dynamic views and column masks, which allowed me to expose masked columns to downstream analysts without touching the raw Bronze data."</div>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q6</div>
+        <div class="q-text">How would you implement column-level PII masking in Unity Catalog?</div>
+        <div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <p>Two approaches in Unity Catalog:</p>
+        <p><strong>1. Column Masks (UC native):</strong></p>
+        <pre>CREATE FUNCTION mask_email(email STRING)
+RETURNS STRING
+RETURN CASE WHEN is_member('pii_readers') THEN email
+            ELSE regexp_replace(email, '(.).+(@.+)', '$1***$2') END;
+
+ALTER TABLE catalog.schema.employees
+ALTER COLUMN email SET MASK mask_email;</pre>
+        <p><strong>2. Dynamic Views:</strong> Create a view that applies UDF-based masking, grant access to the view instead of the base table.</p>
+        <div class="hint">Your real answer: "In my project, I used a config-driven approach — a Delta registry table stored masking strategy per column. A PySpark framework read this registry at runtime and applied SHA256 hashing, truncation, or regex replacement based on column sensitivity classification."</div>
+      </div>
+    </div>
+
+    <div class="section-label">Medallion Architecture & Pipeline Design</div>
+
+    <div class="q-card" data-diff="easy">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q7</div>
+        <div class="q-text">Explain the Medallion Architecture. What transformations happen at each layer?</div>
+        <div class="q-right"><span class="tag tag-easy">Easy</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <ul>
+          <li><strong>Bronze:</strong> Raw ingestion — schema-on-read, append-only, no transforms. Preserves source data fidelity. Includes ingestion metadata (load timestamp, source file name).</li>
+          <li><strong>Silver:</strong> Cleansed, deduplicated, type-cast, schema-on-write. Joins applied. SCD logic applied here. PII masking applied here or at access layer.</li>
+          <li><strong>Gold:</strong> Business-aggregated, KPI-ready. Star schema (fact + dimension). Optimized for BI tools and reporting. Minimal PySpark computation — mostly SQL aggregations.</li>
+        </ul>
+        <div class="hint">Pranay's experience: he built Gold-layer pipelines with claim settlement trends and policy performance metrics, and created star schema models. He'll appreciate specifics about your Gold layer design.</div>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q8</div>
+        <div class="q-text">How did you handle schema drift in your Bronze ingestion pipeline? What happens when a new column appears in a CSV source?</div>
+        <div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <p>Your actual implementation — use it directly:</p>
+        <ul>
+          <li>Used Auto Loader with <code>cloudFiles.schemaEvolutionMode = "addNewColumns"</code> so new columns are automatically added to the Bronze Delta table</li>
+          <li>Built a reusable framework that compares incoming schema against the Delta table schema, classifies changes as: new column (add), removed column (nullify), type change (cast or reject)</li>
+          <li>Schema mismatches logged to a Delta audit table; data owners alerted via pipeline monitoring</li>
+          <li>Used <code>mergeSchema = true</code> on writes to Silver for safe evolution</li>
+          <li>Result: pipeline failures reduced 40% across 10+ source feeds</li>
+        </ul>
+        <pre>df = spark.readStream.format("cloudFiles")
+  .option("cloudFiles.format", "csv")
+  .option("cloudFiles.schemaEvolutionMode", "addNewColumns")
+  .option("cloudFiles.schemaLocation", schema_path)
+  .load(source_path)
+
+df.writeStream.format("delta")
+  .option("mergeSchema", "true")
+  .option("checkpointLocation", checkpoint_path)
+  .start(bronze_path)</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q9</div>
+        <div class="q-text">SCD Type 1 vs SCD Type 2 — when do you use each? How is Type 2 implemented in Delta?</div>
+        <div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <p><strong>SCD Type-1</strong>: Overwrite — no history. Use when history doesn't matter (e.g., fixing a typo in a name field).</p>
+        <p><strong>SCD Type-2</strong>: Add a new row with <code>effective_start</code>, <code>effective_end</code>, <code>is_current</code> flag. Full history preserved. Use for dimension tables where historical context matters (e.g., employee department history for ESG KPI reporting).</p>
+        <p>Delta MERGE pattern for SCD Type-2:</p>
+        <pre>-- Step 1: Expire changed records
+MERGE INTO dim_employee t
+USING new_data s ON t.emp_id = s.emp_id AND t.is_current = true
+WHEN MATCHED AND t.dept != s.dept THEN
+  UPDATE SET t.effective_end = current_date(), t.is_current = false;
+
+-- Step 2: Insert new/changed records
+INSERT INTO dim_employee
+SELECT *, current_date() as effective_start,
+  date('9999-12-31') as effective_end, true as is_current
+FROM new_data WHERE emp_id IN (changed_ids);</pre>
+        <div class="hint">Your angle: "I added a first-run guard — on first load, I skip the expiry step entirely to avoid unnecessary MERGE overhead on empty target tables. And I filter incoming data by load_date watermark to avoid reprocessing historical batches."</div>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="brutal">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q10</div>
+        <div class="q-text">Design a late-arriving data strategy for a Bronze pipeline ingesting files that can arrive up to 72 hours late. How do you ensure no data loss and no duplicate processing?</div>
+        <div class="q-right"><span class="tag tag-brutal">Brutal</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <p>Full strategy (your actual architecture):</p>
+        <ul>
+          <li><strong>Two-band read:</strong> Read T-72h to T-0 window on each run. Parameterize as <code>LOOKBACK_HOURS = 72</code>. Prevents missing late arrivals.</li>
+          <li><strong>Idempotent writes:</strong> Use MERGE on natural key + batch_id so re-processing the same file doesn't create duplicates.</li>
+          <li><strong>Watermark tracking:</strong> Store <code>last_processed_watermark</code> in a control Delta table. Each run reads from <code>max(event_time) - LOOKBACK_HOURS</code>.</li>
+          <li><strong>File-level dedup:</strong> Auto Loader maintains a checkpoint of processed files. Even if a file is re-dropped, Auto Loader won't re-read it.</li>
+          <li><strong>Structured streaming watermark:</strong> If using streaming, set <code>.withWatermark("event_time", "72 hours")</code> to bound state size while tolerating late data.</li>
+        </ul>
+        <div class="warn">Gotcha: don't set streaming watermark too tight — if you set 24h but data arrives at 60h, those records are dropped silently. Validate against SLA requirements first.</div>
+      </div>
+    </div>
+
+    <div class="section-label">Performance Tuning</div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q11</div>
+        <div class="q-text">When would you use a broadcast join vs a sort-merge join in PySpark?</div>
+        <div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <p><strong>Broadcast join:</strong> Use when one side of the join is small enough to fit in executor memory (default threshold: 10 MB, configurable via <code>spark.sql.autoBroadcastJoinThreshold</code>). Broadcasts the small table to all workers, avoiding shuffle entirely.</p>
+        <p><strong>Sort-merge join:</strong> Used for large-to-large joins. Both datasets are shuffled, sorted on the join key, and merged. Expensive but handles any size.</p>
+        <pre>from pyspark.sql.functions import broadcast
+
+# Force broadcast
+df_large.join(broadcast(df_small), "key")</pre>
+        <div class="hint">Your project angle: "In my BOM hierarchy explosion pipeline joining 1 crore+ material keys, I identified the dimension lookup table as small enough to broadcast, which eliminated a multi-minute shuffle stage."</div>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q12</div>
+        <div class="q-text">What is data skew and how do you handle it in a PySpark join?</div>
+        <div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <p>Data skew happens when one partition receives significantly more data than others — one executor runs 10× longer while the rest finish, making the stage the bottleneck.</p>
+        <p><strong>Detection:</strong> Check Spark UI stage metrics — if one task's runtime is 10× the median, skew is likely. Also check <code>df.groupBy("key").count()</code> for key distribution.</p>
+        <p><strong>Fixes:</strong></p>
+        <ul>
+          <li><strong>Salting:</strong> Add a random suffix (0 to N) to the skewed key in both DataFrames, join on salted key, then aggregate away the salt.</li>
+          <li><strong>AQE Skew Join (Spark 3.x):</strong> Set <code>spark.sql.adaptive.skewJoin.enabled = true</code> — Databricks auto-splits skewed partitions.</li>
+          <li><strong>Broadcast the skewed side</strong> if small enough.</li>
+        </ul>
+        <pre># Salting example
+from pyspark.sql.functions import col, concat, lit, rand, floor
+
+n = 10
+df_large = df_large.withColumn("salt", (floor(rand() * n)).cast("string"))
+df_large = df_large.withColumn("salted_key", concat(col("key"), lit("_"), col("salt")))
+
+df_small = df_small.crossJoin(spark.range(n).withColumnRenamed("id","salt_val"))
+df_small = df_small.withColumn("salted_key", concat(col("key"), lit("_"), col("salt_val").cast("string")))</pre>
+      </div>
+    </div>
+
+    <div class="section-label">ADF vs Databricks & Cloud Integration</div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q13</div>
+        <div class="q-text">Pranay uses ADF for orchestration. How would you compare ADF to Databricks Workflows / DABs?</div>
+        <div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <p>This is a comparison question where you show strategic depth without dismissing ADF (his tool).</p>
+        <ul>
+          <li><strong>ADF strengths:</strong> 90+ connectors, GUI-driven, strong for non-Databricks data movement (Blob → SQL DB, REST API → ADLS). Low code. Good for Azure-native orgs.</li>
+          <li><strong>Databricks Workflows / DABs strengths:</strong> Code-first CI/CD via YAML bundles, version-controlled in Git, native Spark job orchestration, cluster reuse, better cost control for compute-heavy pipelines.</li>
+          <li><strong>When to use ADF:</strong> Cross-system data copy, triggering from Azure events, non-Spark workloads.</li>
+          <li><strong>When to use DABs:</strong> Complex multi-task Databricks pipelines, staging/prod environment promotion, GitOps-style deployment.</li>
+        </ul>
+        <div class="hint">Your angle: "In my TCS project, we migrated from ADF-triggered Databricks notebooks to DABs for CI/CD. The gain was full Git-based job promotion across dev/staging/prod without manual re-configuration in the Databricks UI."</div>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q14</div>
+        <div class="q-text">How does Auto Loader differ from COPY INTO for incremental data ingestion?</div>
+        <div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <ul>
+          <li><strong>Auto Loader:</strong> Streaming-based, uses cloudFiles source. Tracks new files via cloud notification events (SNS/Event Grid) or directory listing. Stateful — remembers processed files in checkpoint. Best for continuously arriving files at high volume.</li>
+          <li><strong>COPY INTO:</strong> Batch-based SQL command. Idempotent — re-running it won't re-load files already loaded. Simpler setup, no streaming infrastructure needed. Better for scheduled batch ingest of moderate file volume.</li>
+        </ul>
+        <p>Key differences table:</p>
+        <ul>
+          <li>Auto Loader scales to millions of files; COPY INTO degrades at very high file counts (full directory scan)</li>
+          <li>Auto Loader supports schema inference/evolution natively; COPY INTO requires explicit schema</li>
+          <li>Auto Loader is integrated with Structured Streaming — supports foreachBatch, watermarks; COPY INTO is SQL only</li>
+        </ul>
+        <div class="hint">Your choice in production: "We used Auto Loader for all 5 ESG application feeds because of the high daily file volume and the need for schema evolution. COPY INTO was used only for one-time historical backfills."</div>
+      </div>
+    </div>
+
+    <div class="section-label">Streaming & Structured Streaming</div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q15</div>
+        <div class="q-text">What is foreachBatch in Structured Streaming and why is it useful?</div>
+        <div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <p><code>foreachBatch</code> lets you apply any batch DataFrame operation to each micro-batch produced by a streaming query. This bridges the gap between streaming and batch APIs.</p>
+        <p>Common use cases:</p>
+        <ul>
+          <li>MERGE operations into Delta (streaming MERGE is not natively supported — foreachBatch makes it possible)</li>
+          <li>Writing to multiple sinks from a single stream</li>
+          <li>Applying deduplication logic using joinWith or dropDuplicates</li>
+        </ul>
+        <pre>def upsert_batch(batch_df, batch_id):
+    batch_df.createOrReplaceTempView("updates")
+    batch_df._jdf.sparkSession().sql("""
+        MERGE INTO silver_table t
+        USING updates s ON t.id = s.id
+        WHEN MATCHED THEN UPDATE SET *
+        WHEN NOT MATCHED THEN INSERT *
+    """)
+
+stream.writeStream.foreachBatch(upsert_batch).start()</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="brutal">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q16</div>
+        <div class="q-text">How does AQE (Adaptive Query Execution) work in Spark 3.x and what specific optimizations does it apply at runtime?</div>
+        <div class="q-right"><span class="tag tag-brutal">Brutal</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <p>AQE re-optimizes the query plan at runtime using shuffle stage statistics (actual row counts, data sizes). Enabled with <code>spark.sql.adaptive.enabled = true</code> (default in Spark 3.2+).</p>
+        <p>Three major runtime optimizations:</p>
+        <ul>
+          <li><strong>Dynamic coalescing of shuffle partitions:</strong> If spark.sql.shuffle.partitions = 200 but only 5 partitions have data after a filter, AQE merges them to avoid 195 nearly-empty tasks.</li>
+          <li><strong>Dynamic switch to broadcast join:</strong> If the planner estimated a large join but actual data after filtering is small, AQE switches from sort-merge to broadcast join mid-execution.</li>
+          <li><strong>Skew join optimization:</strong> Automatically splits skewed partitions and replicates the corresponding non-skewed side — no manual salting needed.</li>
+        </ul>
+        <p>Key config:</p>
+        <pre>spark.conf.set("spark.sql.adaptive.enabled", "true")
+spark.conf.set("spark.sql.adaptive.coalescePartitions.enabled", "true")
+spark.conf.set("spark.sql.adaptive.skewJoin.enabled", "true")
+spark.conf.set("spark.sql.adaptive.skewJoin.skewedPartitionThresholdInBytes", "256MB")</pre>
+      </div>
+    </div>
+
+    <div class="section-label">General / Situational</div>
+
+    <div class="q-card" data-diff="easy">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q17</div>
+        <div class="q-text">Why do you want to move into consulting (PwC) from a product company (TCS)?</div>
+        <div class="q-right"><span class="tag tag-easy">Easy</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <div class="star-tip">
+          <div class="star-label">Suggested answer</div>
+          <div class="star-text">"At TCS I've built deep expertise in a single energy technology domain — Medallion architecture, PII governance, ESG pipelines. Consulting would expose me to multiple industries in compressed time. I want to apply my Databricks depth — which I've validated with my certification — across financial services, manufacturing, and healthcare data problems. PwC specifically is attractive because of your Microsoft/Azure partnership, which aligns with the Azure Databricks stack I've been building on."</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q18</div>
+        <div class="q-text">Tell me about a production pipeline failure you debugged. What was the root cause and how did you fix it?</div>
+        <div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <div class="star-tip">
+          <div class="star-label">STAR answer — use your real story</div>
+          <div class="star-text">Situation: SharePoint-based data source connections were failing intermittently across 15+ pipelines. Task: Diagnose and fix without manual intervention. Action: Traced failures to password-based auth tokens expiring — no automated rotation. Migrated all 15+ connections to OAuth2 token-based auth with Databricks secret scopes backed by Azure Key Vault. Result: Pipeline downtime eliminated, manual credential resets no longer required, audit trail improved for governance reviews.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q19</div>
+        <div class="q-text">How would you design a data quality framework for a Gold layer table that feeds executive dashboards?</div>
+        <div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <p>Framework layers:</p>
+        <ul>
+          <li><strong>Rule definition:</strong> Store DQ rules in a Delta control table (rule_id, table_name, column_name, check_type, threshold)</li>
+          <li><strong>Check types:</strong> Null rate, uniqueness, referential integrity, range bounds, regex pattern, row count delta vs prior run</li>
+          <li><strong>Execution:</strong> PySpark framework reads rules, dynamically executes checks via DataFrame API, computes pass/fail per rule</li>
+          <li><strong>Scoring:</strong> Composite DQ score per table (weighted average of rule scores)</li>
+          <li><strong>Routing:</strong> Records failing critical rules → quarantine Delta table; records with warnings → flagged column in Gold table</li>
+          <li><strong>Alerting:</strong> DQ audit results written to a Delta audit table, Databricks job alerts trigger on score below threshold</li>
+        </ul>
+        <div class="hint">For exec dashboards: block the Gold write if DQ score drops below 80%. Better to have no data than wrong data on an ESG disclosure dashboard.</div>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">Q20</div>
+        <div class="q-text">Questions to ask Pranay (your turn at the end)</div>
+        <div class="q-right"><span class="tag tag-medium">Ask These</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <ul>
+          <li>"What does the Databricks footprint look like at PwC India — is it primarily Azure Databricks, and are clients on Unity Catalog or still migrating from Hive Metastore?"</li>
+          <li>"For data engineering engagements, how does PwC structure the team — do engineers own full pipeline delivery end-to-end, or is there a separation between ingestion and transformation tracks?"</li>
+          <li>"Given your own experience moving from Cognizant to PwC, what was the biggest adjustment in working on consulting projects vs product delivery?"</li>
+        </ul>
+        <div class="hint">The third question acknowledges his career move (a rapport builder) and lets him share something personal — puts the conversation on equal footing.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PYSPARK TAB -->
+  <div class="section" id="tab-pyspark">
+    <div class="filter-bar" id="pyspark-filters">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="easy">Easy</button>
+      <button class="filter-btn" data-filter="medium">Medium</button>
+      <button class="filter-btn" data-filter="hard">Hard</button>
+      <button class="filter-btn" data-filter="brutal">Brutal</button>
+    </div>
+
+    <div class="q-card" data-diff="easy">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">P1</div>
+        <div class="q-text">Given a DataFrame with columns (employee_id, salary, department), find the top-2 highest earners per department.</div>
+        <div class="q-right"><span class="tag tag-easy">Easy</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <pre>from pyspark.sql.window import Window
+from pyspark.sql.functions import rank
+
+w = Window.partitionBy("department").orderBy(col("salary").desc())
+
+df.withColumn("rnk", rank().over(w)) \
+  .filter(col("rnk") <= 2) \
+  .drop("rnk") \
+  .show()</pre>
+        <p>Note: Use <code>rank()</code> to include ties. Use <code>row_number()</code> if you want exactly 2 rows even when tied.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="easy">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">P2</div>
+        <div class="q-text">Deduplicate a DataFrame on (customer_id, order_date), keeping the record with the latest updated_at timestamp.</div>
+        <div class="q-right"><span class="tag tag-easy">Easy</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <pre>from pyspark.sql.window import Window
+from pyspark.sql.functions import row_number
+
+w = Window.partitionBy("customer_id","order_date").orderBy(col("updated_at").desc())
+
+df.withColumn("rn", row_number().over(w)) \
+  .filter(col("rn") == 1) \
+  .drop("rn")</pre>
+        <p>Alternative using <code>dropDuplicates</code> won't work here since we need to pick by recency — window + row_number is the correct approach.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">P3</div>
+        <div class="q-text">Write a MERGE (upsert) into a Delta table from a source DataFrame. On match update all columns. On no match insert.</div>
+        <div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <pre>from delta.tables import DeltaTable
+
+target = DeltaTable.forPath(spark, "/mnt/silver/employees")
+
+target.alias("t").merge(
+    source=new_df.alias("s"),
+    condition="t.emp_id = s.emp_id"
+).whenMatchedUpdateAll() \
+ .whenNotMatchedInsertAll() \
+ .execute()</pre>
+        <p>Key points to mention: <code>whenMatchedUpdateAll()</code> updates all columns from source. For selective updates use <code>whenMatchedUpdate(set={...})</code>. Add a condition to avoid updating when no actual change: <code>whenMatchedUpdate(condition="t.updated_at < s.updated_at", set={...})</code>.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">P4</div>
+        <div class="q-text">You have a flat DataFrame of employee records. Implement SCD Type-2 MERGE logic to expire changed records and insert new versions.</div>
+        <div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <pre>from pyspark.sql.functions import current_date, lit
+from delta.tables import DeltaTable
+
+dim = DeltaTable.forPath(spark, "/mnt/gold/dim_employee")
+
+# Step 1: Expire changed current records
+dim.alias("t").merge(
+    new_df.alias("s"),
+    "t.emp_id = s.emp_id AND t.is_current = true AND t.dept != s.dept"
+).whenMatchedUpdate(set={
+    "effective_end": current_date(),
+    "is_current": lit(False)
+}).execute()
+
+# Step 2: Insert new versions for changed + brand new employees
+inserts = new_df.withColumn("effective_start", current_date()) \
+               .withColumn("effective_end", lit("9999-12-31").cast("date")) \
+               .withColumn("is_current", lit(True))
+
+dim.alias("t").merge(
+    inserts.alias("s"),
+    "t.emp_id = s.emp_id AND t.is_current = true"
+).whenNotMatchedInsertAll() \
+ .execute()</pre>
+        <p>Mention: add a first-run guard to skip Step 1 when the target table is empty, and filter <code>new_df</code> by <code>load_date >= last_watermark</code> to avoid re-processing.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">P5</div>
+        <div class="q-text">Write a config-driven PII masking function that reads a Delta registry table and applies SHA-256 or truncation based on the column's classification.</div>
+        <div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <pre>from pyspark.sql.functions import sha2, col, substring
+
+# Registry: columns (table_name, col_name, strategy)
+registry = spark.table("governance.pii_registry") \
+               .filter(col("table_name") == "employees") \
+               .collect()
+
+def apply_masking(df, registry_rows):
+    for row in registry_rows:
+        c = row["col_name"]
+        strategy = row["strategy"]
+        if strategy == "sha256":
+            df = df.withColumn(c, sha2(col(c).cast("string"), 256))
+        elif strategy == "truncate":
+            df = df.withColumn(c, substring(col(c), 1, 3))
+        elif strategy == "nullify":
+            df = df.withColumn(c, lit(None).cast(df.schema[c].dataType))
+    return df
+
+masked_df = apply_masking(source_df, registry)</pre>
+        <div class="hint">This is literally your project. Own it: "I designed and implemented exactly this pattern — a Delta-backed registry with per-column masking strategy, applied at the Silver layer before writing to Gold."</div>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">P6</div>
+        <div class="q-text">Flatten a nested JSON column containing an array of structs. Each element has (product_id, quantity, price). Explode it and compute total_value per order.</div>
+        <div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <pre>from pyspark.sql.functions import explode, col, sum as _sum
+
+# Source: orders_df with columns (order_id, items: array<struct<product_id, quantity, price>>)
+exploded = orders_df.withColumn("item", explode(col("items"))) \
+    .select(
+        "order_id",
+        col("item.product_id"),
+        col("item.quantity"),
+        col("item.price"),
+        (col("item.quantity") * col("item.price")).alias("line_total")
+    )
+
+order_totals = exploded.groupBy("order_id") \
+    .agg(_sum("line_total").alias("total_value"))
+
+order_totals.show()</pre>
+        <p>Watch for: if items column is a JSON string (not native struct), first parse with <code>from_json(col("items"), schema)</code> before exploding.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">P7</div>
+        <div class="q-text">Implement a sessionization pipeline: given (user_id, event_time), group events into sessions where the gap between consecutive events exceeds 30 minutes.</div>
+        <div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <pre>from pyspark.sql.window import Window
+from pyspark.sql.functions import (col, lag, unix_timestamp,
+    when, sum as _sum, concat, lit)
+
+w_user = Window.partitionBy("user_id").orderBy("event_time")
+
+df = df.withColumn("prev_time", lag("event_time").over(w_user))
+
+df = df.withColumn("gap_sec",
+    unix_timestamp("event_time") - unix_timestamp("prev_time"))
+
+df = df.withColumn("new_session",
+    when((col("gap_sec") > 1800) | col("gap_sec").isNull(), 1).otherwise(0))
+
+df = df.withColumn("session_num", _sum("new_session").over(
+    w_user.rowsBetween(Window.unboundedPreceding, 0)))
+
+df = df.withColumn("session_id",
+    concat(col("user_id"), lit("_"), col("session_num")))</pre>
+        <p>Cumulative sum of <code>new_session</code> flags gives a monotonically increasing session counter per user.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">P8</div>
+        <div class="q-text">You have a Bronze Delta table with 500 million rows. Writing to Silver is slow. List at least 4 performance fixes and implement one in code.</div>
+        <div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <p>Fixes:</p>
+        <ul>
+          <li>Repartition by a high-cardinality column before write to avoid small files: <code>df.repartition(200, "partition_col")</code></li>
+          <li>Use AQE for dynamic shuffle optimization</li>
+          <li>Predicate pushdown — filter early before joins</li>
+          <li>Broadcast small dimension tables to avoid shuffle joins</li>
+          <li>Use columnar caching (<code>df.cache()</code> then action) if same DF is used multiple times</li>
+          <li>Use <code>OPTIMIZE</code> + Z-ORDER on Silver table for read performance downstream</li>
+        </ul>
+        <pre># Repartition + optimize write
+df.filter(col("load_date") >= last_watermark) \
+  .repartition(200, "region") \
+  .write.format("delta") \
+  .mode("append") \
+  .option("dataChange", "true") \
+  .save("/mnt/silver/transactions")
+
+# Post-write optimization
+spark.sql("OPTIMIZE silver.transactions ZORDER BY (region, event_date)")</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="brutal">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">P9</div>
+        <div class="q-text">Implement a recursive BOM (Bill of Materials) hierarchy explosion using iterative DataFrame joins. Input: (parent_id, child_id, quantity). Output: all ancestor-descendant paths with cumulative quantity.</div>
+        <div class="q-right"><span class="tag tag-brutal">Brutal</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <pre>from pyspark.sql.functions import col
+
+bom = spark.table("bronze.bom_raw")  # parent_id, child_id, quantity
+
+# Start: direct relationships
+result = bom.select(
+    col("parent_id").alias("root"),
+    col("child_id").alias("leaf"),
+    col("quantity").alias("cum_qty"),
+    lit(1).alias("depth")
+)
+
+# Iterative explosion (max depth guard)
+prev = result
+for _ in range(10):
+    next_level = prev.alias("p").join(
+        bom.alias("b"),
+        col("p.leaf") == col("b.parent_id")
+    ).select(
+        col("p.root"),
+        col("b.child_id").alias("leaf"),
+        (col("p.cum_qty") * col("b.quantity")).alias("cum_qty"),
+        (col("p.depth") + 1).alias("depth")
+    )
+    if next_level.count() == 0:
+        break
+    result = result.union(next_level)
+    prev = next_level
+
+result.show()</pre>
+        <div class="warn">Production note: this is your actual pipeline (1 crore+ material keys). Mention that you alias DataFrames carefully to avoid Catalyst plan explosion, and cache intermediate results at each iteration.</div>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="brutal">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">P10</div>
+        <div class="q-text">Design an idempotent batch ingestion framework in PySpark. The same source file can arrive multiple times. Ensure exactly-once semantics without using streaming checkpoints.</div>
+        <div class="q-right"><span class="tag tag-brutal">Brutal</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <pre>from pyspark.sql.functions import md5, col, lit, input_file_name, current_timestamp
+
+# 1. Compute file fingerprint
+df = spark.read.format("parquet").load(source_path) \
+     .withColumn("source_file", input_file_name()) \
+     .withColumn("batch_id", md5(lit(source_path))) \
+     .withColumn("ingested_at", current_timestamp())
+
+# 2. Check control table for already-processed files
+processed = spark.table("control.ingestion_log") \
+    .select("batch_id").distinct()
+
+# 3. Filter out already processed batches
+new_batches = df.join(processed, "batch_id", "left_anti")
+
+# 4. Write with MERGE on natural key + batch_id (idempotent)
+from delta.tables import DeltaTable
+target = DeltaTable.forPath(spark, bronze_path)
+target.alias("t").merge(
+    new_batches.alias("s"),
+    "t.natural_key = s.natural_key AND t.batch_id = s.batch_id"
+).whenNotMatchedInsertAll().execute()
+
+# 5. Log processed batch
+new_batches.select("batch_id","source_file","ingested_at") \
+    .distinct() \
+    .write.mode("append").saveAsTable("control.ingestion_log")</pre>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SQL TAB -->
+  <div class="section" id="tab-sql">
+    <div class="filter-bar" id="sql-filters">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="easy">Easy</button>
+      <button class="filter-btn" data-filter="medium">Medium</button>
+      <button class="filter-btn" data-filter="hard">Hard</button>
+      <button class="filter-btn" data-filter="brutal">Brutal</button>
+    </div>
+
+    <div class="q-card" data-diff="easy">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">S1</div>
+        <div class="q-text">Find the second-highest salary in each department.</div>
+        <div class="q-right"><span class="tag tag-easy">Easy</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <pre>SELECT department, salary
+FROM (
+  SELECT department, salary,
+         DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) AS dr
+  FROM employees
+)
+WHERE dr = 2;</pre>
+        <p>Use <code>DENSE_RANK</code> rather than <code>RANK</code> so duplicate salaries at rank 1 don't skip to rank 3. Use <code>DENSE_RANK</code> rather than <code>ROW_NUMBER</code> to correctly handle ties at rank 2.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="easy">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">S2</div>
+        <div class="q-text">Given a sales table (order_id, customer_id, order_date, revenue), find customers who placed orders in both January and February 2024.</div>
+        <div class="q-right"><span class="tag tag-easy">Easy</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <pre>SELECT customer_id
+FROM sales
+WHERE order_date BETWEEN '2024-01-01' AND '2024-02-29'
+GROUP BY customer_id
+HAVING COUNT(DISTINCT MONTH(order_date)) = 2;</pre>
+        <p>The HAVING clause ensures the customer has orders in both distinct months — not just one or the other.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">S3</div>
+        <div class="q-text">Compute month-over-month revenue growth percentage for each region.</div>
+        <div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <pre>WITH monthly AS (
+  SELECT region,
+         DATE_FORMAT(order_date, 'yyyy-MM') AS month,
+         SUM(revenue) AS monthly_rev
+  FROM sales
+  GROUP BY region, DATE_FORMAT(order_date, 'yyyy-MM')
+)
+SELECT region, month, monthly_rev,
+       LAG(monthly_rev) OVER (PARTITION BY region ORDER BY month) AS prev_rev,
+       ROUND(
+         100.0 * (monthly_rev - LAG(monthly_rev) OVER (PARTITION BY region ORDER BY month))
+         / NULLIF(LAG(monthly_rev) OVER (PARTITION BY region ORDER BY month), 0),
+       2) AS mom_growth_pct
+FROM monthly
+ORDER BY region, month;</pre>
+        <p>Use <code>NULLIF(..., 0)</code> to prevent division by zero for first month or months with zero prior revenue.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">S4</div>
+        <div class="q-text">Find customers who have never made a purchase (using both NOT EXISTS and LEFT JOIN approaches).</div>
+        <div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <pre>-- Approach 1: LEFT JOIN
+SELECT c.customer_id, c.name
+FROM customers c
+LEFT JOIN orders o ON c.customer_id = o.customer_id
+WHERE o.order_id IS NULL;
+
+-- Approach 2: NOT EXISTS
+SELECT customer_id, name
+FROM customers c
+WHERE NOT EXISTS (
+  SELECT 1 FROM orders o WHERE o.customer_id = c.customer_id
+);</pre>
+        <p>NOT IN can give wrong results if the subquery contains NULLs — prefer NOT EXISTS or LEFT JOIN + IS NULL for safety.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">S5</div>
+        <div class="q-text">Compute a 3-month rolling average revenue per region, ordered by month.</div>
+        <div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <pre>WITH monthly AS (
+  SELECT region,
+         DATE_FORMAT(order_date, 'yyyy-MM') AS month,
+         SUM(revenue) AS monthly_rev
+  FROM sales
+  GROUP BY region, DATE_FORMAT(order_date, 'yyyy-MM')
+)
+SELECT region, month, monthly_rev,
+       ROUND(AVG(monthly_rev) OVER (
+         PARTITION BY region
+         ORDER BY month
+         ROWS BETWEEN 2 PRECEDING AND CURRENT ROW
+       ), 2) AS rolling_3m_avg
+FROM monthly;</pre>
+        <p><code>ROWS BETWEEN 2 PRECEDING AND CURRENT ROW</code> gives the current row plus 2 prior rows = 3-month window. Use <code>ROWS</code> not <code>RANGE</code> here since month is a string — RANGE requires numeric/date ordering.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">S6</div>
+        <div class="q-text">Gaps and islands: given a table of employee login sessions (emp_id, login_date), find all continuous working streaks (no gap > 1 day).</div>
+        <div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <pre>WITH numbered AS (
+  SELECT emp_id, login_date,
+         ROW_NUMBER() OVER (PARTITION BY emp_id ORDER BY login_date) AS rn
+  FROM sessions
+),
+grp AS (
+  SELECT emp_id, login_date,
+         DATE_SUB(login_date, rn) AS grp_key  -- subtract row number from date
+  FROM numbered
+)
+SELECT emp_id,
+       MIN(login_date) AS streak_start,
+       MAX(login_date) AS streak_end,
+       COUNT(*) AS streak_length_days
+FROM grp
+GROUP BY emp_id, grp_key
+ORDER BY emp_id, streak_start;</pre>
+        <p>The key insight: subtracting the row number from the date produces the same constant value for consecutive dates — this is the "island" identifier (grp_key).</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">S7</div>
+        <div class="q-text">Cohort retention: given (user_id, signup_date, activity_date), compute what % of each signup-month cohort was still active in months 1, 2, and 3 after signup.</div>
+        <div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <pre>WITH cohorts AS (
+  SELECT user_id,
+         DATE_FORMAT(signup_date, 'yyyy-MM') AS cohort_month
+  FROM users
+),
+activity AS (
+  SELECT a.user_id, c.cohort_month,
+         MONTHS_BETWEEN(a.activity_date, DATE(CONCAT(c.cohort_month,'-01'))) AS months_since_signup
+  FROM activity_log a
+  JOIN cohorts c ON a.user_id = c.user_id
+  WHERE MONTHS_BETWEEN(a.activity_date, DATE(CONCAT(c.cohort_month,'-01'))) BETWEEN 0 AND 3
+),
+cohort_size AS (
+  SELECT cohort_month, COUNT(DISTINCT user_id) AS total_users
+  FROM cohorts GROUP BY cohort_month
+)
+SELECT a.cohort_month,
+       FLOOR(a.months_since_signup) AS month_offset,
+       COUNT(DISTINCT a.user_id) AS active_users,
+       cs.total_users,
+       ROUND(100.0 * COUNT(DISTINCT a.user_id) / cs.total_users, 1) AS retention_pct
+FROM activity a
+JOIN cohort_size cs ON a.cohort_month = cs.cohort_month
+GROUP BY a.cohort_month, FLOOR(a.months_since_signup), cs.total_users
+ORDER BY cohort_month, month_offset;</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">S8</div>
+        <div class="q-text">Implement SCD Type-2 logic purely in SQL. Given a current dimension table and an incoming staging table, write the MERGE statement to expire old records and insert new versions.</div>
+        <div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <pre>-- Step 1: Expire changed current records
+MERGE INTO dim_employee t
+USING staging s
+ON t.emp_id = s.emp_id AND t.is_current = true
+WHEN MATCHED AND (t.dept != s.dept OR t.salary != s.salary)
+THEN UPDATE SET
+  t.effective_end = CURRENT_DATE(),
+  t.is_current = false;
+
+-- Step 2: Insert new versions
+INSERT INTO dim_employee
+SELECT
+  s.emp_id, s.dept, s.salary,
+  CURRENT_DATE() AS effective_start,
+  DATE('9999-12-31') AS effective_end,
+  true AS is_current
+FROM staging s
+LEFT JOIN dim_employee t
+  ON t.emp_id = s.emp_id AND t.is_current = true
+WHERE t.emp_id IS NULL  -- net-new employees
+   OR (t.dept != s.dept OR t.salary != s.salary);  -- changed employees</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="brutal">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">S9</div>
+        <div class="q-text">Pareto 80/20: Find the minimum set of products that together account for 80% of total revenue.</div>
+        <div class="q-right"><span class="tag tag-brutal">Brutal</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <pre>WITH product_rev AS (
+  SELECT product_id, SUM(revenue) AS total_rev
+  FROM sales
+  GROUP BY product_id
+),
+ranked AS (
+  SELECT product_id, total_rev,
+         SUM(total_rev) OVER (ORDER BY total_rev DESC
+           ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS cum_rev,
+         SUM(total_rev) OVER () AS grand_total
+  FROM product_rev
+)
+SELECT product_id, total_rev,
+       ROUND(100.0 * cum_rev / grand_total, 2) AS cum_pct
+FROM ranked
+WHERE cum_rev - total_rev < 0.8 * grand_total  -- include the product that crosses 80%
+ORDER BY total_rev DESC;</pre>
+        <p>The WHERE clause ensures we include the product whose addition pushes cumulative revenue over 80% — not just those already below 80%.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="brutal">
+      <div class="q-header" onclick="toggle(this)">
+        <div class="q-num">S10</div>
+        <div class="q-text">Write a query to detect data quality issues: find all orders where (a) revenue is NULL, (b) order_date is in the future, (c) customer_id doesn't exist in the customers table. Return each violation as a separate row with a violation_type column.</div>
+        <div class="q-right"><span class="tag tag-brutal">Brutal</span><span class="chevron">▼</span></div>
+      </div>
+      <div class="q-answer">
+        <pre>SELECT order_id, customer_id, order_date, revenue,
+       'NULL_REVENUE' AS violation_type
+FROM orders
+WHERE revenue IS NULL
+
+UNION ALL
+
+SELECT order_id, customer_id, order_date, revenue,
+       'FUTURE_ORDER_DATE' AS violation_type
+FROM orders
+WHERE order_date > CURRENT_DATE()
+
+UNION ALL
+
+SELECT o.order_id, o.customer_id, o.order_date, o.revenue,
+       'INVALID_CUSTOMER_ID' AS violation_type
+FROM orders o
+LEFT JOIN customers c ON o.customer_id = c.customer_id
+WHERE c.customer_id IS NULL
+
+ORDER BY violation_type, order_id;</pre>
+        <p>This pattern — UNION ALL of targeted checks with a violation_type label — is exactly the structure used in data quality frameworks. Each check is independently readable and extendable.</p>
+        <div class="hint">Relate to your project: "I implemented 20 DQ rules using this exact pattern, writing results to a Delta audit table with composite scoring and quarantine routing."</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHECKLIST TAB -->
+  <div class="section" id="tab-checklist">
+    <div class="section-label">Before the call</div>
+    <div id="checklist-before">
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>Read through all 20 conceptual Q&As once — don't memorize, just refresh</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>Mentally rehearse your 30-second intro pitch out loud</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>Prepare your STAR story for the SharePoint auth migration (pipeline failure question)</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>Review your SCD Type-2 two-step MERGE code — can you write it without notes?</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>Know your 3 questions to ask Pranay at the end</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>Keep your CV on screen — know every number (40%, 60%, 15+ columns, 25 files, 5 apps)</span></div>
+    </div>
+
+    <div class="section-label">During the call</div>
+    <div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>Lead with your Databricks cert early — it's your differentiator vs an Azure-certified interviewer</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>When answering conceptual questions, anchor to a real project deliverable</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>On coding: talk through your approach first before writing — interviewers credit the thinking</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>If asked about ADF, acknowledge its strengths — don't dismiss a tool the interviewer uses</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>On SCD Type-2: mention "first-run guard" and "watermark filtering" — these show production maturity</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>If stuck on coding, narrate your thinking — partial credit is real in screening rounds</span></div>
+    </div>
+
+    <div class="section-label">Key numbers to remember from your CV</div>
+    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 4px;">
+      <div style="background:#fff; border: 0.5px solid #d8d5ce; border-radius: 10px; padding: 14px; text-align:center;">
+        <div style="font-size:28px; font-weight:500; color:#3b6fd4;">40%</div>
+        <div style="font-size:12px; color:#9d9a94; margin-top:4px;">Pipeline failure reduction (schema drift framework)</div>
+      </div>
+      <div style="background:#fff; border: 0.5px solid #d8d5ce; border-radius: 10px; padding: 14px; text-align:center;">
+        <div style="font-size:28px; font-weight:500; color:#3b6fd4;">60%</div>
+        <div style="font-size:12px; color:#9d9a94; margin-top:4px;">Onboarding time saved (DDL auto-generation)</div>
+      </div>
+      <div style="background:#fff; border: 0.5px solid #d8d5ce; border-radius: 10px; padding: 14px; text-align:center;">
+        <div style="font-size:28px; font-weight:500; color:#3b6fd4;">15+</div>
+        <div style="font-size:12px; color:#9d9a94; margin-top:4px;">PII columns masked at UC level</div>
+      </div>
+      <div style="background:#fff; border: 0.5px solid #d8d5ce; border-radius: 10px; padding: 14px; text-align:center;">
+        <div style="font-size:28px; font-weight:500; color:#3b6fd4;">100+</div>
+        <div style="font-size:12px; color:#9d9a94; margin-top:4px;">Delta tables auto-provisioned</div>
+      </div>
+      <div style="background:#fff; border: 0.5px solid #d8d5ce; border-radius: 10px; padding: 14px; text-align:center;">
+        <div style="font-size:28px; font-weight:500; color:#3b6fd4;">25</div>
+        <div style="font-size:12px; color:#9d9a94; margin-top:4px;">Daily file ingestions monitored (5 ESG apps)</div>
+      </div>
+      <div style="background:#fff; border: 0.5px solid #d8d5ce; border-radius: 10px; padding: 14px; text-align:center;">
+        <div style="font-size:28px; font-weight:500; color:#3b6fd4;">1Cr+</div>
+        <div style="font-size:12px; color:#9d9a94; margin-top:4px;">Material keys in BOM hierarchy pipeline</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggle(header) {
+  const card = header.closest('.q-card');
+  card.classList.toggle('open');
+}
+
+function toggleCheck(item) {
+  item.classList.toggle('checked');
+}
+
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+
+['conceptual','pyspark','sql'].forEach(section => {
+  const filterBar = document.getElementById(section + '-filters');
+  if (!filterBar) return;
+  filterBar.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      filterBar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      const tab = document.getElementById('tab-' + section);
+      tab.querySelectorAll('.q-card').forEach(card => {
+        card.style.display = (filter === 'all' || card.dataset.diff === filter) ? '' : 'none';
+      });
+    });
+  });
+});
+</script>
+</body>
+</html>
