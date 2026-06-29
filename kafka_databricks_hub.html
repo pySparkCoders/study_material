@@ -1,0 +1,1382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kafka & Databricks — Data Engineer's Learning Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0A0E1A;
+  --bg2: #111827;
+  --card: #141E2E;
+  --card2: #1A2540;
+  --border: #1E2D45;
+  --cyan: #00D4FF;
+  --cyan-dim: rgba(0,212,255,0.12);
+  --amber: #FF8C42;
+  --amber-dim: rgba(255,140,66,0.12);
+  --green: #00E5A0;
+  --green-dim: rgba(0,229,160,0.1);
+  --purple: #A78BFA;
+  --purple-dim: rgba(167,139,250,0.1);
+  --red: #FF5C7A;
+  --red-dim: rgba(255,92,122,0.1);
+  --text: #E8EFF8;
+  --text2: #8B9BB4;
+  --text3: #4A5A70;
+  --mono: 'JetBrains Mono', monospace;
+  --sans: 'Inter', sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; line-height: 1.6; overflow-x: hidden; }
+
+/* TICKER */
+.ticker-wrap { background: var(--card); border-bottom: 1px solid var(--border); padding: 8px 0; overflow: hidden; white-space: nowrap; }
+.ticker-inner { display: inline-flex; gap: 0; animation: ticker 30s linear infinite; }
+.ticker-item { font-family: var(--mono); font-size: 11px; color: var(--cyan); padding: 0 32px; opacity: 0.7; }
+.ticker-item span { color: var(--text2); }
+@keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+
+/* LAYOUT */
+.layout { display: flex; min-height: 100vh; }
+
+/* SIDEBAR */
+.sidebar { width: 240px; flex-shrink: 0; background: var(--bg2); border-right: 1px solid var(--border); position: fixed; top: 41px; left: 0; height: calc(100vh - 41px); overflow-y: auto; padding: 20px 0; z-index: 100; }
+.sidebar::-webkit-scrollbar { width: 4px; }
+.sidebar::-webkit-scrollbar-track { background: transparent; }
+.sidebar::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+.sidebar-logo { padding: 0 20px 20px; border-bottom: 1px solid var(--border); margin-bottom: 16px; }
+.sidebar-logo .logo-text { font-family: var(--mono); font-size: 13px; font-weight: 700; color: var(--cyan); letter-spacing: 0.05em; }
+.sidebar-logo .logo-sub { font-size: 10px; color: var(--text3); font-family: var(--mono); margin-top: 2px; }
+.nav-section { padding: 0 12px; margin-bottom: 8px; }
+.nav-label { font-size: 10px; font-weight: 600; color: var(--text3); letter-spacing: 0.1em; text-transform: uppercase; padding: 0 8px; margin-bottom: 4px; font-family: var(--mono); }
+.nav-item { display: flex; align-items: center; gap: 8px; padding: 7px 8px; border-radius: 6px; cursor: pointer; font-size: 12px; color: var(--text2); transition: all 0.15s; border: 1px solid transparent; text-decoration: none; }
+.nav-item:hover { background: var(--cyan-dim); color: var(--cyan); border-color: rgba(0,212,255,0.15); }
+.nav-item.active { background: var(--cyan-dim); color: var(--cyan); border-color: rgba(0,212,255,0.25); }
+.nav-item.amber:hover, .nav-item.amber.active { background: var(--amber-dim); color: var(--amber); border-color: rgba(255,140,66,0.25); }
+.nav-dot { width: 6px; height: 6px; border-radius: 50%; flex-shrink: 0; }
+.dot-cyan { background: var(--cyan); }
+.dot-amber { background: var(--amber); }
+.dot-green { background: var(--green); }
+.dot-purple { background: var(--purple); }
+.dot-red { background: var(--red); }
+
+/* MAIN */
+.main { margin-left: 240px; margin-top: 41px; padding: 40px 48px; max-width: 1100px; }
+
+/* SECTIONS */
+.page-section { display: none; }
+.page-section.active { display: block; }
+
+/* HERO */
+.hero { margin-bottom: 48px; }
+.hero-eyebrow { font-family: var(--mono); font-size: 11px; color: var(--cyan); letter-spacing: 0.15em; text-transform: uppercase; margin-bottom: 12px; }
+.hero-title { font-size: 36px; font-weight: 600; line-height: 1.15; color: var(--text); margin-bottom: 12px; }
+.hero-title em { font-style: normal; color: var(--cyan); }
+.hero-sub { font-size: 15px; color: var(--text2); max-width: 560px; line-height: 1.7; }
+
+/* SECTION HEADER */
+.sec-header { margin-bottom: 28px; }
+.sec-eyebrow { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.12em; text-transform: uppercase; margin-bottom: 6px; }
+.sec-title { font-size: 22px; font-weight: 600; color: var(--text); }
+.sec-title.cyan { color: var(--cyan); }
+.sec-title.amber { color: var(--amber); }
+.sec-line { width: 40px; height: 2px; background: var(--cyan); margin-top: 8px; border-radius: 1px; }
+.sec-line.amber { background: var(--amber); }
+
+/* CARDS */
+.card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px 24px; margin-bottom: 16px; }
+.card.cyan-accent { border-left: 3px solid var(--cyan); }
+.card.amber-accent { border-left: 3px solid var(--amber); }
+.card.green-accent { border-left: 3px solid var(--green); }
+.card.purple-accent { border-left: 3px solid var(--purple); }
+.card.red-accent { border-left: 3px solid var(--red); }
+.card-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+.card-title .badge { font-family: var(--mono); font-size: 10px; padding: 2px 8px; border-radius: 4px; font-weight: 500; }
+.badge-cyan { background: var(--cyan-dim); color: var(--cyan); border: 1px solid rgba(0,212,255,0.2); }
+.badge-amber { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(255,140,66,0.2); }
+.badge-green { background: var(--green-dim); color: var(--green); border: 1px solid rgba(0,229,160,0.2); }
+.badge-purple { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
+.badge-red { background: var(--red-dim); color: var(--red); border: 1px solid rgba(255,92,122,0.2); }
+.card p { font-size: 13px; color: var(--text2); line-height: 1.7; margin-bottom: 10px; }
+.card p:last-child { margin-bottom: 0; }
+
+/* ROADMAP */
+.roadmap-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 32px; }
+.phase-card { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 20px; position: relative; overflow: hidden; }
+.phase-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
+.phase-card.p1::before { background: linear-gradient(90deg, var(--cyan), #0099BB); }
+.phase-card.p2::before { background: linear-gradient(90deg, var(--green), #008855); }
+.phase-card.p3::before { background: linear-gradient(90deg, var(--amber), #CC6622); }
+.phase-card.p4::before { background: linear-gradient(90deg, var(--purple), #7755CC); }
+.phase-num { font-family: var(--mono); font-size: 10px; color: var(--text3); letter-spacing: 0.1em; margin-bottom: 6px; }
+.phase-title { font-size: 14px; font-weight: 600; color: var(--text); margin-bottom: 4px; }
+.phase-dur { font-family: var(--mono); font-size: 10px; color: var(--cyan); margin-bottom: 14px; }
+.phase-card.p2 .phase-dur { color: var(--green); }
+.phase-card.p3 .phase-dur { color: var(--amber); }
+.phase-card.p4 .phase-dur { color: var(--purple); }
+.topic-list { list-style: none; }
+.topic-list li { font-size: 12px; color: var(--text2); padding: 4px 0; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 8px; }
+.topic-list li:last-child { border-bottom: none; }
+.topic-list li::before { content: '›'; color: var(--text3); font-family: var(--mono); }
+
+/* CODE */
+pre { background: #0D1421; border: 1px solid var(--border); border-radius: 8px; padding: 16px; font-family: var(--mono); font-size: 12px; line-height: 1.65; overflow-x: auto; margin: 12px 0; }
+pre .kw { color: #FF79C6; }
+pre .str { color: #F1FA8C; }
+pre .cm { color: #4A5A70; font-style: italic; }
+pre .fn { color: var(--cyan); }
+pre .var { color: #BD93F9; }
+pre .num { color: var(--amber); }
+pre .prop { color: var(--green); }
+
+/* TABLE */
+.tbl-wrap { overflow-x: auto; margin: 12px 0; }
+table { width: 100%; border-collapse: collapse; font-size: 12px; }
+thead tr { background: var(--card2); }
+th { padding: 10px 14px; text-align: left; font-weight: 600; color: var(--text2); font-family: var(--mono); font-size: 11px; letter-spacing: 0.05em; border-bottom: 1px solid var(--border); }
+td { padding: 10px 14px; color: var(--text2); border-bottom: 1px solid var(--border); vertical-align: top; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,0.02); }
+td strong { color: var(--text); font-weight: 500; }
+
+/* MIND MAP */
+.mindmap { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 24px; margin-bottom: 20px; overflow-x: auto; }
+.mm-root { text-align: center; margin-bottom: 24px; }
+.mm-node { display: inline-flex; align-items: center; justify-content: center; padding: 8px 20px; border-radius: 6px; font-size: 12px; font-weight: 600; font-family: var(--mono); }
+.mm-root-node { padding: 12px 28px; border-radius: 8px; font-size: 14px; background: var(--amber-dim); border: 2px solid var(--amber); color: var(--amber); }
+.mm-branches { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.mm-branch { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 14px; }
+.mm-branch-title { font-family: var(--mono); font-size: 11px; font-weight: 700; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid var(--border); }
+.mm-branch-title.c { color: var(--cyan); }
+.mm-branch-title.a { color: var(--amber); }
+.mm-branch-title.g { color: var(--green); }
+.mm-branch-title.p { color: var(--purple); }
+.mm-branch-title.r { color: var(--red); }
+.mm-leaf { font-size: 11px; color: var(--text2); padding: 3px 0; display: flex; align-items: flex-start; gap: 6px; line-height: 1.4; }
+.mm-leaf::before { content: '─'; color: var(--text3); font-family: var(--mono); flex-shrink: 0; margin-top: 1px; }
+
+/* INTERVIEW Q */
+.q-filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px; }
+.filter-btn { font-family: var(--mono); font-size: 11px; padding: 5px 14px; border-radius: 4px; border: 1px solid var(--border); background: transparent; color: var(--text2); cursor: pointer; transition: all 0.15s; }
+.filter-btn:hover { border-color: var(--cyan); color: var(--cyan); }
+.filter-btn.on { background: var(--cyan-dim); border-color: var(--cyan); color: var(--cyan); }
+.filter-btn.on.amber { background: var(--amber-dim); border-color: var(--amber); color: var(--amber); }
+.filter-btn.on.green { background: var(--green-dim); border-color: var(--green); color: var(--green); }
+.q-item { background: var(--card); border: 1px solid var(--border); border-radius: 8px; margin-bottom: 10px; overflow: hidden; transition: border-color 0.15s; }
+.q-item:hover { border-color: rgba(0,212,255,0.3); }
+.q-header { display: flex; align-items: center; gap: 12px; padding: 14px 18px; cursor: pointer; user-select: none; }
+.q-level { font-family: var(--mono); font-size: 10px; padding: 2px 8px; border-radius: 3px; flex-shrink: 0; }
+.q-cat { font-family: var(--mono); font-size: 10px; padding: 2px 8px; border-radius: 3px; flex-shrink: 0; }
+.cat-kafka { background: var(--cyan-dim); color: var(--cyan); border: 1px solid rgba(0,212,255,0.2); }
+.cat-db { background: var(--amber-dim); color: var(--amber); border: 1px solid rgba(255,140,66,0.2); }
+.cat-stream { background: var(--purple-dim); color: var(--purple); border: 1px solid rgba(167,139,250,0.2); }
+.q-text { font-size: 13px; color: var(--text); flex: 1; line-height: 1.4; }
+.q-arrow { color: var(--text3); font-size: 16px; flex-shrink: 0; transition: transform 0.2s; font-family: var(--mono); }
+.q-item.open .q-arrow { transform: rotate(90deg); }
+.q-answer { display: none; padding: 0 18px 16px; font-size: 13px; color: var(--text2); line-height: 1.7; border-top: 1px solid var(--border); padding-top: 14px; }
+.q-item.open .q-answer { display: block; }
+.q-answer ul { padding-left: 18px; margin-top: 6px; }
+.q-answer li { margin-bottom: 5px; }
+.q-answer code { font-family: var(--mono); font-size: 11px; background: var(--card2); padding: 1px 6px; border-radius: 3px; color: var(--cyan); }
+.q-answer strong { color: var(--text); font-weight: 500; }
+
+/* GRID HELPERS */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+.stat-card { background: var(--card2); border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; }
+.stat-label { font-family: var(--mono); font-size: 10px; color: var(--text3); margin-bottom: 4px; letter-spacing: 0.05em; }
+.stat-val { font-family: var(--mono); font-size: 18px; font-weight: 700; }
+.stat-val.c { color: var(--cyan); }
+.stat-val.a { color: var(--amber); }
+.stat-val.g { color: var(--green); }
+.stat-sub { font-size: 11px; color: var(--text3); margin-top: 3px; }
+
+/* FLOW DIAGRAM */
+.flow { display: flex; align-items: center; gap: 0; flex-wrap: wrap; margin: 16px 0; }
+.flow-node { background: var(--card2); border: 1px solid var(--border); border-radius: 6px; padding: 8px 14px; font-size: 11px; font-family: var(--mono); color: var(--text); text-align: center; }
+.flow-node.cyan { border-color: var(--cyan); color: var(--cyan); background: var(--cyan-dim); }
+.flow-node.amber { border-color: var(--amber); color: var(--amber); background: var(--amber-dim); }
+.flow-node.green { border-color: var(--green); color: var(--green); background: var(--green-dim); }
+.flow-node.purple { border-color: var(--purple); color: var(--purple); background: var(--purple-dim); }
+.flow-arrow { color: var(--text3); padding: 0 8px; font-size: 14px; font-family: var(--mono); }
+
+/* WARN / TIP */
+.tip { background: var(--green-dim); border: 1px solid rgba(0,229,160,0.2); border-radius: 6px; padding: 10px 14px; font-size: 12px; color: var(--green); margin: 10px 0; display: flex; gap: 8px; }
+.warn { background: rgba(255,92,122,0.08); border: 1px solid rgba(255,92,122,0.2); border-radius: 6px; padding: 10px 14px; font-size: 12px; color: var(--red); margin: 10px 0; display: flex; gap: 8px; }
+.info { background: var(--cyan-dim); border: 1px solid rgba(0,212,255,0.2); border-radius: 6px; padding: 10px 14px; font-size: 12px; color: var(--cyan); margin: 10px 0; display: flex; gap: 8px; }
+.note-box { background: var(--amber-dim); border: 1px solid rgba(255,140,66,0.2); border-radius: 6px; padding: 10px 14px; font-size: 12px; color: var(--amber); margin: 10px 0; display: flex; gap: 8px; }
+
+/* SUBSECTIONS */
+.sub-title { font-size: 16px; font-weight: 600; color: var(--text); margin: 28px 0 14px; display: flex; align-items: center; gap: 10px; }
+.sub-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+.pill { display: inline-block; font-family: var(--mono); font-size: 10px; padding: 2px 8px; border-radius: 3px; }
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .sidebar{display:none}
+  .main{margin-left:0;padding:24px 16px}
+  .roadmap-grid{grid-template-columns:1fr}
+  .grid2{grid-template-columns:1fr}
+  .grid3{grid-template-columns:1fr 1fr}
+  .mm-branches{grid-template-columns:1fr 1fr}
+}
+
+/* SCROLLBAR */
+.main::-webkit-scrollbar{width:6px}
+.main::-webkit-scrollbar-track{background:transparent}
+.main::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px}
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker-wrap">
+  <div class="ticker-inner" id="ticker"></div>
+</div>
+
+<div class="layout">
+<!-- SIDEBAR -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <div class="logo-text">KAFKA &amp; DATABRICKS</div>
+    <div class="logo-sub">// data engineer's hub</div>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Getting started</div>
+    <a class="nav-item active" onclick="nav('roadmap',this)">
+      <span class="nav-dot dot-cyan"></span>Learning Roadmap
+    </a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Kafka</div>
+    <a class="nav-item" onclick="nav('kafka-arch',this)">
+      <span class="nav-dot dot-cyan"></span>Architecture
+    </a>
+    <a class="nav-item" onclick="nav('kafka-prod',this)">
+      <span class="nav-dot dot-cyan"></span>Producers
+    </a>
+    <a class="nav-item" onclick="nav('kafka-cons',this)">
+      <span class="nav-dot dot-cyan"></span>Consumers
+    </a>
+    <a class="nav-item" onclick="nav('kafka-streams',this)">
+      <span class="nav-dot dot-cyan"></span>Kafka Streams
+    </a>
+    <a class="nav-item" onclick="nav('kafka-connect',this)">
+      <span class="nav-dot dot-cyan"></span>Connect &amp; Schema
+    </a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Streaming Concepts</div>
+    <a class="nav-item" onclick="nav('stream-concepts',this)">
+      <span class="nav-dot dot-purple"></span>Stateless vs Stateful
+    </a>
+    <a class="nav-item" onclick="nav('stream-vs-batch',this)">
+      <span class="nav-dot dot-purple"></span>Streaming vs Batch
+    </a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Databricks</div>
+    <a class="nav-item amber" onclick="nav('db-structured',this)">
+      <span class="nav-dot dot-amber"></span>Structured Streaming
+    </a>
+    <a class="nav-item amber" onclick="nav('db-dlt',this)">
+      <span class="nav-dot dot-amber"></span>Delta Live Tables (DLT)
+    </a>
+    <a class="nav-item amber" onclick="nav('db-mindmap',this)">
+      <span class="nav-dot dot-amber"></span>Mind Map
+    </a>
+    <a class="nav-item amber" onclick="nav('db-kafka',this)">
+      <span class="nav-dot dot-amber"></span>Kafka Integration
+    </a>
+  </div>
+  <div class="nav-section">
+    <div class="nav-label">Interview Prep</div>
+    <a class="nav-item" onclick="nav('interview',this)">
+      <span class="nav-dot dot-green"></span>Interview Q&amp;A
+    </a>
+  </div>
+</nav>
+
+<!-- MAIN CONTENT -->
+<main class="main">
+
+<!-- ═══════════════ ROADMAP ══════════════════ -->
+<div id="s-roadmap" class="page-section active">
+  <div class="hero">
+    <div class="hero-eyebrow">// data engineer's complete guide</div>
+    <div class="hero-title">Kafka &amp; <em>Databricks</em><br>Learning Hub</div>
+    <div class="hero-sub">Architecture · Streaming · DLT · Spark Structured Streaming · Interview Prep — everything in one place.</div>
+  </div>
+
+  <div class="sec-header">
+    <div class="sec-eyebrow">// phases 1–4</div>
+    <div class="sec-title cyan">Learning Roadmap</div>
+    <div class="sec-line"></div>
+  </div>
+
+  <div class="roadmap-grid">
+    <div class="phase-card p1">
+      <div class="phase-num">PHASE 01</div>
+      <div class="phase-title">Kafka Fundamentals</div>
+      <div class="phase-dur">// 2–3 weeks</div>
+      <ul class="topic-list">
+        <li>What is Kafka &amp; distributed commit log</li>
+        <li>Topics, partitions, offsets</li>
+        <li>Brokers, clusters, replication</li>
+        <li>Producers — acks, batching, keys</li>
+        <li>Consumers &amp; consumer groups</li>
+        <li>ZooKeeper vs KRaft mode</li>
+        <li>Message retention &amp; log compaction</li>
+        <li>Kafka CLI operations</li>
+        <li>ISR, leader election, fault tolerance</li>
+      </ul>
+    </div>
+    <div class="phase-card p2">
+      <div class="phase-num">PHASE 02</div>
+      <div class="phase-title">Streaming Patterns &amp; DE Tooling</div>
+      <div class="phase-dur">// 3–4 weeks</div>
+      <ul class="topic-list">
+        <li>Stateless vs stateful processing</li>
+        <li>Streaming vs batch — when to use each</li>
+        <li>Event time, ingestion time, watermarks</li>
+        <li>Windowing — tumbling, hopping, session</li>
+        <li>Serialization: Avro, Protobuf, JSON</li>
+        <li>Schema Registry &amp; compatibility modes</li>
+        <li>Kafka Connect — source &amp; sink connectors</li>
+        <li>Debezium CDC patterns</li>
+        <li>Exactly-once semantics (EOS)</li>
+      </ul>
+    </div>
+    <div class="phase-card p3">
+      <div class="phase-num">PHASE 03</div>
+      <div class="phase-title">Databricks Streaming</div>
+      <div class="phase-dur">// 3–4 weeks</div>
+      <ul class="topic-list">
+        <li>Spark Structured Streaming fundamentals</li>
+        <li>Reading Kafka in Databricks (readStream)</li>
+        <li>Writing to Delta Lake from Kafka</li>
+        <li>Micro-batch vs continuous triggers</li>
+        <li>Checkpointing &amp; fault tolerance</li>
+        <li>Delta Live Tables (DLT) — declarative pipelines</li>
+        <li>DLT: STREAMING TABLE vs LIVE TABLE</li>
+        <li>DLT expectations &amp; data quality</li>
+        <li>Medallion architecture with Kafka + DLT</li>
+      </ul>
+    </div>
+    <div class="phase-card p4">
+      <div class="phase-num">PHASE 04</div>
+      <div class="phase-title">Production &amp; Advanced Ecosystem</div>
+      <div class="phase-dur">// Ongoing</div>
+      <ul class="topic-list">
+        <li>Kafka performance tuning &amp; monitoring</li>
+        <li>Security: TLS, SASL, ACLs</li>
+        <li>Multi-region Kafka &amp; MirrorMaker 2</li>
+        <li>ksqlDB &amp; streaming SQL</li>
+        <li>Flink vs Kafka Streams vs Spark</li>
+        <li>DLT Enhanced Autoscaling</li>
+        <li>Unity Catalog with Delta tables</li>
+        <li>Event-driven architecture patterns</li>
+        <li>Observability: consumer lag, DLT metrics</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="sub-title">Topic Dependency Flow</div>
+  <div class="card">
+    <div class="flow" style="gap:0;flex-wrap:wrap">
+      <div class="flow-node cyan">Kafka Basics</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">Producers/Consumers</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node purple">Stream Concepts</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node">Schema Registry</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node amber">Spark SS</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node amber">DLT</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node green">Production</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ KAFKA ARCH ══════════════════ -->
+<div id="s-kafka-arch" class="page-section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">// kafka internals</div>
+    <div class="sec-title cyan">Kafka Architecture</div>
+    <div class="sec-line"></div>
+  </div>
+
+  <div class="grid3" style="margin-bottom:20px">
+    <div class="stat-card"><div class="stat-label">MAX THROUGHPUT</div><div class="stat-val c">millions</div><div class="stat-sub">messages / second per cluster</div></div>
+    <div class="stat-card"><div class="stat-label">STORAGE MODEL</div><div class="stat-val g">append</div><div class="stat-sub">immutable commit log per partition</div></div>
+    <div class="stat-card"><div class="stat-label">ORDERING</div><div class="stat-val a">per-key</div><div class="stat-sub">within a single partition</div></div>
+  </div>
+
+  <div class="card cyan-accent">
+    <div class="card-title">Core Components <span class="badge badge-cyan">essentials</span></div>
+    <p>Kafka is a distributed, durable commit log. Records are appended to ordered, immutable partitions. Partitions live on brokers; multiple brokers form a cluster. Each partition has one leader that handles all reads/writes; followers replicate asynchronously.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Component</th><th>Role</th><th>Key Property</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Topic</strong></td><td>Logical stream name, split into N partitions</td><td>Retained after consumption</td></tr>
+          <tr><td><strong>Partition</strong></td><td>Ordered, append-only log; unit of parallelism</td><td>Records never deleted by consumers</td></tr>
+          <tr><td><strong>Offset</strong></td><td>Monotonically increasing ID within a partition</td><td>Unique position per partition</td></tr>
+          <tr><td><strong>Broker</strong></td><td>Single Kafka server hosting partition replicas</td><td>One leader + N-1 follower replicas</td></tr>
+          <tr><td><strong>ISR</strong></td><td>In-Sync Replicas — caught up to leader</td><td>Only ISR members can become leaders</td></tr>
+          <tr><td><strong>Controller</strong></td><td>Elected broker managing cluster membership</td><td>One per cluster at all times</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card green-accent">
+    <div class="card-title">KRaft vs ZooKeeper <span class="badge badge-green">kafka 3.3+</span></div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Aspect</th><th>ZooKeeper Mode</th><th>KRaft Mode</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Metadata</strong></td><td>External ZooKeeper cluster (3–5 nodes)</td><td>Built-in Raft log on Kafka controller nodes</td></tr>
+          <tr><td><strong>Partition scale</strong></td><td>~200K partitions</td><td>Millions of partitions</td></tr>
+          <tr><td><strong>Ops complexity</strong></td><td>Two systems to manage</td><td>Single unified system</td></tr>
+          <tr><td><strong>Failover time</strong></td><td>Seconds (ZK re-election)</td><td>Milliseconds (Raft already has full log)</td></tr>
+          <tr><td><strong>Status</strong></td><td>Removed in Kafka 4.0</td><td>GA since 3.3; default since 3.7</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tip">✓ All new deployments should use KRaft. ZooKeeper support is completely removed in Kafka 4.0.</div>
+  </div>
+
+  <div class="card purple-accent">
+    <div class="card-title">Log Compaction vs Log Deletion</div>
+    <div class="grid2">
+      <div>
+        <div class="stat-label" style="margin-bottom:8px">cleanup.policy=delete</div>
+        <p>Purges old log segments by time (<code style="font-family:var(--mono);font-size:11px;background:var(--card2);padding:1px 5px;border-radius:3px;color:var(--cyan)">retention.ms</code>) or size. Every event retained until expiry. Best for event streams, metrics, time-series logs.</p>
+      </div>
+      <div>
+        <div class="stat-label" style="margin-bottom:8px">cleanup.policy=compact</div>
+        <p>Retains only the latest value per key. Old values replaced with tombstones (null). Best for CDC tables, config stores, Kafka Streams KTables.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ PRODUCERS ══════════════════ -->
+<div id="s-kafka-prod" class="page-section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">// writing to kafka</div>
+    <div class="sec-title cyan">Producers — Deep Dive</div>
+    <div class="sec-line"></div>
+  </div>
+
+  <div class="card cyan-accent">
+    <div class="card-title">Batching Internals</div>
+    <p>Records enter the <strong>RecordAccumulator</strong> (per-partition memory queue). The I/O thread flushes when batch reaches <code style="font-family:var(--mono);font-size:11px;background:var(--card2);padding:1px 5px;border-radius:3px;color:var(--cyan)">batch.size</code> bytes or after <code style="font-family:var(--mono);font-size:11px;background:var(--card2);padding:1px 5px;border-radius:3px;color:var(--cyan)">linger.ms</code>.</p>
+    <div class="grid3">
+      <div class="stat-card"><div class="stat-label">batch.size</div><div class="stat-val c">16 KB</div><div class="stat-sub">default → raise to 64–256 KB for throughput</div></div>
+      <div class="stat-card"><div class="stat-label">linger.ms</div><div class="stat-val c">0 ms</div><div class="stat-sub">default → set 5–20 ms for better batch fill</div></div>
+      <div class="stat-card"><div class="stat-label">compression.type</div><div class="stat-val g">lz4</div><div class="stat-sub">recommended — fast, ~60% size reduction</div></div>
+    </div>
+  </div>
+
+  <div class="card amber-accent">
+    <div class="card-title">Delivery Guarantees</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>acks setting</th><th>Durability</th><th>Latency</th><th>Use Case</th></tr></thead>
+        <tbody>
+          <tr><td><strong>acks=0</strong></td><td>None — fire &amp; forget</td><td>Lowest</td><td>Metrics, telemetry where loss is OK</td></tr>
+          <tr><td><strong>acks=1</strong></td><td>Leader only</td><td>Low</td><td>Log pipelines, moderate durability</td></tr>
+          <tr><td><strong>acks=all</strong></td><td>All ISR confirmed</td><td>Higher</td><td>Financial events, CDC — no loss acceptable</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <pre><span class="cm"># Idempotent exactly-once producer config</span>
+<span class="prop">enable.idempotence</span>=<span class="str">true</span>
+<span class="prop">acks</span>=<span class="str">all</span>
+<span class="prop">max.in.flight.requests.per.connection</span>=<span class="num">5</span>
+<span class="prop">retries</span>=<span class="num">2147483647</span>
+<span class="prop">batch.size</span>=<span class="num">131072</span>
+<span class="prop">linger.ms</span>=<span class="num">20</span></pre>
+  </div>
+</div>
+
+<!-- ═══════════════ CONSUMERS ══════════════════ -->
+<div id="s-kafka-cons" class="page-section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">// reading from kafka</div>
+    <div class="sec-title cyan">Consumers — Deep Dive</div>
+    <div class="sec-line"></div>
+  </div>
+
+  <div class="card cyan-accent">
+    <div class="card-title">Consumer Groups &amp; Partition Assignment</div>
+    <p>Each partition is consumed by <strong>exactly one consumer</strong> in a group. Multiple groups can independently read the same topic. The group coordinator broker manages membership; the group leader runs the assignment algorithm.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Strategy</th><th>Behavior</th><th>Best For</th></tr></thead>
+        <tbody>
+          <tr><td><strong>RangeAssignor</strong></td><td>Contiguous ranges per topic</td><td>Simple pipelines</td></tr>
+          <tr><td><strong>RoundRobinAssignor</strong></td><td>Even distribution alphabetically</td><td>Better balance</td></tr>
+          <tr><td><strong>StickyAssignor</strong></td><td>Minimises movement on rebalance</td><td>Stateful consumers</td></tr>
+          <tr><td><strong>CooperativeStickyAssignor</strong></td><td>Incremental — only moves what must move</td><td>Production — no stop-the-world</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tip">✓ Use CooperativeStickyAssignor for Kafka Streams and Spark — prevents full stop-the-world rebalance spikes.</div>
+  </div>
+
+  <div class="card green-accent">
+    <div class="card-title">Offset Management</div>
+    <p>Offsets stored in <code style="font-family:var(--mono);font-size:11px;background:var(--card2);padding:1px 5px;border-radius:3px;color:var(--cyan)">__consumer_offsets</code>. Committing offset N means "I've processed up to N−1; next fetch starts at N".</p>
+    <pre><span class="cm">// Controlled at-least-once: commit after successful processing</span>
+<span class="kw">while</span> (<span class="var">true</span>) {
+  <span class="var">var</span> records = consumer.<span class="fn">poll</span>(Duration.<span class="fn">ofMillis</span>(<span class="num">100</span>));
+  <span class="kw">for</span> (<span class="var">var</span> r : records) { <span class="fn">process</span>(r); }
+  consumer.<span class="fn">commitSync</span>();  <span class="cm">// blocks until broker confirms</span>
+}</pre>
+    <div class="warn">⚠ auto.commit=true can cause silent data loss if consumer crashes between commit and processing completion. Always use manual commit for DE pipelines.</div>
+  </div>
+</div>
+
+<!-- ═══════════════ KAFKA STREAMS ══════════════════ -->
+<div id="s-kafka-streams" class="page-section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">// stream processing library</div>
+    <div class="sec-title cyan">Kafka Streams</div>
+    <div class="sec-line"></div>
+  </div>
+
+  <div class="card cyan-accent">
+    <div class="card-title">KStream vs KTable vs GlobalKTable</div>
+    <div class="grid3">
+      <div class="stat-card">
+        <div class="stat-label">KStream</div>
+        <p style="font-size:12px;color:var(--text2);margin-top:6px">Unbounded event stream. Each record independent. Think INSERT-only log. Stateless or stateful ops.</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">KTable</div>
+        <p style="font-size:12px;color:var(--text2);margin-top:6px">Partitioned changelog. Each key has latest value. Think CDC-driven lookup table. Backed by RocksDB.</p>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">GlobalKTable</div>
+        <p style="font-size:12px;color:var(--text2);margin-top:6px">Full topic replicated to every task. Foreign-key joins without repartitioning. Best for small reference data.</p>
+      </div>
+    </div>
+    <pre><span class="cm">// Full DSL example: filter → enrich via join → window aggregate</span>
+<span class="var">StreamsBuilder</span> b = <span class="kw">new</span> <span class="fn">StreamsBuilder</span>();
+<span class="var">KStream</span>&lt;<span class="var">String</span>,<span class="var">Order</span>&gt; orders = b.<span class="fn">stream</span>(<span class="str">"orders"</span>);
+
+<span class="cm">// Stateless</span>
+<span class="var">KStream</span>&lt;<span class="var">String</span>,<span class="var">Order</span>&gt; high = orders
+  .<span class="fn">filter</span>((k,v) -> v.<span class="fn">getAmount</span>() > <span class="num">500</span>)
+  .<span class="fn">mapValues</span>(v -> <span class="fn">enrichWithTax</span>(v));
+
+<span class="cm">// Stateful: 5-min tumbling window count</span>
+<span class="var">KTable</span>&lt;<span class="var">Windowed</span>&lt;<span class="var">String</span>&gt;,<span class="var">Long</span>&gt; counts = orders
+  .<span class="fn">groupByKey</span>()
+  .<span class="fn">windowedBy</span>(<span class="var">TimeWindows</span>.<span class="fn">ofSizeWithNoGrace</span>(Duration.<span class="fn">ofMinutes</span>(<span class="num">5</span>)))
+  .<span class="fn">count</span>(Materialized.<span class="fn">as</span>(<span class="str">"order-counts"</span>));
+
+<span class="cm">// KStream-KTable join: enrich event with user profile</span>
+<span class="var">KTable</span>&lt;<span class="var">String</span>,<span class="var">User</span>&gt; users = b.<span class="fn">table</span>(<span class="str">"users"</span>);
+<span class="var">KStream</span>&lt;<span class="var">String</span>,<span class="var">Enriched</span>&gt; enriched =
+  orders.<span class="fn">join</span>(users, (o,u) -> <span class="kw">new</span> <span class="fn">Enriched</span>(o,u));</pre>
+  </div>
+</div>
+
+<!-- ═══════════════ CONNECT & SCHEMA ══════════════════ -->
+<div id="s-kafka-connect" class="page-section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">// integrations</div>
+    <div class="sec-title cyan">Connect &amp; Schema Registry</div>
+    <div class="sec-line"></div>
+  </div>
+
+  <div class="card cyan-accent">
+    <div class="card-title">Kafka Connect Architecture</div>
+    <p>Config-driven framework for streaming data between Kafka and external systems. No custom code needed for standard sources/sinks.</p>
+    <div class="flow" style="margin-bottom:16px">
+      <div class="flow-node">Source DB / S3 / API</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node cyan">Source Connector</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node cyan">Kafka Topic</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node cyan">Sink Connector</div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node amber">Delta Lake / DW</div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Connector</th><th>Type</th><th>Use Case</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Debezium</strong></td><td>Source</td><td>CDC from MySQL binlog, Postgres WAL, SQL Server</td></tr>
+          <tr><td><strong>JDBC Source</strong></td><td>Source</td><td>Poll-based table ingestion with watermark column</td></tr>
+          <tr><td><strong>S3 Sink</strong></td><td>Sink</td><td>Write Parquet/Avro to S3 partitioned by date</td></tr>
+          <tr><td><strong>Snowflake Sink</strong></td><td>Sink</td><td>Streaming ingest to Snowflake</td></tr>
+          <tr><td><strong>MirrorMaker 2</strong></td><td>Both</td><td>Cross-cluster topic replication (built on Connect)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card purple-accent">
+    <div class="card-title">Schema Registry — Wire Format &amp; Compatibility</div>
+    <pre><span class="cm">// Every Avro/Protobuf message wire format:</span>
+[<span class="num">0x00</span>] [<span class="num">00 00 00 42</span>] [avro-encoded-payload...]
+ magic   schema_id=<span class="num">66</span>   actual data</pre>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Mode</th><th>Allowed Changes</th><th>Consumer Must Be</th></tr></thead>
+        <tbody>
+          <tr><td><strong>BACKWARD</strong> (default)</td><td>Delete fields with defaults; add optional fields</td><td>Newer than producer</td></tr>
+          <tr><td><strong>FORWARD</strong></td><td>Add fields with defaults; delete optional fields</td><td>Older than producer</td></tr>
+          <tr><td><strong>FULL</strong></td><td>Both simultaneously</td><td>Any version</td></tr>
+          <tr><td><strong>NONE</strong></td><td>Any change</td><td>Must match exactly</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="tip">✓ Use BACKWARD compatibility for DE pipelines. Schema Registry rejects breaking changes at producer registration — before bad schemas reach production consumers.</div>
+  </div>
+</div>
+
+<!-- ═══════════════ STREAMING CONCEPTS ══════════════════ -->
+<div id="s-stream-concepts" class="page-section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">// fundamental concepts</div>
+    <div class="sec-title" style="color:var(--purple)">Stateless vs Stateful Processing</div>
+    <div class="sec-line" style="background:var(--purple)"></div>
+  </div>
+
+  <div class="grid2" style="margin-bottom:20px">
+    <div class="card" style="border-left:3px solid var(--cyan)">
+      <div class="card-title">Stateless Processing <span class="badge badge-cyan">simple</span></div>
+      <p>Each event is processed <strong>independently</strong>. No memory of past events. Output depends only on the current input record.</p>
+      <div class="sub-title" style="font-size:13px;margin:12px 0 8px">Examples</div>
+      <ul style="font-size:12px;color:var(--text2);padding-left:18px;margin-bottom:12px">
+        <li style="margin-bottom:4px">Filter events where <code style="font-family:var(--mono);font-size:11px;background:var(--card2);padding:1px 5px;border-radius:3px;color:var(--cyan)">amount &gt; 1000</code></li>
+        <li style="margin-bottom:4px">Map/transform field names</li>
+        <li style="margin-bottom:4px">Route to topic by event type</li>
+        <li style="margin-bottom:4px">Enrich from static lookup table</li>
+      </ul>
+      <pre><span class="cm"># Stateless: filter + transform</span>
+stream
+  .<span class="fn">filter</span>(<span class="str">"amount > 1000"</span>)
+  .<span class="fn">selectExpr</span>(
+    <span class="str">"user_id"</span>,
+    <span class="str">"amount * 1.18 as amount_with_tax"</span>
+  )</pre>
+      <div class="tip">✓ Horizontally scalable. Any consumer instance can handle any message. Restarts are safe — no state recovery needed.</div>
+    </div>
+
+    <div class="card" style="border-left:3px solid var(--amber)">
+      <div class="card-title">Stateful Processing <span class="badge badge-amber">complex</span></div>
+      <p>Processing depends on <strong>accumulated state from past events</strong>. Requires a persistent state store (RocksDB, checkpoints, Delta).</p>
+      <div class="sub-title" style="font-size:13px;margin:12px 0 8px">Examples</div>
+      <ul style="font-size:12px;color:var(--text2);padding-left:18px;margin-bottom:12px">
+        <li style="margin-bottom:4px">Running totals per user</li>
+        <li style="margin-bottom:4px">Windowed aggregations (sum, count)</li>
+        <li style="margin-bottom:4px">Stream-stream joins</li>
+        <li style="margin-bottom:4px">Deduplication</li>
+        <li style="margin-bottom:4px">User session analytics</li>
+      </ul>
+      <pre><span class="cm"># Stateful: 5-min count per user (Spark SS)</span>
+stream
+  .<span class="fn">groupBy</span>(<span class="str">"user_id"</span>)
+  .<span class="fn">agg</span>(<span class="fn">count</span>(<span class="str">"*"</span>).<span class="fn">alias</span>(<span class="str">"event_count"</span>))
+  .<span class="fn">writeStream</span>
+  .<span class="fn">outputMode</span>(<span class="str">"update"</span>)
+  .<span class="fn">start</span>()</pre>
+      <div class="warn">⚠ Key challenge: state must be recovered after restarts. All events for a key must route to the same partition. State can grow unbounded without TTL/eviction.</div>
+    </div>
+  </div>
+
+  <div class="card purple-accent">
+    <div class="card-title">Time Semantics — Critical for Correct Analytics</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Time Type</th><th>Source</th><th>Pros</th><th>Cons</th><th>Use When</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Event time</strong></td><td>Timestamp in payload</td><td>Accurate; survives replay</td><td>Needs watermarks for late data</td><td>Revenue, fraud, analytics</td></tr>
+          <tr><td><strong>Ingestion time</strong></td><td>Kafka broker timestamp</td><td>Simpler than event time</td><td>Skewed by lag; wrong on replay</td><td>Monitoring, SLA tracking</td></tr>
+          <tr><td><strong>Processing time</strong></td><td>System clock at consumer</td><td>Zero config</td><td>Changes on replay; inaccurate</td><td>Operational dashboards only</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--green)">
+    <div class="card-title">Windowing Types</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Window Type</th><th>Overlap</th><th>Size</th><th>Best For</th><th>Example</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Tumbling</strong></td><td>None</td><td>Fixed</td><td>Hourly/daily aggregations, billing</td><td>Revenue per hour</td></tr>
+          <tr><td><strong>Hopping</strong></td><td>Yes</td><td>Fixed + slide</td><td>Moving averages, rolling metrics</td><td>7-day rolling avg</td></tr>
+          <tr><td><strong>Session</strong></td><td>None</td><td>Dynamic (gap)</td><td>User sessions, click-streams</td><td>Session duration</td></tr>
+          <tr><td><strong>Sliding</strong></td><td>Continuous</td><td>Fixed</td><td>Real-time anomaly detection</td><td>Per-event alert check</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ STREAMING VS BATCH ══════════════════ -->
+<div id="s-stream-vs-batch" class="page-section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">// architectural choice</div>
+    <div class="sec-title" style="color:var(--purple)">Streaming vs Batch</div>
+    <div class="sec-line" style="background:var(--purple)"></div>
+  </div>
+
+  <div class="grid2" style="margin-bottom:20px">
+    <div class="card" style="border-left:3px solid var(--cyan)">
+      <div class="card-title">Streaming <span class="badge badge-cyan">unbounded</span></div>
+      <ul style="font-size:12px;color:var(--text2);padding-left:18px">
+        <li style="margin-bottom:5px">Processes events continuously as they arrive</li>
+        <li style="margin-bottom:5px">Latency: milliseconds to seconds</li>
+        <li style="margin-bottom:5px">Unbounded, infinite data source</li>
+        <li style="margin-bottom:5px">Results updated incrementally</li>
+        <li style="margin-bottom:5px">Requires watermarks for event-time correctness</li>
+        <li style="margin-bottom:5px">Higher operational complexity</li>
+      </ul>
+      <div style="margin-top:12px;font-size:11px;color:var(--text3);font-family:var(--mono)">USE CASES</div>
+      <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px">
+        <span class="pill" style="background:var(--cyan-dim);color:var(--cyan);border:1px solid rgba(0,212,255,0.2)">Fraud detection</span>
+        <span class="pill" style="background:var(--cyan-dim);color:var(--cyan);border:1px solid rgba(0,212,255,0.2)">Live dashboards</span>
+        <span class="pill" style="background:var(--cyan-dim);color:var(--cyan);border:1px solid rgba(0,212,255,0.2)">IoT alerting</span>
+        <span class="pill" style="background:var(--cyan-dim);color:var(--cyan);border:1px solid rgba(0,212,255,0.2)">CDC pipelines</span>
+      </div>
+    </div>
+    <div class="card" style="border-left:3px solid var(--amber)">
+      <div class="card-title">Batch <span class="badge badge-amber">bounded</span></div>
+      <ul style="font-size:12px;color:var(--text2);padding-left:18px">
+        <li style="margin-bottom:5px">Processes bounded datasets on a schedule</li>
+        <li style="margin-bottom:5px">Latency: minutes to hours</li>
+        <li style="margin-bottom:5px">Bounded, finite data input</li>
+        <li style="margin-bottom:5px">Results computed from scratch each run</li>
+        <li style="margin-bottom:5px">Simpler mental model and debugging</li>
+        <li style="margin-bottom:5px">Efficient for large-scale transforms</li>
+      </ul>
+      <div style="margin-top:12px;font-size:11px;color:var(--text3);font-family:var(--mono)">USE CASES</div>
+      <div style="margin-top:6px;display:flex;flex-wrap:wrap;gap:6px">
+        <span class="pill" style="background:var(--amber-dim);color:var(--amber);border:1px solid rgba(255,140,66,0.2)">Daily reports</span>
+        <span class="pill" style="background:var(--amber-dim);color:var(--amber);border:1px solid rgba(255,140,66,0.2)">ETL to warehouse</span>
+        <span class="pill" style="background:var(--amber-dim);color:var(--amber);border:1px solid rgba(255,140,66,0.2)">ML training</span>
+        <span class="pill" style="background:var(--amber-dim);color:var(--amber);border:1px solid rgba(255,140,66,0.2)">Historical backfill</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="border-left:3px solid var(--green)">
+    <div class="card-title">Micro-batch — Spark's Middle Ground <span class="badge badge-green">default spark SS mode</span></div>
+    <p>Spark Structured Streaming uses micro-batch by default: streaming is approximated by running many tiny batches (e.g., every 30 seconds). Combines streaming API semantics with batch engine efficiency.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Mode</th><th>Latency</th><th>Throughput</th><th>EOS Support</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Micro-batch (default)</strong></td><td>~100ms–minutes</td><td>High</td><td>Yes (Delta Lake)</td></tr>
+          <tr><td><strong>Continuous mode</strong></td><td>~1ms</td><td>Lower</td><td>At-least-once only</td></tr>
+          <tr><td><strong>AvailableNow trigger</strong></td><td>N/A — run once</td><td>High</td><td>Yes</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ DATABRICKS STRUCTURED STREAMING ══════════════════ -->
+<div id="s-db-structured" class="page-section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">// databricks streaming</div>
+    <div class="sec-title amber">Spark Structured Streaming</div>
+    <div class="sec-line amber"></div>
+  </div>
+
+  <div class="card amber-accent">
+    <div class="card-title">Reading from Kafka in Databricks</div>
+    <pre><span class="cm"># Connect Databricks Spark to Kafka topic</span>
+df = (spark.<span class="fn">readStream</span>
+  .<span class="fn">format</span>(<span class="str">"kafka"</span>)
+  .<span class="fn">option</span>(<span class="str">"kafka.bootstrap.servers"</span>, <span class="str">"broker1:9092,broker2:9092"</span>)
+  .<span class="fn">option</span>(<span class="str">"subscribe"</span>, <span class="str">"user-events"</span>)       <span class="cm"># or subscribePattern</span>
+  .<span class="fn">option</span>(<span class="str">"startingOffsets"</span>, <span class="str">"earliest"</span>)      <span class="cm"># or "latest"</span>
+  .<span class="fn">option</span>(<span class="str">"maxOffsetsPerTrigger"</span>, <span class="str">"10000"</span>)   <span class="cm"># throttle burst traffic</span>
+  .<span class="fn">option</span>(<span class="str">"kafka.security.protocol"</span>, <span class="str">"SASL_SSL"</span>)
+  .<span class="fn">option</span>(<span class="str">"kafka.sasl.mechanism"</span>, <span class="str">"PLAIN"</span>)
+  .<span class="fn">option</span>(<span class="str">"kafka.sasl.jaas.config"</span>, jaas_config)
+  .<span class="fn">load</span>())</pre>
+  </div>
+
+  <div class="card green-accent">
+    <div class="card-title">Decode Kafka Payload &amp; Write to Delta Lake</div>
+    <pre><span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> col, from_json, from_avro
+<span class="kw">from</span> pyspark.sql.types <span class="kw">import</span> StructType, StringType, LongType
+
+<span class="cm"># Define schema for JSON payload</span>
+schema = (StructType()
+  .<span class="fn">add</span>(<span class="str">"user_id"</span>, LongType())
+  .<span class="fn">add</span>(<span class="str">"event"</span>, StringType())
+  .<span class="fn">add</span>(<span class="str">"ts"</span>, LongType()))
+
+<span class="cm"># Parse binary Kafka value</span>
+parsed = (df
+  .<span class="fn">selectExpr</span>(<span class="str">"CAST(key AS STRING)"</span>, <span class="str">"CAST(value AS STRING)"</span>, <span class="str">"timestamp"</span>)
+  .<span class="fn">select</span>(from_json(col(<span class="str">"value"</span>), schema).<span class="fn">alias</span>(<span class="str">"d"</span>), <span class="str">"timestamp"</span>)
+  .<span class="fn">select</span>(<span class="str">"d.*"</span>, <span class="str">"timestamp"</span>))
+
+<span class="cm"># Write to Delta Lake bronze table</span>
+query = (parsed.<span class="fn">writeStream</span>
+  .<span class="fn">format</span>(<span class="str">"delta"</span>)
+  .<span class="fn">outputMode</span>(<span class="str">"append"</span>)
+  .<span class="fn">option</span>(<span class="str">"checkpointLocation"</span>, <span class="str">"/mnt/checkpoints/user-events"</span>)
+  .<span class="fn">trigger</span>(processingTime=<span class="str">"30 seconds"</span>)   <span class="cm"># micro-batch</span>
+  .<span class="fn">table</span>(<span class="str">"bronze.user_events"</span>))</pre>
+    <div class="tip">✓ Delta Lake checkpointing provides exactly-once semantics. The checkpoint stores committed Kafka offsets and Delta transaction IDs atomically.</div>
+  </div>
+
+  <div class="card purple-accent">
+    <div class="card-title">Trigger Modes</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Trigger</th><th>Code</th><th>Behavior</th><th>Use Case</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Fixed interval</strong></td><td><code style="font-family:var(--mono);font-size:11px;background:var(--card2);padding:1px 5px;border-radius:3px;color:var(--cyan)">processingTime="30s"</code></td><td>Micro-batch every 30 s</td><td>Standard streaming pipelines</td></tr>
+          <tr><td><strong>Once</strong></td><td><code style="font-family:var(--mono);font-size:11px;background:var(--card2);padding:1px 5px;border-radius:3px;color:var(--cyan)">once=True</code></td><td>Run one batch then stop</td><td>Legacy scheduled jobs</td></tr>
+          <tr><td><strong>AvailableNow</strong></td><td><code style="font-family:var(--mono);font-size:11px;background:var(--card2);padding:1px 5px;border-radius:3px;color:var(--cyan)">availableNow=True</code></td><td>Process all available, stop</td><td>Cost-efficient catch-up</td></tr>
+          <tr><td><strong>Continuous</strong></td><td><code style="font-family:var(--mono);font-size:11px;background:var(--card2);padding:1px 5px;border-radius:3px;color:var(--cyan)">continuous="1s"</code></td><td>True low-latency ~1ms</td><td>Ultra-low latency (experimental)</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card cyan-accent">
+    <div class="card-title">foreachBatch — Custom Sink Logic</div>
+    <pre><span class="kw">def</span> <span class="fn">upsert_to_silver</span>(batch_df, batch_id):
+    <span class="cm">"""Idempotent upsert from Kafka CDC stream into silver Delta table."""</span>
+    <span class="kw">from</span> delta.tables <span class="kw">import</span> DeltaTable
+    dt = DeltaTable.<span class="fn">forName</span>(spark, <span class="str">"silver.orders"</span>)
+    (dt.<span class="fn">alias</span>(<span class="str">"t"</span>)
+      .<span class="fn">merge</span>(batch_df.<span class="fn">alias</span>(<span class="str">"s"</span>), <span class="str">"t.order_id = s.order_id"</span>)
+      .<span class="fn">whenMatchedUpdateAll</span>()
+      .<span class="fn">whenNotMatchedInsertAll</span>()
+      .<span class="fn">execute</span>())
+
+query = (parsed.<span class="fn">writeStream</span>
+  .<span class="fn">foreachBatch</span>(upsert_to_silver)
+  .<span class="fn">option</span>(<span class="str">"checkpointLocation"</span>, <span class="str">"/chk/silver-orders"</span>)
+  .<span class="fn">start</span>())</pre>
+  </div>
+</div>
+
+<!-- ═══════════════ DLT ══════════════════ -->
+<div id="s-db-dlt" class="page-section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">// declarative pipelines</div>
+    <div class="sec-title amber">Delta Live Tables (DLT)</div>
+    <div class="sec-line amber"></div>
+  </div>
+
+  <div class="grid3" style="margin-bottom:20px">
+    <div class="stat-card"><div class="stat-label">PIPELINE TYPE</div><div class="stat-val a">declarative</div><div class="stat-sub">define WHAT, not HOW</div></div>
+    <div class="stat-card"><div class="stat-label">DATA QUALITY</div><div class="stat-val g">expectations</div><div class="stat-sub">built-in constraint engine</div></div>
+    <div class="stat-card"><div class="stat-label">SCALING</div><div class="stat-val c">enhanced auto</div><div class="stat-sub">automatic cluster scaling</div></div>
+  </div>
+
+  <div class="card amber-accent">
+    <div class="card-title">STREAMING TABLE vs LIVE TABLE vs MATERIALIZED VIEW</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Type</th><th>Syntax</th><th>Update Mode</th><th>Best For</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Streaming Table</strong></td><td><code style="font-family:var(--mono);font-size:11px;background:var(--card2);padding:1px 5px;border-radius:3px;color:var(--cyan)">CREATE OR REFRESH STREAMING TABLE</code></td><td>Incremental — only new records</td><td>Kafka ingestion, CDC, bronze layer</td></tr>
+          <tr><td><strong>Materialized View</strong></td><td><code style="font-family:var(--mono);font-size:11px;background:var(--card2);padding:1px 5px;border-radius:3px;color:var(--cyan)">CREATE OR REFRESH MATERIALIZED VIEW</code></td><td>Recomputed from upstream changes</td><td>Silver/Gold aggregations</td></tr>
+          <tr><td><strong>Live Table</strong></td><td><code style="font-family:var(--mono);font-size:11px;background:var(--card2);padding:1px 5px;border-radius:3px;color:var(--cyan)">CREATE OR REFRESH LIVE TABLE</code></td><td>Always full recompute</td><td>Small reference tables</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="card green-accent">
+    <div class="card-title">DLT Reading Kafka — Bronze Layer</div>
+    <pre><span class="cm">-- DLT SQL: ingest Kafka topic as streaming bronze table</span>
+<span class="kw">CREATE</span> <span class="kw">OR</span> REFRESH <span class="fn">STREAMING</span> <span class="kw">TABLE</span> bronze_user_events
+<span class="kw">COMMENT</span> <span class="str">"Raw user events from Kafka topic user-events"</span>
+<span class="kw">AS</span> <span class="kw">SELECT</span>
+  <span class="fn">CAST</span>(key <span class="kw">AS</span> STRING) <span class="kw">AS</span> event_key,
+  <span class="fn">from_json</span>(<span class="fn">CAST</span>(value <span class="kw">AS</span> STRING),
+    <span class="str">'user_id LONG, event STRING, amount DOUBLE, ts LONG'</span>) <span class="kw">AS</span> payload,
+  timestamp <span class="kw">AS</span> kafka_timestamp,
+  partition <span class="kw">AS</span> kafka_partition,
+  offset <span class="kw">AS</span> kafka_offset
+<span class="kw">FROM</span> <span class="fn">stream</span>(read_kafka(
+  bootstrapServers => <span class="str">'broker1:9092'</span>,
+  subscribe => <span class="str">'user-events'</span>
+));</pre>
+  </div>
+
+  <div class="card purple-accent">
+    <div class="card-title">DLT Silver Layer — Data Quality with Expectations</div>
+    <pre><span class="cm">-- DLT Python: silver layer with expectations (data quality constraints)</span>
+<span class="kw">import</span> dlt
+<span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> col, expr
+
+<span class="cm"># Expectation: DROP rows violating constraint</span>
+@dlt.<span class="fn">table</span>(name=<span class="str">"silver_user_events"</span>, comment=<span class="str">"Validated events"</span>)
+@dlt.<span class="fn">expect_or_drop</span>(<span class="str">"valid_amount"</span>, <span class="str">"payload.amount > 0"</span>)
+@dlt.<span class="fn">expect_or_drop</span>(<span class="str">"valid_user"</span>, <span class="str">"payload.user_id IS NOT NULL"</span>)
+@dlt.<span class="fn">expect</span>(<span class="str">"no_future_events"</span>, <span class="str">"payload.ts <= unix_timestamp()"</span>)
+<span class="kw">def</span> <span class="fn">silver_user_events</span>():
+    <span class="kw">return</span> (dlt.<span class="fn">read_stream</span>(<span class="str">"bronze_user_events"</span>)
+      .<span class="fn">select</span>(
+        col(<span class="str">"payload.user_id"</span>),
+        col(<span class="str">"payload.event"</span>),
+        col(<span class="str">"payload.amount"</span>),
+        expr(<span class="str">"TIMESTAMP(payload.ts / 1000)"</span>).<span class="fn">alias</span>(<span class="str">"event_time"</span>),
+        col(<span class="str">"kafka_timestamp"</span>)
+      ))</pre>
+  </div>
+
+  <div class="card cyan-accent">
+    <div class="card-title">DLT Gold Layer — Aggregated Business Metrics</div>
+    <pre><span class="cm">-- DLT SQL: Gold — hourly revenue materialized view</span>
+<span class="kw">CREATE</span> <span class="kw">OR</span> REFRESH MATERIALIZED <span class="kw">VIEW</span> gold_hourly_revenue
+<span class="kw">COMMENT</span> <span class="str">"Hourly revenue aggregation from validated events"</span>
+<span class="kw">AS</span>
+<span class="kw">SELECT</span>
+  <span class="fn">date_trunc</span>(<span class="str">'hour'</span>, event_time) <span class="kw">AS</span> hour,
+  user_id,
+  event,
+  <span class="fn">SUM</span>(amount) <span class="kw">AS</span> total_revenue,
+  <span class="fn">COUNT</span>(*) <span class="kw">AS</span> event_count
+<span class="kw">FROM</span> <span class="fn">LIVE</span>.silver_user_events
+<span class="kw">GROUP</span> <span class="kw">BY</span> <span class="num">1</span>, <span class="num">2</span>, <span class="num">3</span>;</pre>
+  </div>
+
+  <div class="card red-accent">
+    <div class="card-title">DLT Expectation Modes — Handling Bad Data</div>
+    <div class="tbl-wrap">
+      <table>
+        <thead><tr><th>Mode</th><th>Decorator</th><th>On Violation</th><th>Use When</th></tr></thead>
+        <tbody>
+          <tr><td><strong>Warn</strong></td><td><code style="font-family:var(--mono);font-size:11px;background:var(--card2);padding:1px 5px;border-radius:3px;color:var(--cyan)">@dlt.expect()</code></td><td>Log metric, keep record</td><td>Monitoring data quality without blocking</td></tr>
+          <tr><td><strong>Drop</strong></td><td><code style="font-family:var(--mono);font-size:11px;background:var(--card2);padding:1px 5px;border-radius:3px;color:var(--cyan)">@dlt.expect_or_drop()</code></td><td>Drop bad records, continue</td><td>Downstream can't tolerate nulls/invalids</td></tr>
+          <tr><td><strong>Fail</strong></td><td><code style="font-family:var(--mono);font-size:11px;background:var(--card2);padding:1px 5px;border-radius:3px;color:var(--cyan)">@dlt.expect_or_fail()</code></td><td>Fail entire pipeline</td><td>Zero-tolerance data contracts</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ DATABRICKS MIND MAP ══════════════════ -->
+<div id="s-db-mindmap" class="page-section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">// visual reference</div>
+    <div class="sec-title amber">Databricks Streaming — Mind Maps</div>
+    <div class="sec-line amber"></div>
+  </div>
+
+  <div class="mindmap">
+    <div class="mm-root">
+      <div class="mm-node mm-root-node">Databricks Streaming</div>
+    </div>
+    <div class="mm-branches">
+      <div class="mm-branch">
+        <div class="mm-branch-title c">Spark Structured Streaming</div>
+        <div class="mm-leaf">readStream / writeStream API</div>
+        <div class="mm-leaf">Kafka format connector</div>
+        <div class="mm-leaf">Micro-batch &amp; continuous triggers</div>
+        <div class="mm-leaf">checkpointLocation (offset state)</div>
+        <div class="mm-leaf">maxOffsetsPerTrigger (throttle)</div>
+        <div class="mm-leaf">foreachBatch (custom sink)</div>
+        <div class="mm-leaf">withWatermark (late data)</div>
+        <div class="mm-leaf">outputMode: append / update / complete</div>
+      </div>
+      <div class="mm-branch">
+        <div class="mm-branch-title a">Delta Live Tables (DLT)</div>
+        <div class="mm-leaf">Declarative SQL or Python API</div>
+        <div class="mm-leaf">STREAMING TABLE (incremental)</div>
+        <div class="mm-leaf">MATERIALIZED VIEW (auto-refresh)</div>
+        <div class="mm-leaf">LIVE TABLE (full recompute)</div>
+        <div class="mm-leaf">Expectations: warn / drop / fail</div>
+        <div class="mm-leaf">read_kafka() source function</div>
+        <div class="mm-leaf">Pipeline DAG auto-orchestration</div>
+        <div class="mm-leaf">Enhanced Autoscaling</div>
+      </div>
+      <div class="mm-branch">
+        <div class="mm-branch-title g">Delta Lake Integration</div>
+        <div class="mm-leaf">ACID transactions (EOS guarantee)</div>
+        <div class="mm-leaf">Time travel &amp; table versioning</div>
+        <div class="mm-leaf">MERGE INTO for CDC upserts</div>
+        <div class="mm-leaf">Change Data Feed (CDF)</div>
+        <div class="mm-leaf">Z-order optimization</div>
+        <div class="mm-leaf">Auto compaction &amp; optimize</div>
+        <div class="mm-leaf">Unity Catalog governance</div>
+        <div class="mm-leaf">Deletion vectors</div>
+      </div>
+      <div class="mm-branch">
+        <div class="mm-branch-title p">Medallion Architecture</div>
+        <div class="mm-leaf">Bronze: raw Kafka events</div>
+        <div class="mm-leaf">Silver: validated &amp; enriched</div>
+        <div class="mm-leaf">Gold: aggregated business metrics</div>
+        <div class="mm-leaf">Kafka → Bronze STREAMING TABLE</div>
+        <div class="mm-leaf">Silver with DLT expectations</div>
+        <div class="mm-leaf">Gold MATERIALIZED VIEWs</div>
+        <div class="mm-leaf">Schema evolution support</div>
+        <div class="mm-leaf">Multi-hop pipeline DAG</div>
+      </div>
+      <div class="mm-branch">
+        <div class="mm-branch-title r">Kafka Source Options</div>
+        <div class="mm-leaf">bootstrap.servers config</div>
+        <div class="mm-leaf">subscribe / subscribePattern</div>
+        <div class="mm-leaf">startingOffsets: earliest/latest</div>
+        <div class="mm-leaf">SASL_SSL authentication</div>
+        <div class="mm-leaf">Schema Registry + from_avro()</div>
+        <div class="mm-leaf">Binary key/value → CAST()</div>
+        <div class="mm-leaf">Kafka metadata columns</div>
+        <div class="mm-leaf">minPartitions for parallelism</div>
+      </div>
+      <div class="mm-branch">
+        <div class="mm-branch-title c">Monitoring &amp; Ops</div>
+        <div class="mm-leaf">Spark Streaming UI</div>
+        <div class="mm-leaf">DLT Event Log table</div>
+        <div class="mm-leaf">Data quality metrics dashboard</div>
+        <div class="mm-leaf">Consumer lag via Ganglia/Grafana</div>
+        <div class="mm-leaf">Structured Streaming progress API</div>
+        <div class="mm-leaf">Auto retry on failure</div>
+        <div class="mm-leaf">Alert on expectation violations</div>
+        <div class="mm-leaf">Databricks Workflows scheduling</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mindmap" style="margin-top:20px">
+    <div class="mm-root">
+      <div class="mm-node mm-root-node">Kafka Core Concepts</div>
+    </div>
+    <div class="mm-branches">
+      <div class="mm-branch">
+        <div class="mm-branch-title c">Storage &amp; Architecture</div>
+        <div class="mm-leaf">Distributed commit log</div>
+        <div class="mm-leaf">Topics → Partitions → Offsets</div>
+        <div class="mm-leaf">Brokers + Cluster + Controller</div>
+        <div class="mm-leaf">ISR (In-Sync Replicas)</div>
+        <div class="mm-leaf">Leader/Follower replication</div>
+        <div class="mm-leaf">KRaft (ZooKeeper replacement)</div>
+        <div class="mm-leaf">Log retention &amp; compaction</div>
+      </div>
+      <div class="mm-branch">
+        <div class="mm-branch-title a">Producers</div>
+        <div class="mm-leaf">acks: 0 / 1 / all</div>
+        <div class="mm-leaf">RecordAccumulator (batching)</div>
+        <div class="mm-leaf">batch.size + linger.ms</div>
+        <div class="mm-leaf">Partitioner (key hashing)</div>
+        <div class="mm-leaf">enable.idempotence=true</div>
+        <div class="mm-leaf">Transactional API (EOS)</div>
+        <div class="mm-leaf">Compression: lz4/zstd</div>
+      </div>
+      <div class="mm-branch">
+        <div class="mm-branch-title g">Consumers</div>
+        <div class="mm-leaf">Consumer groups</div>
+        <div class="mm-leaf">Partition assignment strategies</div>
+        <div class="mm-leaf">__consumer_offsets topic</div>
+        <div class="mm-leaf">commitSync / commitAsync</div>
+        <div class="mm-leaf">Rebalance protocol</div>
+        <div class="mm-leaf">max.poll.interval.ms</div>
+        <div class="mm-leaf">Consumer lag monitoring</div>
+      </div>
+      <div class="mm-branch">
+        <div class="mm-branch-title p">Streaming Processing</div>
+        <div class="mm-leaf">Stateless vs stateful</div>
+        <div class="mm-leaf">Event / ingestion / processing time</div>
+        <div class="mm-leaf">Watermarks for late data</div>
+        <div class="mm-leaf">Window types (tumbling/session)</div>
+        <div class="mm-leaf">Exactly-once semantics</div>
+        <div class="mm-leaf">KStream / KTable / GlobalKTable</div>
+        <div class="mm-leaf">RocksDB state store</div>
+      </div>
+      <div class="mm-branch">
+        <div class="mm-branch-title r">Connect &amp; Schema</div>
+        <div class="mm-leaf">Source &amp; sink connectors</div>
+        <div class="mm-leaf">Debezium CDC</div>
+        <div class="mm-leaf">JDBC, S3, Snowflake connectors</div>
+        <div class="mm-leaf">Schema Registry</div>
+        <div class="mm-leaf">Avro / Protobuf / JSON</div>
+        <div class="mm-leaf">BACKWARD compatibility</div>
+        <div class="mm-leaf">SMT (Single Message Transform)</div>
+      </div>
+      <div class="mm-branch">
+        <div class="mm-branch-title c">Production &amp; Security</div>
+        <div class="mm-leaf">TLS encryption in transit</div>
+        <div class="mm-leaf">SASL authentication</div>
+        <div class="mm-leaf">ACL authorization</div>
+        <div class="mm-leaf">MirrorMaker 2 (replication)</div>
+        <div class="mm-leaf">Consumer lag alerting (Burrow)</div>
+        <div class="mm-leaf">Cruise Control (rebalancing)</div>
+        <div class="mm-leaf">Performance tuning configs</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ DATABRICKS KAFKA INTEGRATION ══════════════════ -->
+<div id="s-db-kafka" class="page-section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">// end-to-end pipeline</div>
+    <div class="sec-title amber">Kafka + Databricks Integration</div>
+    <div class="sec-line amber"></div>
+  </div>
+
+  <div class="card amber-accent">
+    <div class="card-title">Medallion Architecture with Kafka + DLT</div>
+    <div class="flow" style="margin-bottom:20px;flex-wrap:wrap;gap:4px">
+      <div class="flow-node cyan" style="font-size:10px">Kafka Topic<br><span style="opacity:0.7">user-events</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node" style="font-size:10px">DLT<br>STREAMING TABLE<br><span style="opacity:0.7">bronze_events</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node purple" style="font-size:10px">DLT expectations<br>STREAMING TABLE<br><span style="opacity:0.7">silver_events</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node amber" style="font-size:10px">MATERIALIZED VIEW<br><span style="opacity:0.7">gold_revenue</span></div>
+      <div class="flow-arrow">→</div>
+      <div class="flow-node green" style="font-size:10px">BI / ML<br><span style="opacity:0.7">downstream</span></div>
+    </div>
+  </div>
+
+  <div class="card green-accent">
+    <div class="card-title">Writing back to Kafka from Databricks</div>
+    <pre><span class="cm"># Write enriched stream from Delta back to Kafka</span>
+(silver_df
+  .<span class="fn">selectExpr</span>(
+    <span class="str">"CAST(user_id AS STRING) AS key"</span>,
+    <span class="str">"to_json(struct(*)) AS value"</span>
+  )
+  .<span class="fn">writeStream</span>
+  .<span class="fn">format</span>(<span class="str">"kafka"</span>)
+  .<span class="fn">option</span>(<span class="str">"kafka.bootstrap.servers"</span>, <span class="str">"broker1:9092"</span>)
+  .<span class="fn">option</span>(<span class="str">"topic"</span>, <span class="str">"enriched-user-events"</span>)
+  .<span class="fn">option</span>(<span class="str">"checkpointLocation"</span>, <span class="str">"/chk/enriched-output"</span>)
+  .<span class="fn">start</span>())</pre>
+  </div>
+
+  <div class="card cyan-accent">
+    <div class="card-title">Avro + Schema Registry in Databricks</div>
+    <pre><span class="cm"># from_avro() with Confluent Schema Registry</span>
+<span class="kw">from</span> pyspark.sql.functions <span class="kw">import</span> col
+<span class="kw">from</span> pyspark.sql.avro.functions <span class="kw">import</span> from_avro
+
+schema_registry_options = {
+  <span class="str">"mode"</span>: <span class="str">"PERMISSIVE"</span>,
+  <span class="str">"schema.registry.address"</span>: <span class="str">"https://schema-registry:8081"</span>
+}
+
+<span class="cm"># Strip the 5-byte magic header before deserializing</span>
+avro_df = (df
+  .<span class="fn">select</span>(
+    from_avro(
+      col(<span class="str">"value"</span>),    <span class="cm"># binary Kafka value</span>
+      <span class="str">"user-events-value"</span>,   <span class="cm"># subject name in Schema Registry</span>
+      schema_registry_options
+    ).<span class="fn">alias</span>(<span class="str">"data"</span>)
+  )
+  .<span class="fn">select</span>(<span class="str">"data.*"</span>))</pre>
+  </div>
+
+  <div class="card red-accent">
+    <div class="card-title">Best Practices Checklist</div>
+    <div class="grid2">
+      <div>
+        <div style="font-size:11px;font-family:var(--mono);color:var(--text3);margin-bottom:8px">DATABRICKS SIDE</div>
+        <ul style="font-size:12px;color:var(--text2);padding-left:18px">
+          <li style="margin-bottom:5px">Always set <code style="font-family:var(--mono);font-size:11px;background:var(--card2);padding:1px 5px;border-radius:3px;color:var(--cyan)">checkpointLocation</code> — stores offset state</li>
+          <li style="margin-bottom:5px">Use <code style="font-family:var(--mono);font-size:11px;background:var(--card2);padding:1px 5px;border-radius:3px;color:var(--cyan)">maxOffsetsPerTrigger</code> to throttle bursts</li>
+          <li style="margin-bottom:5px">Use <code style="font-family:var(--mono);font-size:11px;background:var(--card2);padding:1px 5px;border-radius:3px;color:var(--cyan)">startingOffsets=latest</code> in production</li>
+          <li style="margin-bottom:5px">Monitor with Spark Streaming UI → lag trends</li>
+          <li style="margin-bottom:5px">Prefer DLT over raw Spark SS for new pipelines</li>
+          <li style="margin-bottom:5px">Use Unity Catalog for Delta table governance</li>
+        </ul>
+      </div>
+      <div>
+        <div style="font-size:11px;font-family:var(--mono);color:var(--text3);margin-bottom:8px">KAFKA SIDE</div>
+        <ul style="font-size:12px;color:var(--text2);padding-left:18px">
+          <li style="margin-bottom:5px">Partition count ≥ Databricks executor count</li>
+          <li style="margin-bottom:5px">Use SASL_SSL for secure connections</li>
+          <li style="margin-bottom:5px">Enable Schema Registry for schema evolution</li>
+          <li style="margin-bottom:5px">Set <code style="font-family:var(--mono);font-size:11px;background:var(--card2);padding:1px 5px;border-radius:3px;color:var(--cyan)">min.insync.replicas=2</code> with <code style="font-family:var(--mono);font-size:11px;background:var(--card2);padding:1px 5px;border-radius:3px;color:var(--cyan)">acks=all</code></li>
+          <li style="margin-bottom:5px">Monitor consumer group lag for Databricks group</li>
+          <li style="margin-bottom:5px">Use log compaction for CDC topics feeding DLT</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════ INTERVIEW Q&A ══════════════════ -->
+<div id="s-interview" class="page-section">
+  <div class="sec-header">
+    <div class="sec-eyebrow">// prep guide</div>
+    <div class="sec-title" style="color:var(--green)">Interview Q&amp;A</div>
+    <div class="sec-line" style="background:var(--green)"></div>
+  </div>
+
+  <div class="q-filters">
+    <button class="filter-btn on" onclick="filterQ('all',this)">All Questions</button>
+    <button class="filter-btn" onclick="filterQ('easy',this)">Easy</button>
+    <button class="filter-btn amber" onclick="filterQ('medium',this)">Medium</button>
+    <button class="filter-btn" onclick="filterQ('hard',this)" style="border-color:var(--red);color:var(--red)">Hard</button>
+    <button class="filter-btn" onclick="filterCat('kafka',this)">Kafka</button>
+    <button class="filter-btn" onclick="filterCat('stream',this)">Streaming</button>
+    <button class="filter-btn" onclick="filterCat('databricks',this)">Databricks</button>
+  </div>
+
+  <div id="q-list"></div>
+</div>
+
+</main>
+</div>
+
+<script>
+// TICKER
+const tickerItems = [
+  'offset=0 key=user:42 value={"event":"login"}',
+  'offset=1 key=order:99 value={"amount":299.0}',
+  'partition=2 lag=0 consumer=analytics-cg',
+  'DLT pipeline: silver_events ✓ expectations passed',
+  'checkpoint committed offset=10450',
+  'readStream format=kafka topic=user-events',
+  'writeStream format=delta checkpointLocation=/chk',
+  'acks=all enable.idempotence=true',
+  'STREAMING TABLE bronze_events refreshed',
+  'watermark=10min event_time drift detected → late record',
+  'MERGE INTO silver.orders: 1200 upserted, 3 deleted',
+  'Schema Registry: subject=user-events-value version=3 BACKWARD ✓',
+];
+const t = document.getElementById('ticker');
+const items = [...tickerItems,...tickerItems].map(s=>`<span class="ticker-item">// <span>${s}</span></span>`).join('');
+t.innerHTML = items + items;
+
+// NAV
+function nav(id, el) {
+  document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('s-'+id).classList.add('active');
+  el.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+// QUESTIONS DATA
+const questions = [
+  // KAFKA - EASY
+  {level:'easy',cat:'kafka',q:'What is Apache Kafka and why do data engineers use it?',
+   a:'Kafka is a distributed event streaming platform that acts as a high-throughput, fault-tolerant, durable message bus. Data engineers use it to decouple producers from consumers, enable real-time data pipelines, and handle millions of events per second. Unlike traditional queues, Kafka retains messages after consumption, allows multiple consumer groups to independently read the same topic, and enables replay from any offset — making it ideal as a central streaming backbone connecting databases, microservices, data warehouses, and analytics systems.'},
+  {level:'easy',cat:'kafka',q:'What is a Kafka topic and how does it differ from a traditional message queue?',
+   a:'A topic is a named, ordered, immutable log of events. Unlike a queue: <ul><li>Messages are <strong>retained after consumption</strong> — consumers don\'t delete them</li><li><strong>Multiple consumer groups</strong> can independently read the same topic simultaneously</li><li>Consumers control their own offset, enabling <strong>replay and backfill</strong></li><li>Data is stored durably for a configurable retention period</li></ul>Queues are transient; Kafka topics are persistent distributed logs.'},
+  {level:'easy',cat:'kafka',q:'Explain partitions and offsets in Kafka.',
+   a:'A partition is an ordered, append-only log within a topic — the unit of parallelism. Each message in a partition has a unique, monotonically increasing <strong>offset</strong>. Key properties: <ul><li>Messages with the same key always land on the same partition (via murmur2 hashing) — preserving per-key ordering</li><li>More partitions = more consumers can work in parallel (up to 1 consumer per partition per group)</li><li>Partition count cannot be reduced after creation</li></ul>The combination of (topic, partition, offset) uniquely identifies every message in Kafka.'},
+  {level:'easy',cat:'kafka',q:'What is a consumer group and how does it enable horizontal scaling?',
+   a:'A consumer group is a set of consumers sharing a <code>group.id</code>. Kafka assigns each partition to exactly one consumer in the group. Adding consumers (up to the partition count) increases throughput linearly. Key rules: <ul><li>More consumers than partitions → some consumers idle</li><li>More partitions than consumers → some consumers handle multiple partitions</li><li>Multiple groups can independently read the same topic — e.g., one group for real-time dashboards, another for batch analytics</li><li>Committed offsets stored in <code>__consumer_offsets</code> topic</li></ul>'},
+  {level:'easy',cat:'kafka',q:'What does acks=all mean in Kafka producer config?',
+   a:'<code>acks=all</code> (equivalent to <code>acks=-1</code>) means the producer waits for ALL in-sync replicas (ISR) to acknowledge the write before returning success. This provides the strongest durability guarantee — no acknowledged message is lost even if the leader crashes immediately after. Should be combined with <code>min.insync.replicas=2</code> (requires at least 2 ISR members) and <code>enable.idempotence=true</code> for exactly-once production-grade pipelines. Trade-off: higher latency than acks=0 or acks=1.'},
+  // KAFKA - MEDIUM
+  {level:'medium',cat:'kafka',q:'How does the ISR (In-Sync Replica) list affect Kafka durability?',
+   a:'The ISR is the set of replicas fully caught up to the leader within <code>replica.lag.time.max.ms</code>. Key impact: <ul><li>With <code>acks=all</code>, the producer waits for all ISR members to acknowledge — ensuring no loss even if leader dies</li><li><code>min.insync.replicas</code> sets the minimum ISR size needed to accept writes; if ISR shrinks below this, the partition becomes unavailable for writes (safer than losing data)</li><li>If <code>unclean.leader.election.enable=false</code> (recommended), non-ISR replicas cannot become leader — preventing data loss at the cost of temporary unavailability</li></ul>The formula for maximum durability: <code>replication.factor=3, acks=all, min.insync.replicas=2</code>.'},
+  {level:'medium',cat:'kafka',q:'What is log compaction and when would you use it for CDC?',
+   a:'Log compaction retains only the latest value per key, purging older duplicates. The compaction cleaner runs in the background and keeps the highest-offset record per key. A null-value record (tombstone) schedules a key for deletion. Use cases: <ul><li><strong>CDC (Change Data Capture)</strong> — topic holds latest row state; consumer can rebuild the full table by reading from offset 0</li><li><strong>Kafka Streams KTables</strong> — backing topic for materialized state</li><li><strong>Configuration stores</strong> — only current config values matter</li></ul>Set <code>cleanup.policy=compact</code> or combine with <code>cleanup.policy=compact,delete</code> for time-bounded compaction.'},
+  {level:'medium',cat:'kafka',q:'Explain exactly-once semantics (EOS) in Kafka.',
+   a:'EOS ensures no message is lost and no duplicate is produced/consumed. Three components required: <ul><li><strong>Idempotent producer</strong>: <code>enable.idempotence=true</code> — producer gets a PID and sequence numbers; broker deduplicates retries within a session</li><li><strong>Transactional API</strong>: <code>transactional.id</code> — enables atomic multi-topic writes; either all writes commit or none do (cross-topic atomicity)</li><li><strong>Transactional consumer</strong>: <code>isolation.level=read_committed</code> — consumer only sees committed transactional messages</li></ul>In Databricks, EOS is achieved by combining Kafka\'s idempotent producer with Delta Lake\'s ACID transactions via checkpointing.'},
+  {level:'medium',cat:'kafka',q:'What are the different Kafka consumer rebalance strategies and when should you use CooperativeStickyAssignor?',
+   a:'Assignment strategies: <ul><li><strong>RangeAssignor</strong>: contiguous ranges per topic; can produce uneven distribution</li><li><strong>RoundRobinAssignor</strong>: even alphabetical distribution</li><li><strong>StickyAssignor</strong>: minimises partition movement on rebalance</li><li><strong>CooperativeStickyAssignor</strong>: incremental rebalance — only partitions that must move are revoked; consumers not losing partitions keep processing throughout</li></ul>Use <strong>CooperativeStickyAssignor</strong> when: running Kafka Streams with stateful operations (RocksDB state stores need warm-up time), using Spark Structured Streaming where rebalance latency spikes are costly, or when you have long-running processing loops where stop-the-world pauses are unacceptable.'},
+  // KAFKA - HARD
+  {level:'hard',cat:'kafka',q:'How would you design a Kafka pipeline for CDC from PostgreSQL into a Databricks Delta Lake medallion architecture?',
+   a:'Architecture: <ul><li><strong>Debezium Connect</strong> reads Postgres WAL → emits per-row change events to Kafka topic (one topic per table). Envelope contains <code>op</code> (c/u/d/r), <code>before</code>, <code>after</code>, <code>source.lsn</code></li><li><strong>Kafka topic</strong>: log-compacted, replication.factor=3, acks=all for durability</li><li><strong>DLT STREAMING TABLE (bronze)</strong>: reads Kafka with <code>read_kafka()</code>, stores raw Debezium envelope as-is. No transformations — full fidelity</li><li><strong>DLT silver layer</strong>: parses envelope, applies <code>@expect_or_drop</code> constraints, uses MERGE INTO for upserts and handles deletes. Use <code>APPLY CHANGES INTO</code> (DLT\'s built-in CDC) for sequence-aware merging</li><li><strong>Gold MATERIALIZED VIEWs</strong>: business aggregations refreshed from silver</li></ul>Key: Delta Lake ACID + DLT checkpointing provides exactly-once end-to-end without custom transaction management.'},
+  {level:'hard',cat:'kafka',q:'How do you handle consumer lag in a production Kafka + Databricks pipeline, and what are root causes vs fixes?',
+   a:'Detection: expose JMX consumer lag metrics via Prometheus, alert when <code>kafka_consumer_group_lag > threshold</code> OR when lag is <em>growing</em> (Burrow\'s velocity-based alerting is better than absolute thresholds). Root causes and fixes: <ul><li><strong>Slow consumer processing</strong> → profile foreachBatch function; parallelise slow DB writes; add executor cores</li><li><strong>Traffic burst spike</strong> → set <code>maxOffsetsPerTrigger</code> in Spark SS to cap batch size; add Kafka partitions (caution: irreversible); scale Databricks cluster</li><li><strong>Expensive stateful join / aggregation</strong> → tune RocksDB on SSDs; increase <code>num.standby.replicas</code>; consider partitioned Z-order on Delta</li><li><strong>GC pressure</strong> → tune Spark executor memory; use G1GC or ZGC; reduce state size with TTL</li><li><strong>Rebalance storms</strong> → use static group membership + CooperativeStickyAssignor</li></ul>'},
+  // STREAMING - EASY
+  {level:'easy',cat:'stream',q:'What is the difference between stateless and stateful stream processing?',
+   a:'<strong>Stateless</strong>: each event processed independently with no memory of past events. Output depends only on the current message. Examples: filter, map, enrich from static table. Horizontally scalable; any instance can handle any message; restarts are trivially safe. <br><br><strong>Stateful</strong>: processing depends on accumulated state from past events. Requires a persistent state store (RocksDB, Delta table, checkpoint). Examples: running totals, windowed aggregations, stream joins, deduplication, session tracking. All messages for a key must route to the same partition. State must be recovered after restarts — this is the key operational challenge.'},
+  {level:'easy',cat:'stream',q:'What is the difference between streaming and batch processing?',
+   a:'<ul><li><strong>Streaming</strong>: processes unbounded data continuously as events arrive. Latency: milliseconds to seconds. Results updated incrementally. Required for real-time use cases (fraud detection, live dashboards, IoT alerting). Higher operational complexity.</li><li><strong>Batch</strong>: processes bounded datasets at scheduled intervals. Latency: minutes to hours. Results recomputed from scratch. Efficient for large-scale transforms (daily ETL, ML training, historical reports). Simpler to reason about and debug.</li><li><strong>Micro-batch</strong> (Spark SS default): approximates streaming with very small batch intervals. Gets streaming semantics from a batch engine. Good balance of throughput and latency for most DE pipelines.</li></ul>'},
+  {level:'easy',cat:'stream',q:'What is event time vs processing time and why does it matter for analytics?',
+   a:'<strong>Event time</strong>: the timestamp embedded in the event payload when the event actually occurred. Most accurate for analytics because it\'s independent of consumer lag or processing delays. Survives replay correctly. <br><br><strong>Processing time</strong>: the system clock when the consumer processes the record. Simple but changes on replay — a backfill job run today would timestamp yesterday\'s events as "today". <br><br>Why it matters: if you calculate "revenue for the hour of 3PM–4PM" using processing time, a 10-minute consumer lag means some 3PM events arrive at 4:10PM and fall into the wrong hour\'s bucket. Using event time with watermarks correctly handles this late data.'},
+  // STREAMING - MEDIUM
+  {level:'medium',cat:'stream',q:'How do watermarks work and what is the trade-off when setting the watermark delay?',
+   a:'A watermark at time T asserts: "no event with event_time &lt; T will arrive." This allows stateful operators (windows, joins) to finalize and emit results without waiting forever for stragglers. When the watermark advances past a window\'s end boundary, the window closes and its result is emitted. <br><br>Setting watermark delay: <ul><li><strong>delay=0</strong>: windows close immediately — zero tolerance for late data, results emitted fast but stragglers dropped</li><li><strong>delay=10 min</strong>: windows wait 10 min for stragglers — more complete results but adds 10 min of end-to-end latency</li></ul>The trade-off is completeness vs latency. For fraud detection: low watermark (seconds). For daily revenue reconciliation: higher watermark (minutes) to capture stragglers from mobile clients with poor connectivity.'},
+  {level:'medium',cat:'stream',q:'Compare Kafka Streams, Flink, and Spark Structured Streaming for stateful DE pipelines.',
+   a:'<ul><li><strong>Kafka Streams</strong>: JVM library (not a cluster); state in local RocksDB + changelog Kafka topic; true record-at-a-time; best for microservice-embedded streaming tightly coupled to Kafka; simpler ops but less powerful fault tolerance</li><li><strong>Apache Flink</strong>: dedicated cluster; distributed Chandy-Lamport snapshots for state; true streaming with very low latency even under heavy state; best for complex stateful joins, CEP, high-volume ML inference; strongest exactly-once model; higher ops overhead</li><li><strong>Spark Structured Streaming</strong>: micro-batch by default (seconds latency); checkpoints to S3/HDFS; ideal when you need unified batch + streaming API; best with Delta Lake for exactly-once via ACID; best for Databricks-native Medallion pipelines via DLT</li></ul>Choose: Kafka Streams for simple microservice topologies, Flink for sub-second latency with heavy state, Spark SS / DLT for Databricks-centric DE pipelines.'},
+  // STREAMING - HARD
+  {level:'hard',cat:'stream',q:'Design a real-time fraud detection system using Kafka and Databricks stateful streaming.',
+   a:'Architecture: <ul><li><strong>Kafka topics</strong>: <code>transactions</code> (all txns, log-compacted by user_id) and <code>fraud-alerts</code> (output)</li><li><strong>Bronze DLT STREAMING TABLE</strong>: ingest raw transaction events from Kafka</li><li><strong>Silver stateful Spark SS job</strong>: joins transaction stream with user profile KTable (Delta table as static lookup), applies session windowing (30-min inactivity gap) to detect anomalous activity patterns per user</li><li><strong>Stateful aggregations</strong>: rolling 5-min transaction count and total amount per user_id; <code>withWatermark("event_time", "30 seconds")</code> for late mobile events; <code>outputMode("update")</code> for incremental results</li><li><strong>Fraud scoring UDF</strong>: applies ML model per batch (foreachBatch); if score > threshold → write to <code>fraud-alerts</code> Kafka topic AND update <code>gold.fraud_alerts</code> Delta table</li><li><strong>EOS</strong>: Delta ACID + Kafka idempotent producer ensures no duplicate alerts</li></ul>Key challenge: state must be partitioned by user_id; use <code>groupBy("user_id")</code> so all events per user route to same executor.'},
+  // DATABRICKS - EASY
+  {level:'easy',cat:'databricks',q:'How do you connect Databricks Spark Structured Streaming to a Kafka topic?',
+   a:'Use the <code>kafka</code> format with <code>readStream</code>: <ul><li>Set <code>kafka.bootstrap.servers</code> to broker addresses</li><li>Set <code>subscribe</code> to the topic name (or <code>subscribePattern</code> for regex)</li><li>Set <code>startingOffsets</code> to <code>earliest</code> (backfill) or <code>latest</code> (live)</li><li>Always set <code>checkpointLocation</code> for fault tolerance — this stores committed offsets</li></ul>Messages arrive as binary (key, value) — use <code>CAST(value AS STRING)</code> or <code>from_json()</code> / <code>from_avro()</code> to decode. For secure Kafka, add <code>kafka.security.protocol=SASL_SSL</code> and SASL JAAS config options. Use <code>maxOffsetsPerTrigger</code> to throttle burst traffic and prevent OOM on large backlog.'},
+  {level:'easy',cat:'databricks',q:'What is Delta Live Tables (DLT) and how does it differ from writing raw Spark Structured Streaming code?',
+   a:'DLT is Databricks\'s declarative pipeline framework where you define WHAT data should look like (tables + expectations), not HOW to orchestrate it. Compared to raw Spark SS: <ul><li><strong>No orchestration code</strong>: DLT automatically determines execution order from table dependencies (DAG)</li><li><strong>Built-in data quality</strong>: <code>@dlt.expect()</code> / <code>@dlt.expect_or_drop()</code> / <code>@dlt.expect_or_fail()</code> — no custom validation logic</li><li><strong>Automatic retries</strong>: DLT handles failure recovery; raw Spark SS requires external retry logic</li><li><strong>Metrics &amp; lineage</strong>: built-in pipeline event log and data quality dashboard</li><li><strong>Enhanced Autoscaling</strong>: DLT dynamically scales the cluster based on data volume</li></ul>Use DLT for new production pipelines; it dramatically reduces boilerplate.'},
+  // DATABRICKS - MEDIUM
+  {level:'medium',cat:'databricks',q:'What is the difference between STREAMING TABLE and MATERIALIZED VIEW in DLT, and when do you use each?',
+   a:'<ul><li><strong>STREAMING TABLE</strong>: processes only new records incrementally. State persists between pipeline runs. Backed by a changelog — only new events consumed each refresh. Perfect for Kafka ingestion (bronze), CDC streams, and any append-only source. Cannot reference other streaming tables with aggregations.</li><li><strong>MATERIALIZED VIEW</strong>: automatically recomputed when upstream data changes. DLT detects which records changed and propagates only those changes downstream. Perfect for silver/gold aggregations, joins, and transformations. DLT\'s query optimizer determines the refresh strategy.</li></ul>Medallion pattern: Kafka → <strong>STREAMING TABLE</strong> (bronze, raw events) → <strong>STREAMING TABLE</strong> (silver, validated) → <strong>MATERIALIZED VIEW</strong> (gold, aggregations for BI).'},
+  {level:'medium',cat:'databricks',q:'How does checkpointing in Spark Structured Streaming provide exactly-once guarantees with Delta Lake?',
+   a:'Checkpointing stores two things: <ul><li><strong>Kafka offsets</strong>: the exact offset range processed by each micro-batch, stored in the checkpoint directory</li><li><strong>Delta transaction IDs</strong>: the micro-batch ID is written atomically with the Delta table commit</li></ul>On restart, Spark reads the checkpoint to find the last committed offset range and resumes from the next batch. Since Delta is transactional (ACID), a crashed write either fully committed or is rolled back — there\'s no partial state. Combined: if a batch commits to Delta but the checkpoint write fails, Spark re-runs that batch, but Delta\'s idempotent write (same batch ID → no duplicate) prevents double-writing. This two-phase coordination gives end-to-end exactly-once without the Kafka transactional API overhead.'},
+  // DATABRICKS - HARD
+  {level:'hard',cat:'databricks',q:'Design a complete Kafka + DLT medallion pipeline for CDC from PostgreSQL with data quality and schema evolution.',
+   a:'Full design: <br><strong>1. Debezium → Kafka</strong>: Deploy Debezium PostgreSQL connector; configure to read WAL. Set Schema Registry with BACKWARD compatibility. Topics: <code>pg.public.orders</code> (log-compacted, RF=3).<br><br><strong>2. DLT Bronze STREAMING TABLE</strong>: Use <code>read_kafka()</code> + <code>from_avro()</code> with Schema Registry; store raw Debezium envelope including <code>op</code>, <code>before</code>, <code>after</code>, <code>source.lsn</code>. No expectations at bronze — full fidelity.<br><br><strong>3. DLT Silver STREAMING TABLE with APPLY CHANGES INTO</strong>: Use DLT\'s native CDC: <code>dlt.apply_changes(target="silver_orders", source="bronze_orders", keys=["id"], sequence_by="source_lsn")</code> — handles upserts and deletes, out-of-order events, and exactly-once merge automatically.<br><br><strong>4. Schema Evolution</strong>: Avro BACKWARD compatibility means new optional fields don\'t break bronze ingestion. Delta Lake\'s <code>mergeSchema=true</code> on the silver table automatically adds new columns from Avro schema updates.<br><br><strong>5. Gold MATERIALIZED VIEWs</strong>: Aggregations that auto-refresh from silver changes. Unity Catalog governs access.<br><br><strong>6. Data quality</strong>: Silver expectations <code>@dlt.expect_or_drop("valid_id", "id IS NOT NULL")</code> with DLT event log alerting on violation rate spikes.'},
+  {level:'hard',cat:'databricks',q:'How do DLT expectations differ from traditional data validation, and what happens to records that violate each expectation mode in a Kafka streaming pipeline?',
+   a:'Traditional validation: ad-hoc <code>filter()</code> calls scattered through ETL code; no metrics, no visibility, silently drops records. DLT expectations are first-class citizens with three modes: <ul><li><strong>@dlt.expect("name", "condition")</strong>: <em>Warn only</em> — invalid record passes through to the table but the violation is logged in the DLT event log. A data quality metric is exposed on the pipeline dashboard. Use for monitoring without blocking — e.g., <code>"no_future_events"</code> on IoT data where a few clock-skewed devices shouldn\'t stop the pipeline</li><li><strong>@dlt.expect_or_drop("name", "condition")</strong>: <em>Drop silently</em> — invalid records are excluded from the target table and counted as "dropped" in metrics. Downstream tables never see the bad record. Use when downstream processing would fail or produce corrupt results on nulls/invalid types</li><li><strong>@dlt.expect_or_fail("name", "condition")</strong>: <em>Fail pipeline</em> — any violation stops the entire pipeline run. Use for data contracts where data corruption is unacceptable and must be investigated before resuming</li></ul>Key advantage: expectation violation counts are tracked over time in the event log, enabling SLA dashboards and alerting on data quality degradation — impossible with ad-hoc filter() code.'},
+];
+
+function renderQ(items) {
+  const list = document.getElementById('q-list');
+  list.innerHTML = '';
+  items.forEach((q, i) => {
+    const lvlColor = q.level==='easy' ? '#00E5A0' : q.level==='medium' ? '#FF8C42' : '#FF5C7A';
+    const catLabel = q.cat==='kafka' ? 'Kafka' : q.cat==='stream' ? 'Streaming' : 'Databricks';
+    const catClass = q.cat==='kafka' ? 'cat-kafka' : q.cat==='stream' ? 'cat-stream' : 'cat-db';
+    const div = document.createElement('div');
+    div.className = 'q-item';
+    div.dataset.level = q.level;
+    div.dataset.cat = q.cat;
+    div.innerHTML = `
+      <div class="q-header" onclick="this.parentElement.classList.toggle('open')">
+        <span class="q-level" style="background:${lvlColor}22;color:${lvlColor};border:1px solid ${lvlColor}44">${q.level}</span>
+        <span class="q-cat ${catClass}">${catLabel}</span>
+        <span class="q-text">${q.q}</span>
+        <span class="q-arrow">›</span>
+      </div>
+      <div class="q-answer">${q.a}</div>`;
+    list.appendChild(div);
+  });
+}
+renderQ(questions);
+
+let activeLevel = 'all', activeCat = 'all';
+function applyFilter() {
+  const items = questions.filter(q =>
+    (activeLevel === 'all' || q.level === activeLevel) &&
+    (activeCat === 'all' || q.cat === activeCat)
+  );
+  renderQ(items);
+}
+function filterQ(level, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('on','amber'); });
+  btn.classList.add('on');
+  if(level==='medium') btn.classList.add('amber');
+  activeLevel = level;
+  applyFilter();
+}
+function filterCat(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => { b.classList.remove('on','amber'); });
+  btn.classList.add('on');
+  activeCat = cat === activeCat ? 'all' : cat;
+  if(activeCat === 'all') {
+    document.querySelectorAll('.filter-btn')[0].classList.add('on');
+  }
+  applyFilter();
+}
+</script>
+</body>
+</html>
