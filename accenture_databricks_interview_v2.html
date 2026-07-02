@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Databricks Interview Prep — Accenture CSE</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0b0e11;
+  --bg-panel:#12161b;
+  --bg-card:#161b21;
+  --line:#232a32;
+  --text:#dfe4ea;
+  --text-dim:#8b96a3;
+  --bronze:#cd7f32;
+  --bronze-glow:rgba(205,127,50,0.15);
+  --silver:#c7ccd4;
+  --silver-glow:rgba(199,204,212,0.13);
+  --gold:#e8b923;
+  --gold-glow:rgba(232,185,35,0.16);
+  --platinum:#b9a7e6;
+  --platinum-glow:rgba(185,167,230,0.18);
+  --accent:#4fd1c5;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{
+  background:radial-gradient(ellipse at top left, #10151b 0%, #0b0e11 55%);
+  color:var(--text);
+  font-family:'IBM Plex Sans', sans-serif;
+  min-height:100vh;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.display{font-family:'Space Grotesk', sans-serif;}
+code, .mono, .pill, .tier-label{font-family:'IBM Plex Mono', monospace;}
+
+/* ===== Header ===== */
+.hero{
+  padding:38px 5vw 26px;
+  border-bottom:1px solid var(--line);
+  position:relative;
+  overflow:hidden;
+}
+.hero::before{
+  content:"";
+  position:absolute; inset:0;
+  background:
+    linear-gradient(90deg, var(--bronze) 0%, var(--bronze) 25%, var(--silver) 25%, var(--silver) 50%, var(--gold) 50%, var(--gold) 75%, var(--platinum) 75%, var(--platinum) 100%);
+  opacity:0.9;
+  height:3px;
+  top:0;
+}
+.eyebrow{
+  color:var(--accent);
+  font-size:12.5px;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  font-family:'IBM Plex Mono',monospace;
+  margin-bottom:10px;
+}
+.hero h1{
+  font-size:clamp(26px,4vw,40px);
+  font-weight:700;
+  letter-spacing:-0.02em;
+  margin-bottom:8px;
+}
+.hero p{color:var(--text-dim); max-width:720px; font-size:15px; line-height:1.6;}
+.hero-meta{
+  display:flex; gap:22px; flex-wrap:wrap; margin-top:20px;
+}
+.hero-meta div{font-size:12.5px; color:var(--text-dim);}
+.hero-meta b{color:var(--text); font-family:'IBM Plex Mono',monospace; font-weight:500;}
+
+/* ===== Layer legend (medallion = difficulty) ===== */
+.legend{
+  display:flex; gap:10px; flex-wrap:wrap; margin-top:22px;
+}
+.legend .chip{
+  display:flex; align-items:center; gap:7px;
+  padding:6px 12px; border-radius:20px;
+  border:1px solid var(--line); font-size:12px;
+  font-family:'IBM Plex Mono',monospace;
+  color:var(--text-dim);
+}
+.legend .dot{width:8px;height:8px;border-radius:50%;}
+.legend .bronze .dot{background:var(--bronze);}
+.legend .silver .dot{background:var(--silver);}
+.legend .gold .dot{background:var(--gold);}
+.legend .platinum .dot{background:var(--platinum); box-shadow:0 0 8px var(--platinum-glow);}
+
+/* ===== Layout ===== */
+.layout{
+  display:grid;
+  grid-template-columns:250px 1fr;
+  gap:0;
+}
+@media (max-width:880px){ .layout{grid-template-columns:1fr;} }
+
+.sidebar{
+  border-right:1px solid var(--line);
+  padding:24px 16px;
+  position:sticky; top:0; align-self:start;
+  max-height:100vh; overflow-y:auto;
+}
+@media (max-width:880px){ .sidebar{position:relative; max-height:none; border-right:none; border-bottom:1px solid var(--line);} }
+
+.sidebar h4{
+  font-size:11px; letter-spacing:.1em; text-transform:uppercase;
+  color:var(--text-dim); margin:18px 0 8px; padding-left:4px;
+}
+.sidebar h4:first-child{margin-top:0;}
+.navitem{
+  display:flex; justify-content:space-between; align-items:center;
+  padding:9px 10px; border-radius:8px; cursor:pointer;
+  font-size:13.5px; color:var(--text-dim);
+  transition:background .15s, color .15s;
+  margin-bottom:2px;
+}
+.navitem:hover{background:var(--bg-card); color:var(--text);}
+.navitem.active{background:var(--bg-card); color:var(--accent); font-weight:500;}
+.navitem .count{font-family:'IBM Plex Mono',monospace; font-size:11px; opacity:.7;}
+
+.main{padding:26px 4vw 80px; min-width:0;}
+
+/* ===== Controls ===== */
+.controls{
+  display:flex; gap:10px; flex-wrap:wrap; align-items:center;
+  margin-bottom:22px; position:sticky; top:0; z-index:5;
+  background:linear-gradient(var(--bg) 78%, transparent);
+  padding:10px 0 14px;
+}
+.search{
+  flex:1; min-width:200px;
+  background:var(--bg-panel); border:1px solid var(--line);
+  border-radius:10px; padding:10px 14px; color:var(--text);
+  font-family:'IBM Plex Mono',monospace; font-size:13px;
+}
+.search:focus{outline:none; border-color:var(--accent);}
+.tier-filter{display:flex; gap:6px; flex-wrap:wrap;}
+.tbtn{
+  border:1px solid var(--line); background:var(--bg-panel);
+  color:var(--text-dim); padding:8px 13px; border-radius:8px;
+  font-family:'IBM Plex Mono',monospace; font-size:12px; cursor:pointer;
+  transition:all .15s;
+}
+.tbtn:hover{color:var(--text);}
+.tbtn.on.bronze{border-color:var(--bronze); color:var(--bronze); background:var(--bronze-glow);}
+.tbtn.on.silver{border-color:var(--silver); color:var(--silver); background:var(--silver-glow);}
+.tbtn.on.gold{border-color:var(--gold); color:var(--gold); background:var(--gold-glow);}
+.tbtn.on.platinum{border-color:var(--platinum); color:var(--platinum); background:var(--platinum-glow);}
+
+.section-title{
+  display:flex; align-items:baseline; gap:10px; margin:30px 0 16px;
+}
+.section-title h2{font-size:19px; font-weight:600;}
+.section-title span{color:var(--text-dim); font-size:12.5px; font-family:'IBM Plex Mono',monospace;}
+.section-title:first-child{margin-top:0;}
+
+/* ===== Cards ===== */
+.card{
+  background:var(--bg-card); border:1px solid var(--line);
+  border-radius:12px; margin-bottom:10px; overflow:hidden;
+  border-left:3px solid var(--line);
+}
+.card.bronze{border-left-color:var(--bronze);}
+.card.silver{border-left-color:var(--silver);}
+.card.gold{border-left-color:var(--gold);}
+.card.platinum{border-left-color:var(--platinum); box-shadow:0 0 22px -14px var(--platinum-glow);}
+
+.card summary{
+  list-style:none; cursor:pointer;
+  padding:15px 18px; display:flex; align-items:center; gap:12px;
+}
+.card summary::-webkit-details-marker{display:none;}
+.tier-label{
+  font-size:10px; letter-spacing:.06em; text-transform:uppercase;
+  padding:3px 8px; border-radius:5px; flex-shrink:0; font-weight:600;
+}
+.tier-label.bronze{background:var(--bronze-glow); color:var(--bronze);}
+.tier-label.silver{background:var(--silver-glow); color:var(--silver);}
+.tier-label.gold{background:var(--gold-glow); color:var(--gold);}
+.tier-label.platinum{background:var(--platinum-glow); color:var(--platinum);}
+.card .qtext{font-size:14.5px; font-weight:500; flex:1; line-height:1.45;}
+.card .chevron{color:var(--text-dim); transition:transform .2s; flex-shrink:0;}
+.card[open] .chevron{transform:rotate(90deg);}
+.card .answer{
+  padding:2px 18px 20px 18px; color:var(--text-dim);
+  font-size:14px; line-height:1.7; border-top:1px solid var(--line); margin-top:2px; padding-top:14px;
+}
+.card .answer p{margin-bottom:10px;}
+.card .answer ul{padding-left:20px; margin-bottom:10px;}
+.card .answer li{margin-bottom:5px;}
+.card .answer code{
+  background:#0d1117; color:var(--accent); padding:1px 6px;
+  border-radius:4px; font-size:12.8px; border:1px solid var(--line);
+}
+.card .answer pre{
+  background:#0a0d11; border:1px solid var(--line); border-radius:8px;
+  padding:14px 16px; overflow-x:auto; margin:10px 0;
+}
+.card .answer pre code{background:none; border:none; padding:0; color:#c9d6e3; font-size:12.8px; line-height:1.6;}
+
+.empty{color:var(--text-dim); font-size:13px; padding:30px 0; text-align:center; font-family:'IBM Plex Mono',monospace;}
+
+footer{
+  border-top:1px solid var(--line); padding:26px 5vw 40px;
+  color:var(--text-dim); font-size:12.5px; display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px;
+}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="eyebrow">Interview Prep · Databricks Unified Data Analytics Platform</div>
+  <h1>Accenture — Custom Software Engineer</h1>
+  <p>Built from your CV and the JD's must-have skill (Databricks). Difficulty tiers are mapped to your own Medallion Architecture — because that's how the data on your resume actually flows: raw question → refined answer → interview-ready.</p>
+  <div class="hero-meta">
+    <div>Candidate <b>Sankha Subhra Mondal</b></div>
+    <div>Target role <b>Custom Software Engineer (Databricks)</b></div>
+    <div>Must-have <b>3+ yrs Databricks Unified Data Analytics Platform</b></div>
+    <div>Location <b>Kolkata</b></div>
+  </div>
+  <div class="legend">
+    <div class="chip bronze"><span class="dot"></span> Bronze — Easy (raw recall)</div>
+    <div class="chip silver"><span class="dot"></span> Silver — Medium (applied)</div>
+    <div class="chip gold"><span class="dot"></span> Gold — Hard (design/trade-off)</div>
+    <div class="chip platinum"><span class="dot"></span> Platinum — Brutal (edge case / whiteboard)</div>
+  </div>
+</div>
+
+<div class="layout">
+  <div class="sidebar" id="sidebar"></div>
+  <div class="main">
+    <div class="controls">
+      <input class="search" id="searchBox" placeholder="Search questions… e.g. 'schema drift', 'IAM role', 'window function'">
+      <div class="tier-filter" id="tierFilter">
+        <button class="tbtn on bronze" data-tier="bronze">Bronze</button>
+        <button class="tbtn on silver" data-tier="silver">Silver</button>
+        <button class="tbtn on gold" data-tier="gold">Gold</button>
+        <button class="tbtn on platinum" data-tier="platinum">Platinum</button>
+      </div>
+    </div>
+    <div id="content"></div>
+    <div class="empty" id="emptyMsg" style="display:none;">No questions match this filter. Widen the tier filter or clear the search.</div>
+  </div>
+</div>
+
+<footer>
+  <div>Generated for interview prep — not affiliated with Accenture or Databricks.</div>
+  <div id="qCount"></div>
+</footer>
+
+<script type="application/json" id="qdata">
+[
+{"id":1,"cat":"admin","tier":"bronze","q":"What is a Databricks workspace and what are its core components?","a":"A workspace is the top-level environment tied to one cloud account (AWS/Azure/GCP) containing:\n- **Notebooks & Repos** — code artifacts, Git-integrated\n- **Clusters** — compute (all-purpose or job clusters)\n- **Jobs/Workflows** — orchestration\n- **Unity Catalog metastore attachment** — governance layer\n- **DBFS / mounted storage** — file layer\nEach workspace maps to one region and is backed by a control plane (Databricks-managed) and a data plane (customer VPC/account, where compute actually runs)."},
+{"id":2,"cat":"admin","tier":"bronze","q":"What's the difference between the control plane and the data plane in Databricks?","a":"**Control plane** (Databricks-managed): notebooks, job scheduler, cluster manager, UI, workspace metadata. **Data plane** (in your AWS account): the actual EC2 clusters, S3 data, and processing. This split is why Databricks can orchestrate compute without ever holding your data — clusters live inside your VPC, and only metadata/commands cross the boundary. It's a common admin question because it explains network setup, IAM boundaries, and why VPC peering/PrivateLink matters."},
+{"id":3,"cat":"admin","tier":"silver","q":"What is a Service Principal in Databricks and why use it over a personal access token?","a":"A Service Principal (SP) is a non-human identity used for automated access — CI/CD pipelines, jobs, Terraform/DAB deployments. Reasons to prefer it over a PAT tied to a person:\n- Not tied to an employee's lifecycle (doesn't break when someone leaves/changes password)\n- Can be scoped with least-privilege permissions on catalogs, jobs, clusters\n- Supports OAuth machine-to-machine (M2M) tokens, rotated automatically\n- Auditable separately from user actions\nEven though provisioning SPs is usually owned by a platform team, as an engineer you consume them: your GitHub Actions workflow authenticates as an SP to deploy a DAB bundle or trigger a job run."},
+{"id":4,"cat":"admin","tier":"silver","q":"How would you set and enforce an SLA on a critical ESG pipeline job?","a":"Practical layers:\n- **Job-level**: set a *Timeout* and a *Duration threshold alert* in Databricks Workflows so anything exceeding expected runtime pages you before it breaches SLA\n- **Retry policy**: automatic retries with backoff for transient failures (throttling, cluster start delays)\n- **Alerting**: email/webhook notifications on Start, Success, Failure, and Duration-exceeded events, routed to data owners\n- **Upstream dependency checks**: a landing-zone file-arrival check (e.g. via a `file arrival trigger` or a sensor task) before the pipeline starts, so a late source file is caught as a distinct SLA breach, not blamed on the pipeline\n- **Dashboards**: track P50/P95 runtime over time to catch SLA drift before it becomes a breach\nThis mirrors the 25-file daily monitoring framework — alerting owners on delay is the same pattern, generalized to SLA."},
+{"id":5,"cat":"admin","tier":"gold","q":"You need to cut cluster costs 30% without hurting job SLAs. What levers do you pull, in order?","a":"1. **Right-size first**: check Ganglia/cluster metrics for actual CPU/memory utilization — most clusters are over-provisioned\n2. **Switch to Job clusters** instead of all-purpose clusters for scheduled jobs (job clusters are cheaper and auto-terminate)\n3. **Spot/Excess-capacity instances** for the worker pool where task loss is tolerable, keep driver + a few workers on-demand\n4. **Autoscaling** with a sane min/max instead of fixed-size clusters\n5. **Photon** for SQL/DataFrame-heavy workloads — often faster, which reduces DBU-hours even if per-hour rate is similar\n6. **Cluster pools** to cut cold-start time for frequently-run jobs\n7. **Idle/auto-termination timeouts** on interactive clusters\nThe order matters: right-sizing gives the biggest win with zero risk; spot instances are last because they introduce preemption risk to SLA-sensitive jobs."},
+{"id":6,"cat":"admin","tier":"gold","q":"How do Databricks secrets work, and how would you avoid ever hardcoding an S3 key or DB password in a notebook?","a":"Databricks Secret Scopes store key-value secrets, backed either by Databricks-managed storage or an **Azure Key Vault-backed scope**. Access pattern: `dbutils.secrets.get(scope='esg-scope', key='s3-access-key')`. Secrets are redacted automatically in notebook output (shown as `[REDACTED]`) if the value matches. For AWS, the stronger pattern is avoiding static keys entirely — attach an **instance profile / IAM role** to the cluster so it assumes a role with S3 access, no key material at all. Secret scopes are then reserved for third-party credentials (e.g. an external API token) that can't use IAM."},
+{"id":7,"cat":"admin","tier":"platinum","q":"A job silently drops rows on a specific concurrent run window every night, but reruns clean. How do you root-cause this in a Databricks admin capacity?","a":"This is a classic concurrency/isolation edge case. Investigation path:\n- Check if multiple jobs write to the **same Delta table** concurrently — Delta uses optimistic concurrency control; concurrent writers can hit `ConcurrentAppendException` and, if error handling swallows it or a retry re-reads a stale snapshot, rows can appear dropped\n- Check the **cluster autoscaling logs** for that time window — if workers were being removed mid-shuffle, tasks can be silently re-executed producing partial output if the sink isn't idempotent (non-transactional sink like a plain S3 write vs Delta MERGE)\n- Check for **speculative execution + non-deterministic UDFs** — if a UDF generates IDs or has side effects, re-executed speculative tasks can produce inconsistent output\n- Verify the **commit log** (`DESCRIBE HISTORY`) for that table around the failure window to see if a `RESTORE` or failed `OPTIMIZE`/`VACUUM` ran concurrently and interfered\n- Cross-check **VACUUM retention** — if a concurrent VACUUM ran with a short retention and a reader was mid-scan on old files, it can hit missing-file errors that get masked upstream\nFix generally lands on: isolate concurrent writers per table, make the sink idempotent (MERGE with a natural key), and pin VACUUM retention discipline."},
+{"id":8,"cat":"admin","tier":"platinum","q":"Design a multi-workspace strategy for Dev/QA/Prod on Databricks with Unity Catalog, and explain how you'd promote code and data schemas between them without duplicating governance work.","a":"Standard enterprise pattern:\n- **One Unity Catalog metastore per region**, attached to all three workspaces (Dev/QA/Prod), rather than one metastore per workspace — this avoids re-defining catalogs, external locations, and storage credentials three times\n- **Catalog-per-environment** naming (`dev_esg`, `qa_esg`, `prod_esg`) under the shared metastore, each with its own external S3 location and access grants scoped to that environment's SP\n- **Code promotion** via Git + DAB: the same bundle is deployed with environment-specific `databricks.yml` targets (dev/qa/prod), each pointing to its catalog and cluster policy\n- **Schema promotion**: DDL-as-code (Delta Live Tables or plain PySpark DDL scripts) checked into the repo, applied via CI/CD per environment rather than manually clicking through — avoids drift between environments\n- **Access control**: grants defined once as Terraform/UC scripts, parametrized by catalog name, applied per environment through the pipeline instead of manually re-granting\nThe key discipline: governance objects (catalogs, external locations, credentials) live at the metastore level and are provisioned once via IaC; only the catalog *name* and grant *scope* change per environment."}
+],
+"__PLACEHOLDER__"
+</script>
+
+<script>
+document.getElementById('qdata').textContent = document.getElementById('qdata').textContent.replace(',\n"__PLACEHOLDER__"\n','');
+</script>
+
+<script type="application/json" id="qdata2">
+[
+{"id":9,"cat":"uc","tier":"bronze","q":"What is Unity Catalog and what does the three-level namespace mean?","a":"Unity Catalog is Databricks' unified governance layer for data and AI assets across workspaces. It introduces a **three-level namespace**: `catalog.schema.table` (replacing the old two-level `hive_metastore.schema.table`). One metastore can be attached to many workspaces, and one catalog can map to one storage location, giving centralized access control, lineage, and auditing across an org instead of per-workspace Hive Metastores."},
+{"id":10,"cat":"uc","tier":"bronze","q":"What is a Volume in Unity Catalog and how is it different from a managed table?","a":"A **Volume** is a UC-governed logical storage location for **non-tabular files** — CSVs, PDFs, images, model checkpoints, JARs — accessed as files (via `/Volumes/catalog/schema/volume/...` path) rather than queried as rows/columns. A **managed table** is fully governed tabular data (Delta format) where Unity Catalog owns both the metadata *and* the physical file layout. Volumes are the modern replacement for ad-hoc DBFS mounts when you need file-level access with governance."},
+{"id":11,"cat":"uc","tier":"silver","q":"Explain how the default storage location works for a Managed Table vs an External Table in Unity Catalog.","a":"**Managed table**: no `LOCATION` specified. Databricks derives the path automatically from the catalog/schema's **managed storage location**, hierarchy: table's schema location → else catalog's managed location → else metastore's root storage location (whichever is set at the narrowest level). Files live under a Databricks-managed path like `s3://<metastore-root>/<catalog-id>/<schema-id>/<table-id>`, and dropping the table deletes the data.\n\n**External table**: `LOCATION 's3://bucket/path'` is explicitly specified, backed by a **Storage Credential + External Location** object that UC uses to authorize access to that specific S3 path via an IAM role (not the cluster's own instance profile). Dropping an external table only removes the metadata, not the underlying files — this is why source-of-truth / shared data across teams is usually external, and derived/intermediate Bronze-Silver-Gold tables are usually managed."},
+{"id":12,"cat":"uc","tier":"silver","q":"What are Storage Credentials and External Locations in Unity Catalog, and how do they relate to IAM roles?","a":"- **Storage Credential**: a UC object wrapping a cloud identity — on AWS, an **IAM role** with a trust policy allowing Databricks' own AWS account to assume it, and a permissions policy granting S3 access.\n- **External Location**: binds a Storage Credential to a specific S3 path (`s3://bucket/prefix/`), so UC knows *which* credential to use for *which* path, and can enforce read/write grants at the SQL level (`GRANT READ FILES ON EXTERNAL LOCATION ...`) instead of relying on cluster-level instance profiles.\nThis decouples data access from compute — any cluster/user with UC grants can read the path, without needing the IAM role attached to their cluster directly, which is the main reason enterprises moved off DBFS mounts + instance profiles."},
+{"id":13,"cat":"uc","tier":"gold","q":"Your team has 10+ source feeds landing PII columns across multiple schemas. How would you design column-level masking in Unity Catalog so it's consistent and auditable?","a":"- Define a **reusable UDF or UC Row/Column masking function** (SQL function registered in UC, e.g. `mask_pii(email STRING)`) rather than one-off UDFs per table — matches your own 15+ column PII masking pattern, but centralizing it as a UC function means it's governed and versioned like any other catalog object\n- Apply via **Column Masks** at the catalog/schema level: `ALTER TABLE ... ALTER COLUMN email SET MASK mask_pii;` so masking is enforced regardless of which tool queries the table (notebook, SQL warehouse, BI tool) — can't be bypassed by querying differently\n- Use **dynamic views or masking policies tied to group membership** so unmasked access is limited to an `pii_reviewers` UC group, satisfying audit/IPE documentation requirements without maintaining separate masked/unmasked table copies\n- Log access via **UC's built-in audit logs** (system tables `system.access.audit`) instead of custom logging, giving a single source of truth for compliance review"},
+{"id":14,"cat":"uc","tier":"gold","q":"How does Unity Catalog lineage work, and how would you use it to assess the blast radius of a schema change on an upstream Bronze table?","a":"UC automatically captures **table and column-level lineage** by observing query execution (notebooks, jobs, DLT pipelines, SQL) — no manual tagging needed. It's exposed via the Catalog Explorer UI and the `system.access.table_lineage` / `column_lineage` system tables. To assess blast radius before a Bronze schema change: query the lineage system tables (or UI graph) for the table, walk downstream to every Silver/Gold table and any dashboards/ML features consuming it, and cross-check job schedules on those downstream assets — this turns a change that used to require tribal knowledge of '10+ source feeds' into a queryable graph."},
+{"id":15,"cat":"uc","tier":"platinum","q":"A managed UC table's underlying S3 files were deleted directly from the AWS console (outside Databricks). Walk through what breaks, what UC's metadata still says, and how you'd recover or prevent this.","a":"**What breaks**: queries fail with file-not-found errors even though `DESCRIBE TABLE` and `DESCRIBE HISTORY` still show the table and its full commit history — UC/Delta's transaction log (`_delta_log`) is metadata describing files that physically no longer exist, so the log and the filesystem are now inconsistent.\n\n**Recovery options**:\n- If versions are still short enough and VACUUM hasn't run past the deleted version, `RESTORE TABLE ... TO VERSION AS OF n` won't help directly (it rewrites the log to point at a prior version, but if *those* files were also deleted, restore fails too) — real recovery needs the files to still exist (e.g. **S3 versioning enabled + soft delete / object lock**, or **S3 Cross-Region Replication** as a copy)\n- If no backup exists, the table is unrecoverable beyond whatever Delta log metadata remains for schema forensics\n\n**Prevention** (the real answer they're looking for):\n- Never grant direct S3 delete permissions to human IAM users on managed-table storage paths — access should flow *only* through UC's storage credential, not the console\n- Enable **S3 Versioning + MFA Delete** on the managed storage bucket\n- Use **UC's managed storage isolation** so the bucket is dedicated to Databricks-managed tables and not shared with general-purpose S3 usage where someone might 'clean up' files manually\n- This is fundamentally an IAM/least-privilege failure, not a Databricks failure — the fix lives in the AWS IAM policy layer, not in Databricks settings."}
+]
+</script>
+
+<script type="application/json" id="qdata3">
+[
+{"id":16,"cat":"aws","tier":"bronze","q":"What is the role of Amazon S3 in a Databricks on AWS deployment?","a":"S3 is the persistent storage layer underneath Databricks — Delta tables, Volumes, checkpoints, and cluster logs all live as objects in S3 (Databricks clusters are ephemeral compute; S3 is the durable state). The Databricks workspace root bucket and any UC managed/external storage locations are all S3 buckets, accessed by clusters via IAM roles rather than static keys in production setups."},
+{"id":17,"cat":"aws","tier":"bronze","q":"What is an EC2 instance profile and why does a Databricks cluster need one?","a":"An **instance profile** is a container for an IAM role that's attached directly to an EC2 instance, letting processes on that machine assume the role's permissions without embedding credentials. A Databricks cluster's worker/driver nodes are EC2 instances — attaching an instance profile (mapped to an IAM role with S3 read/write policies) lets Spark read/write S3 paths securely, which is the standard alternative to hardcoding AWS access keys in a notebook."},
+{"id":18,"cat":"aws","tier":"silver","q":"Explain the IAM trust relationship required for Databricks to assume a cross-account role into a customer's AWS account.","a":"Databricks' control plane runs in Databricks-owned AWS accounts; your data plane runs in *your* AWS account. To let Databricks orchestrate EC2/S3 in your account, you create an IAM role whose **trust policy** allows Databricks' AWS account (a specific Databricks-owned account ID) to `sts:AssumeRole`, typically scoped further with an **External ID** condition (a shared secret from your Databricks account console) to prevent the 'confused deputy' problem — where a third party could otherwise trick Databricks into assuming your role. The role's permission policy then grants exactly what's needed: EC2 launch/terminate for cluster lifecycle, and S3 access scoped to your data buckets."},
+{"id":19,"cat":"aws","tier":"silver","q":"How would you choose an EC2 instance type for a memory-heavy Spark shuffle-intensive job vs a CPU-bound ML training job?","a":"- **Shuffle-heavy Spark job** (wide transformations, large joins/aggregations like your BOM hierarchy explosion): prefer **memory-optimized** instances (`r-family`, e.g. `r5d`/`r6i`) — shuffle spills to local disk under memory pressure, so local NVMe SSD (the `d` variants) also helps a lot for spill I/O; large executor memory reduces spill frequency in the first place\n- **CPU-bound job** (heavy transformations, UDF-heavy, ML training without GPU): prefer **compute-optimized** (`c-family`, e.g. `c5`/`c6i`) for higher vCPU-to-memory ratio and better price-performance per core\n- **General-purpose ETL** with balanced needs: `m-family` (e.g. `m5d`) is the common default\n- For **Photon-enabled SQL/DataFrame workloads**, Databricks recommends memory-optimized instances since Photon is vectorized and benefits from larger memory buffers\nThe instance choice question is really a proxy for 'do you understand what's actually consuming resources in your job' — always tie the answer back to the job's bottleneck (CPU vs memory vs shuffle I/O)."},
+{"id":20,"cat":"aws","tier":"gold","q":"Design the least-privilege IAM policy for a Databricks cluster that only needs to read from an ESG landing S3 prefix and write to a curated S3 prefix — what do you explicitly exclude?","a":"Core principles: scope by **prefix**, scope by **action**, and deny by default everything else.\n```json\n{\n  \"Version\": \"2012-10-17\",\n  \"Statement\": [\n    {\n      \"Sid\": \"ReadLanding\",\n      \"Effect\": \"Allow\",\n      \"Action\": [\"s3:GetObject\", \"s3:ListBucket\"],\n      \"Resource\": [\n        \"arn:aws:s3:::esg-landing-bucket\",\n        \"arn:aws:s3:::esg-landing-bucket/tcfd/*\"\n      ]\n    },\n    {\n      \"Sid\": \"WriteCurated\",\n      \"Effect\": \"Allow\",\n      \"Action\": [\"s3:PutObject\", \"s3:GetObject\", \"s3:DeleteObject\", \"s3:ListBucket\"],\n      \"Resource\": [\n        \"arn:aws:s3:::esg-curated-bucket\",\n        \"arn:aws:s3:::esg-curated-bucket/gold/*\"\n      ]\n    }\n  ]\n}\n```\nExplicitly excluded / avoided:\n- No `s3:*` wildcard action — this role shouldn't be able to change bucket policy, versioning, or lifecycle rules\n- No `s3:DeleteObject` on the landing prefix — a bug in the pipeline should never be able to destroy source data\n- No account-wide `Resource: \"*\"` — scoped strictly to the two named buckets/prefixes\n- No IAM actions at all (`iam:*`) — cluster identity should never be able to modify roles or create new credentials\n- If cross-account, the trust policy still needs the Databricks account principal + External ID condition, separate from this permissions policy"},
+{"id":21,"cat":"aws","tier":"gold","q":"Your Databricks jobs intermittently fail with S3 throttling (503 SlowDown) errors during peak concurrent writes from 10+ pipelines. How do you fix it at the AWS/architecture level?","a":"S3 throttling under heavy concurrent writes is usually a **key-prefix hot-spotting** problem — S3 partitions request throughput by key prefix, and if many pipelines write under the same top-level prefix pattern (e.g. all writing `s3://bucket/YYYY-MM-DD/...` on the same day), you funnel requests into one partition.\nFixes, roughly in order of effort:\n- **Prefix design**: distribute writes across more distinct top-level prefixes (e.g. hash or shard by source-system rather than date-first) so S3 can auto-scale partitions independently\n- **Exponential backoff + retry** at the Spark/S3 client level (usually already enabled by default in the Databricks-optimized S3 connector, but confirm `fs.s3a.retry` settings)\n- **Reduce concurrent small-file writes** — batch/compact writes so fewer PUT requests are issued overall (ties directly to `OPTIMIZE`/auto-compaction on Delta tables)\n- **Stagger job schedules** if 10+ pipelines all trigger at the same cron minute — spreading start times reduces simultaneous peak load even without any code change\n- Confirm this isn't actually **DynamoDB-based commit coordination throttling** (if using the older S3 multi-cluster writes protocol) rather than raw S3 — that has a separate DynamoDB capacity fix"},
+{"id":22,"cat":"aws","tier":"platinum","q":"A cross-account Databricks setup starts failing cluster launches with 'not authorized to perform sts:AssumeRole' only for a subset of new clusters, while existing clusters keep running fine. Diagnose.","a":"Existing clusters keep running because already-attached instance profiles/roles were assumed at launch time and the credentials are cached on the instance (via the EC2 metadata service) until they naturally rotate — so a broken trust relationship doesn't immediately kill running clusters, only *new* AssumeRole calls.\nLikely causes, in order of probability:\n- **External ID mismatch or rotation**: if the Databricks account's External ID was rotated (e.g. during a security review) but the role's trust policy condition wasn't updated to match, new assumes fail while old sessions (already holding temporary credentials) continue until expiry\n- **SCP (Service Control Policy) change** at the AWS Organization level newly restricting `sts:AssumeRole` for that role's OU, applied only going forward\n- **Role's trust policy edited** to narrow the Principal (e.g. someone tightened it to a specific Databricks sub-account ID that doesn't match the actual calling account for this workspace)\n- **Session duration / MaxSessionDuration** on the role reduced, plus a permissions boundary now blocking re-assumption\n- **New clusters using a different instance profile** (e.g. a newly-created one for a specific team) that was never added to the trust policy at all — versus old clusters pinned to the original, correctly-trusted profile\nDiagnosis path: check CloudTrail for the exact `AssumeRole` error and requesting principal, diff the role's trust policy against Databricks account console's current External ID, and confirm which instance profile the failing clusters reference in their cluster JSON vs the working ones."}
+]
+</script>
+
+<script type="application/json" id="qdata4">
+[
+{"id":23,"cat":"cicd","tier":"bronze","q":"What is a Databricks Asset Bundle (DAB) and why would a team adopt it?","a":"A DAB is a **YAML-defined, source-controlled packaging format** (`databricks.yml`) for Databricks projects — jobs, DLT pipelines, notebooks, cluster configs, and permissions all declared as code. Teams adopt it to replace manual UI clicking or ad-hoc Terraform scripts with a single deployable unit that can be validated and promoted across dev/staging/prod using the same CLI command (`databricks bundle deploy --target prod`), enabling proper CI/CD instead of environment drift."},
+{"id":24,"cat":"cicd","tier":"bronze","q":"What does a typical GitHub Actions workflow for deploying a Databricks job look like at a high level?","a":"1. **Trigger**: on push/merge to `main` or a release tag\n2. **Checkout** the repo\n3. **Install** the Databricks CLI\n4. **Authenticate** using an OAuth token from a Service Principal (stored as a GitHub Secret) — never a personal PAT\n5. **Validate** the bundle: `databricks bundle validate`\n6. **Deploy**: `databricks bundle deploy --target prod`\n7. Optionally **run** a smoke-test job or trigger the deployed pipeline once to confirm it starts cleanly\nEach step is a job/step in the `.github/workflows/deploy.yml` file, with environment-specific secrets scoped via GitHub Environments (dev/qa/prod) so a prod SP token is never exposed to a dev-branch build."},
+{"id":25,"cat":"cicd","tier":"silver","q":"How does a Service Principal authenticate in a CI/CD pipeline for Databricks — walk through the actual token flow.","a":"Modern pattern is **OAuth M2M (machine-to-machine)**:\n1. The SP is created in the Databricks account console and granted a **client ID + client secret**\n2. Those two values are stored as GitHub Actions (or Azure DevOps) **encrypted secrets**, never committed to the repo\n3. At pipeline runtime, the Databricks CLI/SDK exchanges client ID + secret for a **short-lived OAuth access token** against the Databricks OIDC token endpoint\n4. That token authenticates the `bundle deploy` / API calls for that run only — no long-lived static PAT sitting in a secrets store waiting to leak\n5. The SP itself must already have the right **UC grants and job/cluster permissions** in the target workspace — auth alone doesn't grant access, it just proves identity\nThis is strictly better than the older pattern of a personal PAT stored as a secret, which ties CI/CD to one person's account lifecycle and doesn't rotate automatically."},
+{"id":26,"cat":"cicd","tier":"silver","q":"How would you structure a DAB `databricks.yml` to support dev, qa, and prod targets with different cluster sizes and catalogs?","a":"```yaml\nbundle:\n  name: esg_pipeline\n\ninclude:\n  - resources/*.yml\n\ntargets:\n  dev:\n    mode: development\n    workspace:\n      host: https://dev-workspace.cloud.databricks.com\n    variables:\n      catalog: dev_esg\n      node_type: i3.xlarge\n      min_workers: 1\n      max_workers: 2\n\n  qa:\n    mode: production\n    workspace:\n      host: https://qa-workspace.cloud.databricks.com\n    variables:\n      catalog: qa_esg\n      node_type: i3.2xlarge\n      min_workers: 2\n      max_workers: 4\n\n  prod:\n    mode: production\n    workspace:\n      host: https://prod-workspace.cloud.databricks.com\n    variables:\n      catalog: prod_esg\n      node_type: i3.2xlarge\n      min_workers: 4\n      max_workers: 12\n```\nThe job/pipeline definitions in `resources/` reference `${var.catalog}` and `${var.node_type}` so the same bundle deploys differently per target without duplicating job YAML three times. `mode: development` on dev auto-prefixes resource names with the deployer's identity so multiple devs can deploy without colliding."},
+{"id":27,"cat":"cicd","tier":"gold","q":"How would you set up CI to catch a PySpark schema-breaking change before it reaches the Bronze-to-Silver job in production?","a":"- **Unit tests on transformation logic** using `pytest` + a local/serverless Spark session, asserting output schema (`df.schema == expected_schema`) for representative sample DataFrames — run on every PR via GitHub Actions, blocking merge on failure\n- **Schema contract tests**: since you already run a schema drift framework across 10+ feeds, formalize expected schemas as versioned JSON/Avro schema files checked into the repo; CI diffs the incoming source schema definition against the last approved version and fails the build on an unapproved breaking change (column dropped/type changed) vs auto-passing additive changes (new nullable column)\n- **Bundle validate + dry-run deploy to a QA workspace** on every PR, running the job against a small QA dataset with the new code, asserting downstream Silver table row counts and schema match expectations\n- **Data quality gate**: run your existing 10+ integrity checks as a CI step against the QA output before allowing promotion to prod target\n- Gate the **prod deploy step** behind a required manual approval (GitHub Environment protection rule) even if all automated checks pass, for high-blast-radius Bronze tables"},
+{"id":28,"cat":"cicd","tier":"gold","q":"How do you handle secrets and environment-specific config (S3 paths, catalog names) in a DAB pipeline without ever committing them to Git?","a":"- **Never put secrets in `databricks.yml`** — reference Databricks **Secret Scopes** by name only (`{{secrets/esg-scope/db-password}}` syntax inside job task parameters), the actual secret value stays in Databricks, never in the repo\n- **CI/CD credentials** (SP client ID/secret) live only as **GitHub Actions encrypted secrets**, injected as environment variables at runtime, never printed to logs\n- **Environment-specific non-secret config** (catalog names, node types) go in the `targets:` block as bundle **variables**, which is fine to commit since they're not sensitive\n- **`.gitignore`** should explicitly exclude any `.databrickscfg`, `*.env`, or local override files a developer might generate while testing locally\n- For genuinely sensitive infra values (VPC IDs, KMS ARNs), consider a **separate private variables file** pulled from a secrets manager at deploy time rather than committed, if the bundle format needs them as plain variables"},
+{"id":29,"cat":"cicd","tier":"platinum","q":"A DAB deployment to prod succeeds, but the job fails on first run because a Unity Catalog grant wasn't applied — the SP could deploy the job definition but not execute against the catalog. Diagnose the permission model gap and fix the pipeline.","a":"This is a classic **deploy-permission vs runtime-permission split**. The SP used by CI/CD had `CAN_MANAGE` on the *job* (enough to create/update the job definition) but was never granted UC-level data permissions (`USE CATALOG`, `USE SCHEMA`, `SELECT`/`MODIFY` on the target tables) — job creation and job execution against UC assets are governed by entirely separate ACL systems.\n\nFix the pipeline, not just the immediate grant:\n- Add the missing UC grants (`GRANT USE CATALOG, USE SCHEMA ON SCHEMA prod_esg.silver TO \\`ci-deploy-sp\\`;` etc.) as **code**, not a manual console click — either inline in the DAB's `resources/` as a `grants:` block, or in a separate Terraform/UC-provisioning repo that's applied in the same pipeline before the job's first run\n- Add a **CI validation step** that runs a lightweight permission check (e.g. `databricks unity-catalog grants list` against the target catalog) as part of the deploy pipeline, failing loudly *before* the job executes and fails silently in prod\n- Distinguish **job-runner identity** from **deploy identity** if your org separates them — sometimes the job actually runs as a *different* SP (`run_as`) than the one that deployed it, and that's the one missing grants; check the job's `run_as` field specifically, since this exact bug is commonly caused by deploy-SP and run-as-SP being different principals with different grant sets\n- Long-term: bake catalog/schema grants into the same IaC lifecycle as the catalog's *creation*, so a new environment never has a catalog without its corresponding SP grants provisioned atomically"}
+]
+</script>
+
+<script type="application/json" id="qdata5">
+[
+{"id":30,"cat":"pyspark-core","tier":"bronze","q":"What's the difference between a transformation and an action in Spark? Give two examples of each.","a":"**Transformations** are lazy — they build up a logical plan (DAG) without executing. Examples: `select()`, `filter()`, `withColumn()`, `groupBy()`, `join()`. **Actions** trigger actual execution against the cluster. Examples: `count()`, `collect()`, `show()`, `write.save()`. Nothing runs until an action is called — this laziness is what lets Catalyst optimize the whole chain of transformations together instead of executing each one eagerly."},
+{"id":31,"cat":"pyspark-core","tier":"bronze","q":"What is a DataFrame partition, and how does it relate to parallelism?","a":"A partition is a chunk of a DataFrame's data that Spark processes as one unit on one executor core. Total parallelism ≈ number of partitions processed concurrently, bounded by available executor cores. Too few partitions underutilizes the cluster (idle cores); too many creates scheduling overhead from tiny tasks. `df.rdd.getNumPartitions()` shows the current count; `repartition()`/`coalesce()` change it."},
+{"id":32,"cat":"pyspark-core","tier":"silver","q":"Explain the difference between `repartition()` and `coalesce()`, and when you'd use each.","a":"`repartition(n)` triggers a **full shuffle**, redistributing data evenly across `n` partitions — used when you need to *increase* partition count or fix serious data skew, at the cost of a shuffle. `coalesce(n)` **avoids a full shuffle** by merging existing partitions locally where possible — only useful to *decrease* partition count (e.g. before a final write, to avoid writing thousands of tiny files), and can leave data unevenly distributed since it doesn't rebalance globally. Rule of thumb: reduce partitions before a write → `coalesce`; fix skew or increase parallelism → `repartition`."},
+{"id":33,"cat":"pyspark-core","tier":"silver","q":"What is a broadcast join and when does Spark choose it automatically?","a":"A broadcast join ships the *smaller* table's full data to every executor's memory, so the join happens locally with no shuffle of the large table — much faster than a shuffle (sort-merge) join for skewed-size joins. Spark auto-selects it via `spark.sql.autoBroadcastJoinThreshold` (default 10MB) — if one side's estimated size is under that threshold, it's broadcast automatically. You can also force it with `broadcast(df)` when Spark's size estimate is wrong (e.g. after heavy filtering it doesn't yet know about) or raise the threshold for known-safe larger dimension tables."},
+{"id":34,"cat":"pyspark-core","tier":"gold","q":"Explain what happens internally, stage by stage, when you run a `groupBy().agg()` with a skewed key on a 10M-row DataFrame.","a":"1. **Logical plan**: Catalyst builds a plan with a `HashAggregate` requiring data with the same key co-located\n2. **Shuffle (Exchange)**: Spark hash-partitions the data by the groupBy key across the cluster — every row with the same key must land in the same partition/reducer\n3. **Skew manifests here**: if one key (say, one material category in a BOM-style dataset) has disproportionately many rows, one reducer task gets a huge partition while others finish fast — that one 'long-tail' task dominates total stage time, visible in the Spark UI as one task with far higher duration/shuffle-read than its peers\n4. **Partial aggregation optimization**: Spark actually does a **map-side partial aggregate** before the shuffle when possible (combining rows with the same key locally on each mapper first), which reduces shuffle volume but doesn't eliminate skew if the skewed key still has many distinct underlying values within it\n5. **Final aggregate**: each reducer completes its own final aggregation and results are unioned\nFix: **salting** the skewed key (append a random suffix to spread it across more partitions, then aggregate twice — once at the salted level, once collapsing the salt) or enabling **Adaptive Query Execution's skew join optimization** (`spark.sql.adaptive.skewJoin.enabled`), which detects and splits oversized partitions automatically at runtime."},
+{"id":35,"cat":"pyspark-core","tier":"gold","q":"How does Spark's Catalyst optimizer decide the physical join strategy, and how would you read a `.explain()` plan to confirm it chose correctly?","a":"Catalyst goes through 4 phases: **Analysis** (resolve columns/tables) → **Logical Optimization** (predicate pushdown, constant folding, projection pruning) → **Physical Planning** (cost-based selection among `BroadcastHashJoin`, `SortMergeJoin`, `ShuffleHashJoin`, `BroadcastNestedLoopJoin`) → **Code Generation** (whole-stage codegen to JVM bytecode).\nTo verify: run `df.explain(True)` (or `explain('formatted')` in newer versions) and read the **Physical Plan** bottom-up:\n- `BroadcastHashJoin` in the plan = one side was broadcast, confirm it's the smaller table — if Spark broadcast the *large* table by mistake (bad size estimate after filters), you'll see driver OOM or excessive broadcast time\n- `SortMergeJoin` = both sides shuffled and sorted — expected for large-large joins, check for an `Exchange hashpartitioning` node just above it confirming the shuffle happened on the join key\n- Look for `PushedFilters` in the scan node to confirm predicate pushdown reached the source (Parquet/Delta) rather than filtering after a full read\n- `WholeStageCodegen` markers indicate Spark fused multiple operators into a single generated function — absence of this on a hot path is a sign something (often a Python UDF) broke codegen fusion"},
+{"id":36,"cat":"pyspark-core","tier":"platinum","q":"You have a job where `df.count()` returns different results on two consecutive runs against the same unchanged Delta table, with no concurrent writers. What are all the possible causes and how do you isolate which one it is?","a":"With writers ruled out, the culprits are usually **non-determinism introduced by the read/compute path itself**:\n- **Time travel / version drift**: if the read doesn't pin a version (`VERSION AS OF`) and a background `VACUUM` or auto-optimize `OPTIMIZE` job ran between the two counts, the *files* changed shape (compacted) even though logical row count should be identical — rules this in/out by comparing `DESCRIBE HISTORY` timestamps against your two run times\n- **Non-deterministic UDF or expression** upstream of the count if this is actually `df.filter(udf_condition).count()` and the UDF has any randomness or relies on external state (e.g. current timestamp, an external API call inside the UDF) — re-execution due to task retries would then produce different filtered counts\n- **Task retries + non-idempotent side effects**: if a stage had a speculative or retried task (visible in Spark UI 'Failed/Killed' tasks for that job run) and the source read itself isn't purely deterministic (e.g. reading from a streaming source or a table with concurrent tombstone cleanup), retried tasks can read a slightly different snapshot\n- **Corrupted or duplicate Parquet files** under the Delta table's data directory that aren't tracked consistently — e.g. leftover files from a previous failed job that weren't part of the transaction log but somehow got picked up by a non-Delta read path (`spark.read.parquet(path)` instead of `spark.read.format('delta').load(path)`) — this is a real footgun: reading the *raw files* instead of *through Delta* bypasses the transaction log entirely and can see uncommitted/orphaned files\n**Isolation approach**: first pin `VERSION AS OF` on both counts — if they now match, it was version drift; if they still differ at the same pinned version, it's non-deterministic compute (UDF/retry), not the data itself, since a pinned Delta version is by definition immutable."}
+]
+</script>
+
+<script type="application/json" id="qdata6">
+[
+{"id":37,"cat":"pyspark-opt","tier":"bronze","q":"What is the difference between `cache()` and `persist()` in Spark?","a":"`cache()` is shorthand for `persist(StorageLevel.MEMORY_AND_DISK)` — it's `persist()` with one fixed default storage level. `persist()` lets you choose the storage level explicitly (`MEMORY_ONLY`, `MEMORY_AND_DISK_SER`, `DISK_ONLY`, with optional replication), useful when the dataset is too large for memory-only caching or you want serialized storage to reduce memory footprint at the cost of CPU to deserialize."},
+{"id":38,"cat":"pyspark-opt","tier":"silver","q":"What is Adaptive Query Execution (AQE) and name three optimizations it enables at runtime.","a":"AQE re-optimizes the physical plan mid-execution using actual runtime statistics instead of only static pre-execution estimates. Three key features:\n1. **Dynamically coalescing shuffle partitions** — merges small post-shuffle partitions to avoid tiny-task overhead\n2. **Dynamically switching join strategies** — e.g. converting a planned sort-merge join to a broadcast join if runtime stats show one side is actually small enough\n3. **Skew join optimization** — automatically splits oversized partitions from a skewed join key into smaller sub-tasks\nEnabled by default in modern Databricks Runtime via `spark.sql.adaptive.enabled=true`."},
+{"id":39,"cat":"pyspark-opt","tier":"silver","q":"Why are Python UDFs generally slower than native PySpark column expressions, and what's the fix?","a":"A Python UDF forces Spark to **serialize data out of the JVM, into a separate Python process, row by row (or batch by batch), execute Python code, and serialize results back** — breaking whole-stage codegen and adding serialization overhead on every row. Native column expressions (`F.col`, `F.when`, built-in functions) stay entirely inside the JVM and get compiled via codegen.\nFixes, in order of preference:\n1. Replace with built-in `pyspark.sql.functions` if a native equivalent exists\n2. If genuinely custom logic is needed, use a **Pandas UDF** (`@pandas_udf`) — vectorized via Apache Arrow, operates on batches instead of row-by-row, dramatically cutting serialization overhead vs a plain UDF\n3. As a last resort for very hot paths, consider a Scala UDF called from PySpark, which avoids the Python process hop entirely"},
+{"id":40,"cat":"pyspark-opt","tier":"gold","q":"Your Bronze-to-Silver job writes 100,000 small files per day into a Delta table, and downstream queries are getting slower. Diagnose and fix.","a":"**Diagnosis**: the 'small file problem' — too many tiny files means the driver/metastore spends excessive time on file listing and query planning has to open far more files than necessary for the same logical data volume, and each file read carries fixed per-file overhead (open/close, footer read for Parquet).\n**Root cause is almost always the write pattern**: e.g. writing with `partitionBy()` on a high-cardinality column, or a highly-parallel small-batch streaming/append pattern without compaction.\n**Fixes**:\n- **`OPTIMIZE`** the table (Delta's file compaction) on a schedule — bin-packs small files into target-sized ones (default ~1GB, tunable)\n- **`OPTIMIZE ... ZORDER BY (col)`** if queries commonly filter on specific columns, to also improve data skipping, not just file count\n- **Auto-optimize on write**: `delta.autoOptimize.optimizeWrite = true` and `delta.autoOptimize.autoCompact = true` table properties, so compaction happens incrementally instead of drifting for a full day\n- **Reconsider partition strategy**: if `partitionBy` is on a column with thousands of distinct values (e.g. per-material-key rather than per-date), that's the actual small-file generator — repartition/write strategy should coarsen the partition column or drop physical partitioning in favor of Z-ORDER for that column instead\n- **`coalesce()` before write** as an immediate, no-compaction-job-needed fix to reduce output file count from a given job run"},
+{"id":41,"cat":"pyspark-opt","tier":"gold","q":"When would you deliberately choose `MEMORY_AND_DISK_SER` over `MEMORY_ONLY` for caching, and what's the actual trade-off?","a":"`MEMORY_ONLY` keeps deserialized Java objects in memory — fastest access, but highest memory footprint (deserialized objects have significant overhead per object, e.g. pointers, headers) and if the dataset doesn't fit, partitions are simply **not cached** (recomputed from source every time, no spill).\n`MEMORY_AND_DISK_SER` stores data **serialized** (much smaller footprint, often 2-5x less memory) and **spills to disk** rather than dropping partitions when memory is full. Trade-off: serialization/deserialization costs CPU on every access, but you get (a) more of the dataset actually cached rather than silently falling back to recompute, and (b) predictable behavior under memory pressure instead of cache thrashing.\nChoose `MEMORY_AND_DISK_SER` when: the dataset is large relative to cluster memory, it's reused many times (amortizing the deserialization cost), and job stability matters more than shaving milliseconds off each access."},
+{"id":42,"cat":"pyspark-opt","tier":"platinum","q":"A job runs fine at 10M rows but OOMs the driver (not executors) at 50M rows, even though no `collect()` is called anywhere in the visible code. Where do you look?","a":"Driver OOM without an obvious `collect()` usually means something is **implicitly pulling data to the driver**. Checklist, roughly in likelihood order:\n- **`toPandas()`** anywhere downstream — extremely common hidden collect, especially if a data-quality check or a visualization step converts to Pandas for convenience\n- **Broadcast join gone wrong**: if `spark.sql.autoBroadcastJoinThreshold` is set high, or `broadcast(df)` is forced explicitly on a table that grew from 10M to 50M rows, Spark tries to collect that entire 'small' side to the driver to build the broadcast variable — driver OOM is the classic symptom of a broadcast side that's no longer actually small\n- **`df.schema` inference from a huge number of source files**: schema-on-read for CSV/JSON without an explicit schema forces Spark to sample/scan files on the **driver** to infer types, which scales badly with file count, not just row count\n- **Large accumulator or broadcast variable used for something like a lookup dictionary** built via `.collect()` earlier in the pipeline (e.g. a dimension table pulled into a Python dict for a lookup UDF) — if that dimension table grew with the data volume, the driver-side collection grows too\n- **`show()` on a very wide DataFrame** with `truncate=False`, or excessive `.explain()`/logging in a loop pulling stats to the driver repeatedly\n- **Widening driver memory isn't the fix** — it's a stopgap; the real fix is finding which operation assumes something stays 'small' and either replacing it with a distributed equivalent (`df.write` instead of `toPandas()` + local processing) or fixing the broadcast threshold logic to match actual current data volume."}
+]
+</script>
+
+<script type="application/json" id="qdata7">
+[
+{"id":43,"cat":"sql","tier":"bronze","q":"Write a query to find the second-highest salary from an `employees` table without using `LIMIT`/`OFFSET`.","a":"```sql\nSELECT MAX(salary) AS second_highest\nFROM employees\nWHERE salary < (SELECT MAX(salary) FROM employees);\n```\nAlternative using window functions, which generalizes better to 'Nth highest':\n```sql\nSELECT salary\nFROM (\n  SELECT salary, DENSE_RANK() OVER (ORDER BY salary DESC) AS rnk\n  FROM employees\n) t\nWHERE rnk = 2;\n```\n`DENSE_RANK` (not `ROW_NUMBER`) is important here so tied top salaries don't accidentally shift who counts as 'second'."},
+{"id":44,"cat":"sql","tier":"bronze","q":"Write a query to find duplicate rows in a table based on a subset of columns (e.g. `email`).","a":"```sql\nSELECT email, COUNT(*) AS cnt\nFROM users\nGROUP BY email\nHAVING COUNT(*) > 1;\n```\nTo get the actual duplicate *rows* (not just the counts), join back or use a window function:\n```sql\nSELECT *\nFROM (\n  SELECT *, COUNT(*) OVER (PARTITION BY email) AS cnt\n  FROM users\n) t\nWHERE cnt > 1;\n```"},
+{"id":45,"cat":"sql","tier":"silver","q":"Given an `orders` table (order_id, customer_id, order_date, amount), write a query to find each customer's running total of order amount ordered by date.","a":"```sql\nSELECT\n  customer_id,\n  order_date,\n  amount,\n  SUM(amount) OVER (\n    PARTITION BY customer_id\n    ORDER BY order_date\n    ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW\n  ) AS running_total\nFROM orders\nORDER BY customer_id, order_date;\n```\nThe explicit frame clause (`ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW`) is worth stating out loud in an interview — it's the default for `ORDER BY` + aggregate window functions, but naming it explicitly signals you understand window frames, not just that you memorized the pattern."},
+{"id":46,"cat":"sql","tier":"silver","q":"Write a query to detect gaps in a sequence of dates per customer (identify missing days where no order was placed, within their active range).","a":"Using a date spine + anti-join, which is the general-purpose pattern (works even without a native `generate_series` in every SQL dialect):\n```sql\nWITH date_range AS (\n  SELECT customer_id, MIN(order_date) AS start_date, MAX(order_date) AS end_date\n  FROM orders\n  GROUP BY customer_id\n),\nall_dates AS (\n  SELECT d.customer_id, dt AS calendar_date\n  FROM date_range d\n  LATERAL VIEW EXPLODE(SEQUENCE(d.start_date, d.end_date, INTERVAL 1 DAY)) t AS dt\n)\nSELECT a.customer_id, a.calendar_date AS missing_date\nFROM all_dates a\nLEFT JOIN orders o\n  ON a.customer_id = o.customer_id AND a.calendar_date = o.order_date\nWHERE o.order_id IS NULL;\n```\n`SEQUENCE()` + `EXPLODE()` (Databricks SQL / Spark SQL syntax) generates the full calendar spine per customer, and the `LEFT JOIN ... WHERE ... IS NULL` pattern is the standard anti-join for 'find what's missing'."},
+{"id":47,"cat":"sql","tier":"gold","q":"Write a query to implement SCD Type 2 logic in pure SQL: given a `staging` table of latest records and a `dim_employee` table with `effective_date`, `end_date`, `is_current` — produce the MERGE that correctly closes old records and inserts new versions only for changed rows.","a":"```sql\nMERGE INTO dim_employee AS target\nUSING (\n  SELECT s.*,\n    CASE WHEN t.employee_id IS NULL THEN 'insert'\n         WHEN t.department != s.department OR t.manager != s.manager THEN 'update'\n         ELSE 'no_change' END AS action_flag\n  FROM staging s\n  LEFT JOIN dim_employee t\n    ON s.employee_id = t.employee_id AND t.is_current = true\n) AS source\nON target.employee_id = source.employee_id AND target.is_current = true\n\nWHEN MATCHED AND source.action_flag = 'update' THEN\n  UPDATE SET target.end_date = current_date(), target.is_current = false\n\nWHEN NOT MATCHED THEN\n  INSERT (employee_id, department, manager, effective_date, end_date, is_current)\n  VALUES (source.employee_id, source.department, source.manager, current_date(), NULL, true);\n```\nThis only closes the **matched-and-changed** row in the first pass. A second `INSERT`-only pass is then needed to add the new current version for both `insert` and `update` flagged rows (a single `MERGE` statement can't both close the old row *and* insert a new row for the same key in one pass in most SQL dialects) — commonly implemented as two chained statements or, on Databricks, as a documented two-step MERGE pattern for SCD2 rather than a single atomic MERGE."},
+{"id":48,"cat":"sql","tier":"gold","q":"Write a query that pivots monthly emissions data (rows: material_id, month, emission_value) into a wide table with one column per month, without hardcoding month names.","a":"Databricks SQL supports dynamic pivot resolution, but a portable, no-hardcoding approach uses conditional aggregation generated dynamically, or native `PIVOT`:\n```sql\nSELECT *\nFROM (\n  SELECT material_id, month, emission_value FROM emissions\n)\nPIVOT (\n  SUM(emission_value)\n  FOR month IN (SELECT DISTINCT month FROM emissions)\n);\n```\nNote: not every engine supports a subquery inside `PIVOT`'s `IN` clause — Databricks SQL does via dynamic pivoting in recent runtimes. If it's not supported in the target environment, the fallback is generating the column list programmatically in PySpark first (`df.select('month').distinct().collect()`) and building the `IN (...)` list dynamically before executing the pivot — worth mentioning this fallback explicitly, since 'my SQL depends on a dynamic list of columns' is exactly the kind of thing that pushes logic from pure SQL into PySpark in real pipelines."},
+{"id":49,"cat":"sql","tier":"platinum","q":"Write a single query to find, for each employee, their manager, their manager's manager, up to the CEO — i.e. the full reporting chain — from a self-referencing `employees(employee_id, name, manager_id)` table, without knowing the hierarchy depth in advance.","a":"Recursive CTE:\n```sql\nWITH RECURSIVE reporting_chain AS (\n  -- anchor: start from each employee\n  SELECT employee_id, name, manager_id, name AS chain, 0 AS depth\n  FROM employees\n\n  UNION ALL\n\n  -- recursive step: walk up to the manager\n  SELECT rc.employee_id, e.name, e.manager_id,\n         CONCAT(rc.chain, ' -> ', e.name) AS chain,\n         rc.depth + 1\n  FROM reporting_chain rc\n  JOIN employees e ON rc.manager_id = e.employee_id\n)\nSELECT employee_id, chain, depth\nFROM reporting_chain\nWHERE manager_id IS NULL   -- reached the CEO (no manager)\nORDER BY employee_id;\n```\nCaveats worth stating in the interview: standard `RECURSIVE` CTEs are supported in Databricks SQL on recent DBR versions but historically Spark SQL lacked native recursive CTE support, so the classic alternative is an **iterative PySpark loop** — repeatedly self-joining one hierarchy level at a time until no new rows are added, with an explicit max-iteration guard to avoid infinite loops on a corrupted cyclic hierarchy (e.g. someone accidentally set as their own manager's manager). Mentioning the cycle-detection guard is the 'brutal' part interviewers are actually listening for."}
+]
+</script>
+
+<script type="application/json" id="qdata8">
+[
+{"id":50,"cat":"pyspark-code","tier":"bronze","q":"Write PySpark code to read a CSV with a defined schema (not inferSchema) and add a column with the current ingestion timestamp.","a":"```python\nfrom pyspark.sql.types import StructType, StructField, StringType, DoubleType\nfrom pyspark.sql import functions as F\n\nschema = StructType([\n    StructField('material_id', StringType(), True),\n    StructField('emission_value', DoubleType(), True),\n    StructField('unit', StringType(), True)\n])\n\ndf = (spark.read\n      .format('csv')\n      .option('header', 'true')\n      .schema(schema)\n      .load('/Volumes/dev_esg/bronze/landing/emissions/'))\n\ndf = df.withColumn('ingestion_ts', F.current_timestamp())\n```\nExplicit schema avoids the extra read pass `inferSchema=true` triggers, and avoids silent type-mismatch surprises on production data — worth saying this out loud, it signals you understand *why*, not just the syntax."},
+{"id":51,"cat":"pyspark-code","tier":"bronze","q":"Write PySpark code to deduplicate rows in a DataFrame, keeping only the latest record per `material_id` based on `updated_at`.","a":"```python\nfrom pyspark.sql import Window\nfrom pyspark.sql import functions as F\n\nwindow_spec = Window.partitionBy('material_id').orderBy(F.col('updated_at').desc())\n\ndf_deduped = (df\n    .withColumn('rn', F.row_number().over(window_spec))\n    .filter(F.col('rn') == 1)\n    .drop('rn'))\n```\n`row_number()` (not `rank()`/`dense_rank()`) is correct here since we want exactly one row per key even if `updated_at` ties."},
+{"id":52,"cat":"pyspark-code","tier":"silver","q":"Write a PySpark function that flattens a nested JSON DataFrame (arbitrary depth of structs, no arrays) into a flat DataFrame with dot-notation column names.","a":"```python\nfrom pyspark.sql.types import StructType\n\ndef flatten_df(df):\n    complex_fields = {\n        field.name: field.dataType\n        for field in df.schema.fields\n        if isinstance(field.dataType, StructType)\n    }\n    while complex_fields:\n        col_name = list(complex_fields.keys())[0]\n        expanded = [\n            F.col(f'`{col_name}`.`{nested.name}`').alias(f'{col_name}.{nested.name}')\n            for nested in complex_fields[col_name]\n        ]\n        df = df.select('*', *expanded).drop(col_name)\n        complex_fields = {\n            field.name: field.dataType\n            for field in df.schema.fields\n            if isinstance(field.dataType, StructType)\n        }\n    return df\n```\nHandles arbitrary nesting depth by looping until no `StructType` columns remain. Note this version intentionally excludes `ArrayType` handling — mention that arrays need an `explode()` step first (which changes row cardinality, unlike struct flattening), so it's a deliberate scope boundary, not an oversight, if asked."},
+{"id":53,"cat":"pyspark-code","tier":"silver","q":"Migrate this SQL query to equivalent PySpark DataFrame code:\n```sql\nSELECT department, AVG(salary) AS avg_sal\nFROM employees\nWHERE hire_date >= '2023-01-01'\nGROUP BY department\nHAVING AVG(salary) > 60000\nORDER BY avg_sal DESC;\n```","a":"```python\nfrom pyspark.sql import functions as F\n\nresult = (employees\n    .filter(F.col('hire_date') >= '2023-01-01')\n    .groupBy('department')\n    .agg(F.avg('salary').alias('avg_sal'))\n    .filter(F.col('avg_sal') > 60000)\n    .orderBy(F.col('avg_sal').desc())\n)\n```\nMapping to remember: `WHERE` before `GROUP BY` → `.filter()` before `.groupBy()`; `HAVING` → a second `.filter()` **after** `.agg()`, not the same filter call — a common migration mistake is trying to filter on the aggregated alias before it exists in the pipeline."},
+{"id":54,"cat":"pyspark-code","tier":"gold","q":"Write a PySpark job that implements SCD Type 2 as a MERGE against a Delta table, handling both new records and changed records in idempotent, re-runnable code.","a":"```python\nfrom delta.tables import DeltaTable\nfrom pyspark.sql import functions as F\n\ndim_table = DeltaTable.forName(spark, 'prod_esg.dim_employee')\n\nstaging = spark.read.table('prod_esg.staging_employee')\n\n# Step 1: close out changed current records\n(dim_table.alias('t')\n  .merge(\n      staging.alias('s'),\n      't.employee_id = s.employee_id AND t.is_current = true'\n  )\n  .whenMatchedUpdate(\n      condition='t.department != s.department OR t.manager != s.manager',\n      set={'end_date': F.current_date(), 'is_current': F.lit(False)}\n  )\n  .execute())\n\n# Step 2: insert new current rows for new + changed employees\ncurrent_keys = (dim_table.toDF()\n    .filter('is_current = true')\n    .select('employee_id', 'department', 'manager'))\n\nto_insert = (staging.alias('s')\n    .join(current_keys.alias('c'), 's.employee_id = c.employee_id', 'left_anti')\n    .select('employee_id', 'department', 'manager')\n    .withColumn('effective_date', F.current_date())\n    .withColumn('end_date', F.lit(None).cast('date'))\n    .withColumn('is_current', F.lit(True)))\n\n(dim_table.alias('t')\n  .merge(to_insert.alias('s'), 't.employee_id = s.employee_id AND t.is_current = true')\n  .whenNotMatchedInsertAll()\n  .execute())\n```\nIdempotency: re-running this on an unchanged `staging` table is a no-op because step 1's `whenMatchedUpdate` condition only fires on actual field changes, and step 2's `left_anti` join only picks up rows without a current match after step 1 ran."},
+{"id":55,"cat":"pyspark-code","tier":"gold","q":"Write a PySpark function using `foreachBatch` to write a streaming DataFrame to a Delta table with exactly-once semantics via idempotent MERGE.","a":"```python\nfrom delta.tables import DeltaTable\n\ndef upsert_to_delta(microbatch_df, batch_id):\n    target = DeltaTable.forName(spark, 'prod_esg.silver_emissions')\n    (target.alias('t')\n        .merge(\n            microbatch_df.alias('s'),\n            't.material_id = s.material_id AND t.report_date = s.report_date'\n        )\n        .whenMatchedUpdateAll()\n        .whenNotMatchedInsertAll()\n        .execute())\n\n(spark.readStream\n    .format('delta')\n    .table('dev_esg.bronze_emissions')\n    .writeStream\n    .foreachBatch(upsert_to_delta)\n    .option('checkpointLocation', '/Volumes/prod_esg/silver/_checkpoints/emissions/')\n    .trigger(availableNow=True)\n    .start())\n```\nExactly-once here relies on two things together: the **checkpoint** tracking which source offsets have been processed (so a restart doesn't reprocess committed batches), and the **MERGE being naturally idempotent** on the join key (so even if a batch *were* somehow reprocessed, re-running the same MERGE produces the same end state rather than duplicate rows) — `foreachBatch` alone gives at-least-once; the MERGE's idempotency is what upgrades it to effectively-exactly-once."},
+{"id":56,"cat":"pyspark-code","tier":"platinum","q":"Write a PySpark solution for the recursive BOM (bill of materials) explosion problem: given `bom(parent_id, child_id, quantity)`, compute the total quantity of every leaf-level raw material consumed to produce 1 unit of a given top-level product, for an arbitrarily deep hierarchy — without a native recursive SQL CTE.","a":"```python\nfrom pyspark.sql import functions as F\n\ndef explode_bom(bom_df, root_id, max_depth=20):\n    # start: one unit of the root product\n    frontier = spark.createDataFrame(\n        [(root_id, root_id, 1.0)], ['root_id', 'component_id', 'total_qty']\n    )\n    result = spark.createDataFrame([], frontier.schema)\n\n    for depth in range(max_depth):\n        next_level = (frontier.alias('f')\n            .join(bom_df.alias('b'), F.col('f.component_id') == F.col('b.parent_id'), 'inner')\n            .select(\n                F.col('f.root_id'),\n                F.col('b.child_id').alias('component_id'),\n                (F.col('f.total_qty') * F.col('b.quantity')).alias('total_qty')\n            ))\n\n        if next_level.rdd.isEmpty():\n            break  # reached leaf level, no more children to explode\n\n        result = result.unionByName(next_level)\n        frontier = next_level\n\n    # collapse: same raw material can appear via multiple branches, sum contributions\n    leaf_totals = (result\n        .groupBy('root_id', 'component_id')\n        .agg(F.sum('total_qty').alias('total_qty')))\n\n    return leaf_totals\n```\nThe two 'brutal' details interviewers probe for: (1) **cycle protection** — `max_depth` as a hard iteration cap is non-negotiable for a self-referencing hierarchy, since a data error creating `A -> B -> A` would otherwise infinite-loop; (2) **multi-branch aggregation** — the same raw material can be consumed by multiple sub-assemblies of the same parent, so the final answer needs a `groupBy` + `sum` collapse across all paths, not just a plain union, to avoid under- or double-reporting a shared component. `unionByName` across 10M+ material keys is exactly why `frontier.rdd.isEmpty()` as an early-exit check matters for performance — without it you keep iterating and shuffling empty DataFrames for the full `max_depth` even after the real hierarchy has already bottomed out."}
+]
+</script>
+
+<script type="application/json" id="qdata9">
+[
+{"id":57,"cat":"python","tier":"bronze","q":"Write a Python function to check if a string is a palindrome, ignoring case and spaces.","a":"```python\ndef is_palindrome(s: str) -> bool:\n    cleaned = ''.join(c.lower() for c in s if c.isalnum())\n    return cleaned == cleaned[::-1]\n\nprint(is_palindrome('A man a plan a canal Panama'))  # True\n```"},
+{"id":58,"cat":"python","tier":"bronze","q":"What's the difference between a list and a tuple in Python, and when would you choose one over the other in a data pipeline context?","a":"Lists are **mutable**, tuples are **immutable**. In pipeline code: use tuples for fixed-shape records you don't want accidentally mutated (e.g. a schema definition tuple, a function returning multiple fixed values), and lists for collections that genuinely grow/shrink (accumulating file paths to process, building up a list of validation errors). Tuples are also hashable (can be dict keys or set members) when all their elements are hashable, which lists never are — relevant if you're building a composite-key lookup dict."},
+{"id":59,"cat":"python","tier":"silver","q":"Write a Python decorator that retries a function up to N times with exponential backoff, useful for wrapping a flaky S3/API call.","a":"```python\nimport time\nimport functools\n\ndef retry(max_attempts=3, base_delay=1):\n    def decorator(func):\n        @functools.wraps(func)\n        def wrapper(*args, **kwargs):\n            for attempt in range(1, max_attempts + 1):\n                try:\n                    return func(*args, **kwargs)\n                except Exception as e:\n                    if attempt == max_attempts:\n                        raise\n                    wait = base_delay * (2 ** (attempt - 1))\n                    print(f'Attempt {attempt} failed: {e}. Retrying in {wait}s...')\n                    time.sleep(wait)\n        return wrapper\n    return decorator\n\n@retry(max_attempts=4, base_delay=2)\ndef fetch_from_s3(path):\n    ...\n```\n`functools.wraps` preserves the wrapped function's `__name__`/docstring — a small detail but interviewers notice when it's missing, since without it debugging/introspection tools show the decorator's generic name instead of the real function."},
+{"id":60,"cat":"python","tier":"gold","q":"Write a Python context manager (using both class-based and `contextlib` approaches) that manages a Databricks cluster lifecycle — starts a cluster, yields control, and guarantees termination even on exception.","a":"**Class-based:**\n```python\nclass ManagedCluster:\n    def __init__(self, client, cluster_id):\n        self.client = client\n        self.cluster_id = cluster_id\n\n    def __enter__(self):\n        self.client.clusters.start(self.cluster_id)\n        self.client.clusters.wait_get_cluster_running(self.cluster_id)\n        return self.cluster_id\n\n    def __exit__(self, exc_type, exc_val, exc_tb):\n        self.client.clusters.delete(self.cluster_id)\n        return False  # don't suppress exceptions\n\nwith ManagedCluster(client, 'cluster-123') as cid:\n    run_job(cid)\n```\n**`contextlib` generator-based equivalent:**\n```python\nfrom contextlib import contextmanager\n\n@contextmanager\ndef managed_cluster(client, cluster_id):\n    client.clusters.start(cluster_id)\n    client.clusters.wait_get_cluster_running(cluster_id)\n    try:\n        yield cluster_id\n    finally:\n        client.clusters.delete(cluster_id)\n```\nThe critical detail either way: termination logic must be in `__exit__`/`finally`, **not** after the `with` block in regular code — that's the entire point of the pattern, guaranteeing cleanup runs even if `run_job()` raises. Returning `False` from `__exit__` (or simply not swallowing the exception) is deliberate — the cluster should always terminate, but the underlying job failure should still propagate to the caller, not be silently hidden."},
+{"id":61,"cat":"python","tier":"platinum","q":"Write a thread-safe, memory-bounded LRU cache from scratch in Python (no `functools.lru_cache`), supporting O(1) get/put.","a":"```python\nimport threading\nfrom collections import OrderedDict\n\nclass LRUCache:\n    def __init__(self, capacity: int):\n        self.capacity = capacity\n        self.cache = OrderedDict()\n        self.lock = threading.Lock()\n\n    def get(self, key):\n        with self.lock:\n            if key not in self.cache:\n                return None\n            self.cache.move_to_end(key)  # mark as recently used\n            return self.cache[key]\n\n    def put(self, key, value):\n        with self.lock:\n            if key in self.cache:\n                self.cache.move_to_end(key)\n            self.cache[key] = value\n            if len(self.cache) > self.capacity:\n                self.cache.popitem(last=False)  # evict least-recently-used\n```\nWhy `OrderedDict` gives O(1): both `move_to_end()` and `popitem(last=False)` are O(1) operations on an `OrderedDict` (implemented as a doubly-linked list under the hood), unlike a plain dict + manually tracked order list, which would need O(n) reordering.\nThe 'brutal' follow-up interviewers ask: **why not just wrap every method in the lock at the class level with a single reentrant lock, and is there a deadlock risk?** Answer: this implementation is safe because neither `get` nor `put` calls the other while holding the lock, so there's no reentrancy needed — a plain `Lock()` (not `RLock()`) is correct and slightly cheaper. If you were to add a method that calls `get()` from inside `put()` while already holding the lock, you'd deadlock with a plain `Lock` and would need `RLock` instead."}
+]
+</script>
+
+<script type="application/json" id="qdata10">
+[
+{"id":62,"cat":"managerial","tier":"bronze","q":"Walk me through your career progression at TCS.","a":"Structure this chronologically with **scope growth** as the throughline, not just title changes: started as a Trainee migrating views/framework code to Unity Catalog (learning the platform), moved to Assistant System Engineer building the first end-to-end pipelines independently (ingestion monitoring, SCD2 CSR pipeline, data quality framework), then to System Engineer owning higher-complexity, higher-blast-radius work (DDL automation across 100+ tables, the 10M+ key BOM pipeline, PII governance framework). Each step should show *increasing ownership*, not just *more tasks* — that's what a Senior Associate interviewer is listening for when comparing you against a typical 4-year profile."},
+{"id":63,"cat":"managerial","tier":"bronze","q":"Why are you looking to move from TCS/Baker Hughes to Accenture?","a":"Keep it forward-looking and specific to the JD, not critical of your current employer. A strong framing: you've built deep hands-on depth in one platform (Databricks on AWS) and one domain (ESG/sustainability data), and you're looking for a role that lets you apply that Databricks expertise as a core, JD-stated must-have skill rather than one tool among many — Accenture's Custom Software Engineer role explicitly centers Databricks, which lines up with where you've specialized. Avoid any language implying dissatisfaction; frame it purely as pursuing depth-matched opportunity."},
+{"id":64,"cat":"managerial","tier":"silver","q":"Tell me about a time you disagreed with a technical decision made by a senior team member. What did you do?","a":"Use STAR, and pick a real example scaled to your actual seniority (e.g. disagreement with a schema design choice on a source feed, or a partitioning strategy for a large table) — not a fabricated conflict with someone senior on strategy you weren't involved in. Structure: **Situation** (what was proposed), **Task** (why you disagreed, backed by a concrete technical reason — e.g. this partition key will create hotspots at our data volume), **Action** (how you raised it: data/benchmark-backed, not just opinion, and how you proposed an alternative), **Result** (what was adopted, and what you learned even if your view wasn't fully adopted). The interviewer is testing whether you can disagree *constructively* without either staying silent or becoming difficult — show you use evidence, not authority or ego."},
+{"id":65,"cat":"managerial","tier":"silver","q":"Describe a situation where you had to deliver under a tight deadline with incomplete requirements. How did you handle ambiguity?","a":"Good candidate example from your background: the reusable PySpark ingestion framework for 100+ Delta tables likely started without every source's schema fully known upfront. Structure the answer around: how you identified what was genuinely unknown vs assumed, how you built in flexibility (e.g. the schema drift framework itself is literally a designed-in answer to 'we don't fully know what's coming'), and how you communicated risk/assumptions to stakeholders rather than silently guessing. Ending with a concrete, measurable result (60% onboarding time cut, 40% fewer pipeline failures) makes the ambiguity-handling claim credible rather than generic."},
+{"id":66,"cat":"managerial","tier":"gold","q":"You're handed a legacy pipeline with no documentation, written by someone who's left the company, and it's throwing intermittent failures. Walk me through your first week.","a":"Structure as a clear investigation methodology, not just 'I'd read the code':\n- **Day 1-2**: read the code + `DESCRIBE HISTORY`/job run history to build a timeline of when failures started and correlate with any upstream changes (source schema, cluster runtime version, dependency updates)\n- Check monitoring/alerting (or build minimal alerting if none exists) to characterize failure *pattern* — random, time-of-day correlated, volume correlated, specific source correlated\n- **Day 3-4**: reproduce the failure in a QA/dev environment with a representative data sample, rather than debugging live in prod\n- Talk to **downstream consumers** of the pipeline's output to understand business criticality/SLA before making any changes, since 'no documentation' often also means 'no one's told you it's actually mission-critical'\n- **Day 5**: propose a fix with a rollback plan, and — critically — **write the documentation you wished existed**, since leaving another undocumented pipeline behind just repeats the problem for the next person\nThis answer works well because it mirrors your actual experience diagnosing schema drift and pipeline failures across 10+ feeds — ground it in a real (even if lightly generalized) example from that work rather than a purely hypothetical answer."},
+{"id":67,"cat":"managerial","tier":"gold","q":"How do you handle a situation where a client stakeholder (Baker Hughes side) pushes back on a technical approach you believe is correct, for non-technical reasons (cost, timeline)?","a":"This tests business judgment, not technical stubbornness. Strong structure: acknowledge the stakeholder's constraint is legitimate input, not an obstacle — cost and timeline are real project variables, not things to be argued away. Then: quantify the trade-off explicitly (e.g. 'the cheaper approach adds X hours of manual reconciliation per month, here's what that costs over a year vs the upfront engineering cost') so the decision becomes an informed business choice rather than a technical-vs-non-technical standoff. Offer a middle path if one exists (a phased approach — ship the simpler version now, revisit the more robust design once volume/criticality justifies it). Close with: ultimately it's the stakeholder's call on their own project constraints, and your job is to make sure that call is made with full information, not to win the argument."},
+{"id":68,"cat":"managerial","tier":"platinum","q":"Tell me about your biggest technical failure — something that shipped, broke in production, and was your responsibility. What was the actual root cause, and what changed afterward?","a":"This is the highest-signal managerial question and the easiest one to fail by giving a fake, safe answer ('I worked too hard' or a non-failure disguised as one). A credible answer needs three things an interviewer will listen for:\n1. **A real failure with real consequences** — even something modest, like a schema drift edge case that wasn't caught by your framework and caused a downstream Silver table to silently receive nulls for a period, or a PII masking UDF that missed a newly added sensitive column before it was caught\n2. **An honest root cause**, not a vague one — 'I should have tested more' is weak; 'my schema drift framework flagged type changes but not new-column-with-existing-name-different-meaning cases, so it passed silently' is specific and credible\n3. **A concrete, structural change afterward** — not just 'I was more careful,' but something like adding a new validation rule class, a review checklist, or an automated test that would have caught that specific class of failure\nBe honest and specific; a Senior Associate interviewer with real Databricks depth will probe follow-up questions ('how did you find out', 'how long was it broken', 'who did you have to tell') and a vague or over-polished answer collapses under those, while a genuinely specific one holds up and builds trust."}
+]
+</script>
+
+<script>
+// ---- Merge all question blocks ----
+const blockIds = ['qdata','qdata2','qdata3','qdata4','qdata5','qdata6','qdata7','qdata8','qdata9','qdata10'];
+let ALL = [];
+blockIds.forEach(id => {
+  const el = document.getElementById(id);
+  if(!el) return;
+  try {
+    const parsed = JSON.parse(el.textContent);
+    ALL = ALL.concat(parsed);
+  } catch(e){ console.error('parse fail', id, e); }
+});
+
+const CATS = [
+  {key:'admin', label:'Databricks Admin & Platform', group:'Databricks'},
+  {key:'uc', label:'Unity Catalog', group:'Databricks'},
+  {key:'pyspark-core', label:'PySpark Core Concepts', group:'Databricks'},
+  {key:'pyspark-opt', label:'PySpark Optimization', group:'Databricks'},
+  {key:'cicd', label:'CI/CD, DAB & GitHub', group:'Databricks'},
+  {key:'aws', label:'AWS for Databricks (S3/EC2/IAM)', group:'Cloud'},
+  {key:'sql', label:'SQL — Hands-on Coding', group:'Hands-on Coding'},
+  {key:'pyspark-code', label:'PySpark — Hands-on Coding', group:'Hands-on Coding'},
+  {key:'python', label:'Python — Hands-on Coding', group:'Hands-on Coding'},
+  {key:'managerial', label:'Managerial / Behavioral Round', group:'Managerial'}
+];
+
+const TIER_ORDER = {bronze:0, silver:1, gold:2, platinum:3};
+const TIER_LABEL = {bronze:'Bronze · Easy', silver:'Silver · Medium', gold:'Gold · Hard', platinum:'Platinum · Brutal'};
+
+let activeCat = null; // null = all
+let activeTiers = new Set(['bronze','silver','gold','platinum']);
+let searchTerm = '';
+
+function mdLite(text){
+  if(!text) return '';
+  // fenced code blocks
+  let parts = text.split(/```/);
+  let html = '';
+  parts.forEach((part, i) => {
+    if(i % 2 === 1){
+      html += `<pre><code>${escapeHtml(part.trim())}</code></pre>`;
+    } else {
+      let seg = escapeHtml(part);
+      seg = seg.replace(/`([^`]+)`/g, '<code>$1</code>');
+      seg = seg.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      // lists
+      seg = seg.split('\n').map(l => l).join('\n');
+      let lines = seg.split('\n');
+      let out = [];
+      let inList = false;
+      lines.forEach(line => {
+        const trimmed = line.trim();
+        if(trimmed.startsWith('- ')){
+          if(!inList){ out.push('<ul>'); inList = true; }
+          out.push('<li>' + trimmed.slice(2) + '</li>');
+        } else {
+          if(inList){ out.push('</ul>'); inList = false; }
+          if(trimmed.length) out.push('<p>' + trimmed + '</p>');
+        }
+      });
+      if(inList) out.push('</ul>');
+      html += out.join('');
+    }
+  });
+  return html;
+}
+function escapeHtml(s){
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+function buildSidebar(){
+  const sidebar = document.getElementById('sidebar');
+  const groups = {};
+  CATS.forEach(c => {
+    if(!groups[c.group]) groups[c.group] = [];
+    groups[c.group].push(c);
+  });
+  let html = `<div class="navitem ${activeCat===null?'active':''}" data-cat="__all__"><span>All topics</span><span class="count">${ALL.length}</span></div>`;
+  Object.keys(groups).forEach(g => {
+    html += `<h4>${g}</h4>`;
+    groups[g].forEach(c => {
+      const n = ALL.filter(q => q.cat === c.key).length;
+      html += `<div class="navitem ${activeCat===c.key?'active':''}" data-cat="${c.key}"><span>${c.label}</span><span class="count">${n}</span></div>`;
+    });
+  });
+  sidebar.innerHTML = html;
+  sidebar.querySelectorAll('.navitem').forEach(el => {
+    el.addEventListener('click', () => {
+      const cat = el.getAttribute('data-cat');
+      activeCat = cat === '__all__' ? null : cat;
+      buildSidebar();
+      render();
+    });
+  });
+}
+
+function render(){
+  const content = document.getElementById('content');
+  const empty = document.getElementById('emptyMsg');
+  let items = ALL.filter(q => activeTiers.has(q.tier));
+  if(activeCat) items = items.filter(q => q.cat === activeCat);
+  if(searchTerm.trim()){
+    const s = searchTerm.toLowerCase();
+    items = items.filter(q => q.q.toLowerCase().includes(s) || q.a.toLowerCase().includes(s));
+  }
+
+  document.getElementById('qCount').textContent = `Showing ${items.length} of ${ALL.length} questions`;
+
+  if(items.length === 0){
+    content.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  const catsToRender = activeCat ? [activeCat] : CATS.map(c => c.key);
+  let html = '';
+  catsToRender.forEach(catKey => {
+    const catItems = items.filter(q => q.cat === catKey).sort((a,b) => TIER_ORDER[a.tier]-TIER_ORDER[b.tier]);
+    if(catItems.length === 0) return;
+    const catMeta = CATS.find(c => c.key === catKey);
+    html += `<div class="section-title"><h2>${catMeta.label}</h2><span>${catItems.length} question${catItems.length>1?'s':''}</span></div>`;
+    catItems.forEach(q => {
+      html += `<details class="card ${q.tier}">
+        <summary>
+          <span class="tier-label ${q.tier}">${TIER_LABEL[q.tier]}</span>
+          <span class="qtext">${escapeHtml(q.q)}</span>
+          <span class="chevron">▸</span>
+        </summary>
+        <div class="answer">${mdLite(q.a)}</div>
+      </details>`;
+    });
+  });
+  content.innerHTML = html;
+}
+
+document.getElementById('searchBox').addEventListener('input', (e) => {
+  searchTerm = e.target.value;
+  render();
+});
+
+document.getElementById('tierFilter').addEventListener('click', (e) => {
+  const btn = e.target.closest('.tbtn');
+  if(!btn) return;
+  const tier = btn.getAttribute('data-tier');
+  if(activeTiers.has(tier)){
+    activeTiers.delete(tier);
+    btn.classList.remove('on');
+  } else {
+    activeTiers.add(tier);
+    btn.classList.add('on');
+  }
+  render();
+});
+
+buildSidebar();
+render();
+</script>
+
+</body>
+</html>
