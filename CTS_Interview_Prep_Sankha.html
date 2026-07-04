@@ -1,0 +1,595 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>CTS F2F Interview Prep — Sankha Subhra Mondal</title>
+<style>
+  :root{
+    --bg:#0b0f14; --panel:#121820; --panel2:#161d27; --border:#232d3a;
+    --text:#e6edf3; --muted:#8b98a8; --accent:#4fd1a5; --accent2:#5ab4ff;
+    --easy:#4fd1a5; --medium:#e8b84b; --hard:#e8794b; --brutal:#e2495f;
+    --code-bg:#0d1117;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:'Segoe UI',system-ui,-apple-system,sans-serif;line-height:1.5;}
+  .wrap{max-width:1180px;margin:0 auto;padding:20px 18px 80px;}
+
+  header.top{border-bottom:1px solid var(--border);padding-bottom:18px;margin-bottom:18px;}
+  header.top h1{font-size:1.5rem;margin:0 0 4px;letter-spacing:.2px;}
+  header.top .sub{color:var(--muted);font-size:.92rem;}
+  .badges{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+  .badge{background:var(--panel2);border:1px solid var(--border);border-radius:20px;padding:4px 12px;font-size:.78rem;color:var(--accent2);}
+
+  nav.tabs{display:flex;flex-wrap:wrap;gap:6px;margin:18px 0;position:sticky;top:0;background:var(--bg);padding:10px 0;z-index:50;border-bottom:1px solid var(--border);}
+  nav.tabs button{background:var(--panel);border:1px solid var(--border);color:var(--muted);padding:8px 14px;border-radius:8px;font-size:.83rem;cursor:pointer;transition:.15s;}
+  nav.tabs button:hover{color:var(--text);border-color:var(--accent2);}
+  nav.tabs button.active{background:var(--accent2);color:#04121e;font-weight:600;border-color:var(--accent2);}
+
+  section.tabpanel{display:none;}
+  section.tabpanel.active{display:block;animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
+
+  h2.section-title{font-size:1.2rem;margin:22px 0 10px;color:var(--accent2);border-left:3px solid var(--accent2);padding-left:10px;}
+  p.lead{color:var(--muted);font-size:.9rem;margin-bottom:14px;}
+
+  .filterbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px;align-items:center;}
+  .filterbar input[type=text]{flex:1;min-width:180px;background:var(--panel);border:1px solid var(--border);color:var(--text);padding:8px 10px;border-radius:6px;font-size:.85rem;}
+  .chip{background:var(--panel2);border:1px solid var(--border);color:var(--muted);padding:5px 11px;border-radius:16px;font-size:.76rem;cursor:pointer;user-select:none;}
+  .chip.active{color:#04121e;font-weight:700;}
+  .chip[data-diff="Easy"].active{background:var(--easy);border-color:var(--easy);}
+  .chip[data-diff="Medium"].active{background:var(--medium);border-color:var(--medium);}
+  .chip[data-diff="Hard"].active{background:var(--hard);border-color:var(--hard);}
+  .chip[data-diff="Brutal"].active{background:var(--brutal);border-color:var(--brutal);}
+  .chip[data-diff="all"].active{background:var(--accent2);border-color:var(--accent2);}
+
+  .qcard{background:var(--panel);border:1px solid var(--border);border-radius:10px;margin-bottom:10px;overflow:hidden;}
+  .qhead{display:flex;justify-content:space-between;align-items:center;padding:12px 14px;cursor:pointer;gap:10px;}
+  .qhead:hover{background:var(--panel2);}
+  .qtitle{font-size:.92rem;font-weight:500;flex:1;}
+  .tag{font-size:.68rem;padding:2px 9px;border-radius:10px;font-weight:700;white-space:nowrap;color:#04121e;}
+  .tag.Easy{background:var(--easy);}
+  .tag.Medium{background:var(--medium);}
+  .tag.Hard{background:var(--hard);}
+  .tag.Brutal{background:var(--brutal);}
+  .qbody{max-height:0;overflow:hidden;transition:max-height .25s ease;padding:0 14px;color:#c6d2de;font-size:.87rem;}
+  .qcard.open .qbody{max-height:2000px;padding:0 14px 16px;}
+  .qbody ul{margin:6px 0;padding-left:20px;}
+  .qbody code, .qbody pre code{color:var(--accent);}
+  pre{background:var(--code-bg);border:1px solid var(--border);border-radius:8px;padding:12px;overflow-x:auto;font-size:.8rem;}
+  code{font-family:'Consolas','Cascadia Code',monospace;}
+  .arrow{transition:.2s;color:var(--muted);}
+  .qcard.open .arrow{transform:rotate(90deg);color:var(--accent2);}
+
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  @media(max-width:800px){.grid2{grid-template-columns:1fr;}}
+
+  table.cheat{width:100%;border-collapse:collapse;font-size:.82rem;margin:10px 0;}
+  table.cheat th,table.cheat td{border:1px solid var(--border);padding:7px 10px;text-align:left;}
+  table.cheat th{background:var(--panel2);color:var(--accent2);}
+  table.cheat tr:nth-child(even){background:#0e141c;}
+
+  .timeline{border-left:2px solid var(--accent2);margin-left:10px;padding-left:20px;}
+  .tstep{margin-bottom:18px;position:relative;}
+  .tstep::before{content:'';position:absolute;left:-26px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--accent2);}
+  .tstep h3{margin:0 0 4px;font-size:.95rem;color:var(--text);}
+  .tstep .dur{color:var(--accent);font-size:.78rem;font-weight:600;}
+  .tstep p{margin:4px 0 0;color:var(--muted);font-size:.85rem;}
+
+  .callout{background:var(--panel2);border-left:3px solid var(--accent);padding:12px 14px;border-radius:6px;font-size:.85rem;color:#c6d2de;margin:12px 0;}
+  .callout.warn{border-left-color:var(--brutal);}
+  .callout.warn b{color:var(--brutal);}
+  .callout b{color:var(--accent);}
+
+  .cvbox{background:var(--panel2);border:1px solid var(--border);border-radius:8px;padding:12px 14px;font-size:.85rem;margin:10px 0;}
+  .cvbox .metric{color:var(--accent);font-weight:700;}
+
+  footer{text-align:center;color:var(--muted);font-size:.75rem;margin-top:40px;padding-top:14px;border-top:1px solid var(--border);}
+  .stats{display:flex;gap:14px;flex-wrap:wrap;margin-bottom:14px;}
+  .stat{background:var(--panel);border:1px solid var(--border);border-radius:8px;padding:8px 14px;font-size:.8rem;color:var(--muted);}
+  .stat b{color:var(--accent2);display:block;font-size:1.1rem;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <h1>Cognizant F2F Interview — Prep Command Center</h1>
+  <div class="sub">Role: Data Engineer (AWS Databricks, Python, SQL) · Vendor: Top Talent Search → Cognizant · F2F: 11 July 2026 (Saturday), Kolkata · 2-hour panel round</div>
+  <div class="badges">
+    <span class="badge">Databricks + AWS</span>
+    <span class="badge">Complex SQL (Oracle/MS SQL)</span>
+    <span class="badge">Python 2+ yrs</span>
+    <span class="badge">Delta Lake &amp; Unity Catalog basics</span>
+    <span class="badge">CI/CD + Change Management</span>
+    <span class="badge">Data Quality &amp; Cleansing</span>
+    <span class="badge">Agile/Scrum</span>
+    <span class="badge">Production Issue Resolution</span>
+  </div>
+</header>
+
+<nav class="tabs" id="tabnav"></nav>
+
+<div id="panels"></div>
+
+<footer>Built for Sankha Subhra Mondal · Based on CTS JD (Sajid Khan, Top Talent Search, 1 Jul 2026) + CV · Good luck on 11 July 👍</footer>
+</div>
+
+<script>
+const TABS = [
+  {id:'overview', label:'⚡ 2-Hr Round Map'},
+  {id:'sql', label:'SQL'},
+  {id:'sqlcode', label:'SQL Coding'},
+  {id:'pyspark', label:'Python / PySpark'},
+  {id:'pysparkcode', label:'PySpark Coding'},
+  {id:'databricks', label:'Databricks / Delta / UC'},
+  {id:'aws', label:'AWS Cloud'},
+  {id:'cicd', label:'CI/CD, Agile &amp; Prod Issues'},
+  {id:'pii', label:'PII / Data Quality'},
+  {id:'cv', label:'CV &amp; Behavioral'},
+  {id:'cheat', label:'📋 Cheat Sheet'}
+];
+
+// ---------- QUESTION BANKS ----------
+// Each item: {q, diff, a (HTML string)}
+
+const SQL_Q = [
+{diff:'Easy', q:'What is the difference between WHERE and HAVING?', a:'<b>WHERE</b> filters rows before grouping/aggregation; it cannot reference aggregate functions. <b>HAVING</b> filters groups after GROUP BY, and can use aggregates like COUNT(), SUM(). Order of execution: FROM → WHERE → GROUP BY → HAVING → SELECT → ORDER BY.'},
+{diff:'Easy', q:'Difference between DELETE, TRUNCATE, and DROP?', a:'<b>DELETE</b>: DML, row-by-row, logged, can use WHERE, triggers fire, rollback possible. <b>TRUNCATE</b>: DDL, deallocates data pages, minimal logging, resets identity, no WHERE, faster. <b>DROP</b>: removes the table structure + data entirely from the schema.'},
+{diff:'Easy', q:'Explain the different types of SQL JOINs.', a:'INNER JOIN (matching rows only), LEFT/RIGHT OUTER JOIN (all rows from one side + matches), FULL OUTER JOIN (all rows from both, NULLs where no match), CROSS JOIN (cartesian product), SELF JOIN (table joined to itself, e.g. employee-manager hierarchy).'},
+{diff:'Easy', q:'What is a Primary Key vs a Unique Key vs a Foreign Key?', a:'<b>Primary Key</b>: uniquely identifies a row, NOT NULL, one per table (can be composite). <b>Unique Key</b>: enforces uniqueness but allows one NULL; a table can have multiple. <b>Foreign Key</b>: enforces referential integrity, points to a PK/unique key in another (or same) table.'},
+{diff:'Medium', q:'Explain window functions and give examples of ranking functions.', a:'Window functions compute a value across a set of rows related to the current row without collapsing rows (unlike GROUP BY). Syntax: <code>FUNC() OVER (PARTITION BY ... ORDER BY ...)</code>.<br><b>ROW_NUMBER()</b>: unique sequential number, no ties.<br><b>RANK()</b>: same rank for ties, gaps after ties (1,2,2,4).<br><b>DENSE_RANK()</b>: same rank for ties, no gaps (1,2,2,3).<br>Also LAG/LEAD (access prior/next row), NTILE (buckets), FIRST_VALUE/LAST_VALUE.'},
+{diff:'Medium', q:'How do you find the 2nd/Nth highest salary without using TOP/LIMIT?', a:'Using a correlated subquery: <pre><code>SELECT MAX(salary) FROM emp e1\nWHERE N-1 = (SELECT COUNT(DISTINCT salary) FROM emp e2 WHERE e2.salary > e1.salary)</code></pre>Or with DENSE_RANK: <pre><code>SELECT salary FROM (\n  SELECT salary, DENSE_RANK() OVER(ORDER BY salary DESC) rnk FROM emp\n) t WHERE rnk = N</code></pre>'},
+{diff:'Medium', q:'What is the difference between a CTE and a subquery? What about recursive CTEs?', a:'A <b>CTE</b> (WITH clause) is a named temporary result set, more readable, can be referenced multiple times in the same query, and supports recursion. A <b>subquery</b> is nested inline and evaluated for the enclosing query only. <b>Recursive CTE</b> = CTE referencing itself, used for hierarchies (org charts, BOM explosion) — has an anchor member UNION ALL a recursive member with a termination condition.'},
+{diff:'Medium', q:'How would you find duplicate rows in a table and delete all but one?', a:'<pre><code>WITH cte AS (\n  SELECT *, ROW_NUMBER() OVER(PARTITION BY col1,col2 ORDER BY id) rn\n  FROM my_table\n)\nDELETE FROM cte WHERE rn > 1;</code></pre>In Oracle, use ROWID with a correlated subquery when ROW_NUMBER-based DELETE via CTE is not directly supported.'},
+{diff:'Medium', q:'Explain indexing — clustered vs non-clustered, and when an index might NOT help.', a:'<b>Clustered index</b>: physically sorts and stores data rows in the table based on the key — only one per table. <b>Non-clustered</b>: separate structure with pointers back to data rows — can have many. Indexes speed up SELECTs/WHERE/JOIN/ORDER BY but slow down INSERT/UPDATE/DELETE (index maintenance overhead). An index won\'t help when: the column has low cardinality, the query uses a function on the indexed column (non-sargable), leading wildcard LIKE (\'%abc\'), or the optimizer decides a table scan is cheaper for large result sets.'},
+{diff:'Medium', q:'Explain ACID properties in relational databases.', a:'<b>Atomicity</b>: transaction is all-or-nothing. <b>Consistency</b>: DB moves from one valid state to another, constraints upheld. <b>Isolation</b>: concurrent transactions don\'t interfere (governed by isolation levels: Read Uncommitted, Read Committed, Repeatable Read, Serializable). <b>Durability</b>: once committed, changes survive failures.'},
+{diff:'Hard', q:'Gaps and Islands: find contiguous ranges of dates/values in a sequence.', a:'Classic pattern: subtract a ROW_NUMBER() from the date/value to create a constant "group key" for consecutive rows.<pre><code>SELECT emp_id, MIN(dt) start_dt, MAX(dt) end_dt\nFROM (\n  SELECT emp_id, dt,\n         DATEADD(day, -ROW_NUMBER() OVER(PARTITION BY emp_id ORDER BY dt), dt) AS grp\n  FROM attendance\n) t\nGROUP BY emp_id, grp;</code></pre>Rows in the same island get the same grp value because consecutive dates minus a consecutive row number stay constant.'},
+{diff:'Hard', q:'How do you implement SCD Type 2 purely in SQL (MERGE)?', a:'Two-step MERGE pattern (matches your CSR pipeline experience):<br>1. Expire changed records: MERGE target using source ON business_key, WHEN MATCHED AND (attributes differ) AND is_current=1 THEN UPDATE SET end_date = current_date-1, is_current = 0.<br>2. Insert new/changed rows as new versions: INSERT new rows for source records not matched, or matched-but-expired, with start_date=today, end_date=NULL/9999-12-31, is_current=1, and a fresh surrogate key.<br>Key point: you cannot both update and insert in a single MERGE clause per row match branch — hence the two-pass pattern.'},
+{diff:'Hard', q:'Write a query for Pareto analysis (80/20 rule) — customers contributing 80% of revenue.', a:'<pre><code>WITH ranked AS (\n  SELECT customer_id, SUM(amount) rev\n  FROM sales GROUP BY customer_id\n),\ncum AS (\n  SELECT *, SUM(rev) OVER(ORDER BY rev DESC) running_rev,\n         SUM(rev) OVER() total_rev\n  FROM ranked\n)\nSELECT * FROM cum WHERE running_rev - rev < 0.8 * total_rev;</code></pre>Running total via window SUM, compare against 80% of total revenue.'},
+{diff:'Hard', q:'How would you detect outliers using a Z-score in SQL?', a:'<pre><code>WITH stats AS (\n  SELECT AVG(amount) avg_amt, STDEV(amount) sd FROM sales\n)\nSELECT s.*, (s.amount - stats.avg_amt)/NULLIF(stats.sd,0) AS zscore\nFROM sales s CROSS JOIN stats\nWHERE ABS((s.amount - stats.avg_amt)/NULLIF(stats.sd,0)) > 3;</code></pre>Z-score beyond ±3 flags statistical outliers; guard divide-by-zero with NULLIF.'},
+{diff:'Hard', q:'Cohort retention analysis — how would you structure the query?', a:'1. Determine each user\'s cohort month (MIN(order_date) truncated to month). 2. Join back all activity to compute month-difference between activity date and cohort date (DATEDIFF in months). 3. Pivot/aggregate distinct users per cohort × month-offset. This uses a self-join or window MIN() partitioned by user, plus GROUP BY cohort_month, month_offset.'},
+{diff:'Brutal', q:'Design a rolling SLA-compliance query: % of orders fulfilled within a rolling 7-day window, per day.', a:'Use a window function with a RANGE frame based on date rather than ROWS: <pre><code>SELECT order_date,\n  SUM(CASE WHEN fulfilled_within_sla=1 THEN 1 ELSE 0 END)\n    OVER(ORDER BY order_date RANGE BETWEEN INTERVAL 6 DAY PRECEDING AND CURRENT ROW) * 1.0\n  / COUNT(*) OVER(ORDER BY order_date RANGE BETWEEN INTERVAL 6 DAY PRECEDING AND CURRENT ROW) AS sla_pct\nFROM orders_daily;</code></pre>Emphasize RANGE (date-based) vs ROWS (row-count-based) framing — a common gotcha when days have missing data.'},
+{diff:'Brutal', q:'A query is running slow on a 500M row table with a WHERE on a non-indexed column plus a JOIN. Walk through your troubleshooting approach.', a:'1. Run EXPLAIN PLAN / EXECUTION PLAN — look for full table scans, high cost operators, spills to disk. 2. Check if predicate is sargable (no function wrapping the column). 3. Check join order and join type (nested loop vs hash vs merge) — a nested loop on huge tables is a red flag. 4. Check statistics are up to date (stale stats mislead the optimizer). 5. Consider adding a covering/composite index on filter+join columns. 6. Check for implicit data type conversions causing scans. 7. Consider partitioning the large table by the filter column. 8. As a Databricks engineer, mention Z-ORDER/OPTIMIZE and Adaptive Query Execution as the Spark-side analogue.'},
+];
+
+const SQLCODE_Q = [
+{diff:'Medium', q:'Second highest salary per department', a:`Table: emp(id, name, dept, salary)
+<pre><code>SELECT dept, salary FROM (
+  SELECT dept, salary,
+         DENSE_RANK() OVER (PARTITION BY dept ORDER BY salary DESC) rnk
+  FROM emp
+) t
+WHERE rnk = 2;</code></pre>Use DENSE_RANK (not ROW_NUMBER) so ties in the top salary don't skip the true "2nd distinct" salary.`},
+{diff:'Medium', q:'Running total of sales per region ordered by date', a:`<pre><code>SELECT region, sale_date, amount,
+  SUM(amount) OVER (PARTITION BY region ORDER BY sale_date
+                     ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) AS running_total
+FROM sales;</code></pre>`},
+{diff:'Hard', q:'Find employees who earn more than their manager', a:`<pre><code>SELECT e.name AS employee, e.salary, m.name AS manager, m.salary
+FROM emp e
+JOIN emp m ON e.manager_id = m.id
+WHERE e.salary > m.salary;</code></pre>Classic self-join. If manager_id can be NULL (top of hierarchy), the JOIN naturally excludes those rows — no extra handling needed.`},
+{diff:'Hard', q:'Month-over-month growth percentage', a:`<pre><code>WITH monthly AS (
+  SELECT DATE_TRUNC('month', order_date) mth, SUM(amount) rev
+  FROM orders GROUP BY 1
+)
+SELECT mth, rev,
+  LAG(rev) OVER (ORDER BY mth) AS prev_rev,
+  ROUND(100.0*(rev - LAG(rev) OVER (ORDER BY mth)) / NULLIF(LAG(rev) OVER (ORDER BY mth),0), 2) AS mom_pct
+FROM monthly;</code></pre>`},
+{diff:'Hard', q:'Median value without a built-in MEDIAN function (portable SQL)', a:`<pre><code>WITH ordered AS (
+  SELECT amount, ROW_NUMBER() OVER(ORDER BY amount) rn, COUNT(*) OVER() cnt
+  FROM sales
+)
+SELECT AVG(amount) AS median
+FROM ordered
+WHERE rn IN ((cnt+1)/2, (cnt+2)/2);</code></pre>Works for both odd and even row counts by averaging the middle one or two rows.`},
+{diff:'Brutal', q:'Top 3 products by revenue in each category, but only categories with more than 5 products', a:`<pre><code>WITH ranked AS (
+  SELECT category, product, revenue,
+         ROW_NUMBER() OVER (PARTITION BY category ORDER BY revenue DESC) rn,
+         COUNT(*) OVER (PARTITION BY category) prod_cnt
+  FROM product_sales
+)
+SELECT category, product, revenue
+FROM ranked
+WHERE rn <= 3 AND prod_cnt > 5;</code></pre>Combine a ranking window function with a count window function in one pass — avoids a second GROUP BY query.`},
+{diff:'Brutal', q:'Detect gaps in a sequence of invoice numbers', a:`<pre><code>SELECT invoice_no + 1 AS gap_start,
+       next_no - 1 AS gap_end
+FROM (
+  SELECT invoice_no, LEAD(invoice_no) OVER (ORDER BY invoice_no) AS next_no
+  FROM invoices
+) t
+WHERE next_no - invoice_no > 1;</code></pre>LEAD() to peek at the next row; a gap exists whenever the difference is more than 1.`},
+];
+
+const PYSPARK_Q = [
+{diff:'Easy', q:'Difference between RDD, DataFrame, and Dataset?', a:'<b>RDD</b>: low-level, distributed collection of JVM objects, no built-in schema/optimizer, full control but slower. <b>DataFrame</b>: distributed collection with named columns and a schema, benefits from Catalyst optimizer + Tungsten execution engine. <b>Dataset</b>: typed API combining RDD type-safety with DataFrame optimization (Scala/Java only, not in PySpark — PySpark DataFrames are effectively untyped Datasets).'},
+{diff:'Easy', q:'What is the difference between narrow and wide transformations?', a:'<b>Narrow</b>: each input partition contributes to only one output partition, no shuffle (map, filter, union). <b>Wide</b>: data must be shuffled across partitions (groupBy, join, distinct, repartition, orderBy). Wide transformations are expensive and create a new stage boundary.'},
+{diff:'Easy', q:'What is lazy evaluation in Spark and why does it matter?', a:'Transformations (map, filter, select) are not executed immediately — Spark builds a logical DAG (lineage graph). Execution only happens when an action (count, collect, write, show) is called. This lets Catalyst optimize the whole chain (predicate pushdown, column pruning) before running anything, and avoids wasted computation.'},
+{diff:'Medium', q:'Explain cache() vs persist() and the different storage levels.', a:'<code>cache()</code> is shorthand for <code>persist(MEMORY_AND_DISK)</code>. <code>persist()</code> lets you choose a StorageLevel: MEMORY_ONLY, MEMORY_AND_DISK, MEMORY_ONLY_SER, DISK_ONLY, and replicated variants (e.g. MEMORY_AND_DISK_2). Use when a DataFrame is reused multiple times in the DAG to avoid recomputation. Always <code>unpersist()</code> when done to free executor memory.'},
+{diff:'Medium', q:'What is the Catalyst optimizer and what stages does a query go through?', a:'Catalyst is Spark SQL\'s query optimizer. Pipeline: 1) Parse SQL/DataFrame code into an unresolved logical plan. 2) Analysis — resolve column/table references using the catalog → resolved logical plan. 3) Logical optimization — rule-based (predicate pushdown, constant folding, column pruning). 4) Physical planning — generate multiple physical plans, cost-based selection. 5) Code generation — Tungsten generates optimized JVM bytecode.'},
+{diff:'Medium', q:'What is a broadcast join and when should you use it?', a:'When joining a large table with a small table, Spark can broadcast the small table (default threshold: 10MB, tunable via <code>spark.sql.autoBroadcastJoinThreshold</code>) to every executor, avoiding a shuffle of the large table entirely. Force it with <code>broadcast(small_df)</code>. Avoid when the "small" table isn\'t actually small — you\'ll get executor OOM errors.'},
+{diff:'Medium', q:'What causes data skew and how do you fix it?', a:'Skew happens when one or few partition keys have disproportionately more data (e.g. a NULL key or a dominant customer_id), causing one task to run far longer than others. Fixes: <b>salting</b> (add a random suffix to the skewed key, explode the small side, then aggregate/de-salt), enabling <b>AQE skew join optimization</b> (<code>spark.sql.adaptive.skewJoin.enabled</code>), isolating and handling the skewed key separately (filter it out, process, union back), or repartitioning explicitly.'},
+{diff:'Medium', q:'Explain repartition() vs coalesce().', a:'<b>repartition(n)</b>: full shuffle, can increase or decrease partitions, results in evenly balanced partitions. <b>coalesce(n)</b>: no full shuffle (combines existing partitions), can only decrease partitions, cheaper but may produce uneven partitions. Use coalesce before writing output to reduce small files without a costly shuffle; use repartition when you need even distribution (e.g. before a wide join).'},
+{diff:'Hard', q:'What is Adaptive Query Execution (AQE) and what does it optimize at runtime?', a:'AQE re-optimizes the physical plan during execution using runtime statistics instead of only static estimates. Three main features: 1) <b>Dynamically coalescing shuffle partitions</b> (merges small post-shuffle partitions). 2) <b>Dynamically switching join strategies</b> (e.g. converting a sort-merge join to broadcast join once actual size is known). 3) <b>Dynamically optimizing skewed joins</b> (splitting skewed partitions into sub-tasks). Enabled by default from Spark 3.2+.'},
+{diff:'Hard', q:'Explain the difference between map(), mapPartitions(), and foreachPartition().', a:'<b>map()</b>: applies function row-by-row, expensive if the function has per-call overhead (e.g. opening a connection). <b>mapPartitions()</b>: applies function once per partition (iterator-to-iterator), letting you set up expensive resources (DB connection, model load) once per partition instead of per row — a key optimization for UDF-heavy or I/O-heavy logic. <b>foreachPartition()</b>: like mapPartitions but for side-effects only (no return value), e.g. writing to an external system.'},
+{diff:'Hard', q:'How would you handle late-arriving data in a streaming/batch pipeline? (relates to your LOOKBACK_HOURS design)', a:'Two-band strategy: define a configurable lookback window parameter (e.g. LOOKBACK_HOURS). On each run, reprocess/re-merge not just the new batch but all records with a modified/event timestamp within the lookback window, using MERGE (upsert) semantics keyed on business key so late-arriving records correctly update or insert without duplicating already-processed rows. For streaming specifically, Structured Streaming\'s <code>withWatermark()</code> bounds state size by dropping data older than the watermark threshold, trading correctness on very-late data for bounded memory.'},
+{diff:'Hard', q:'Explain how you would implement SCD Type 2 in PySpark using MERGE.', a:'Two-step merge-plus-append pattern: 1) MERGE INTO target USING source ON business_key WHEN MATCHED AND target.is_current=true AND (hash/attributes differ) THEN UPDATE SET end_date=current_date(), is_current=false. 2) Append new versions: filter source rows that are new or changed, generate a surrogate key, set start_date=current_date(), end_date=null, is_current=true, and append via DataFrame write (or a second MERGE WHEN NOT MATCHED THEN INSERT). A watermark/audit column (e.g. last_updated) guards against reprocessing unchanged rows unnecessarily.'},
+{diff:'Brutal', q:'Explain the full shuffle mechanism in Spark — what actually happens on disk/network during a groupBy or join.', a:'During a shuffle: 1) <b>Map/shuffle-write side</b>: each task writes its output partitioned by the target key (hash or range partitioning) into shuffle files on local disk, with an index file per map task. 2) <b>Shuffle-read side</b>: reduce tasks fetch the relevant blocks from each map task\'s shuffle files over the network (shuffle service), sort/merge them. This involves disk I/O, serialization, and network transfer — the most expensive part of a Spark job. Tuning levers: <code>spark.sql.shuffle.partitions</code>, avoiding unnecessary wide transformations, using broadcast joins to skip shuffle entirely, and AQE\'s dynamic coalescing to avoid tiny shuffle partitions.'},
+{diff:'Brutal', q:'How does Spark decide the number of tasks/partitions, and how would you right-size them for a cluster?', a:'Input partitions come from the source (e.g. HDFS/S3 block size, or Delta file count). Shuffle partitions default to <code>spark.sql.shuffle.partitions</code> (200 historically; AQE now auto-coalesces). Right-sizing: target partition size ~128MB–200MB (too many small partitions → scheduling overhead; too few large partitions → reduced parallelism / OOM risk). Rule of thumb: total task count ≈ 2-3x total executor cores for good pipelining. On Databricks, prefer AQE over manually tuning shuffle.partitions, and check the Spark UI stage view for partition skew (max task time vs median task time) before hand-tuning.'},
+];
+
+const PYSPARKCODE_Q = [
+{diff:'Medium', q:'Read a CSV, deduplicate on a key keeping the latest by timestamp', a:`<pre><code>from pyspark.sql import Window
+import pyspark.sql.functions as F
+
+df = spark.read.option("header", True).csv("/path/file.csv")
+
+w = Window.partitionBy("id").orderBy(F.col("updated_at").desc())
+deduped = (df.withColumn("rn", F.row_number().over(w))
+             .filter(F.col("rn") == 1)
+             .drop("rn"))</code></pre>`},
+{diff:'Medium', q:'Flatten a nested JSON / struct column', a:`<pre><code>df2 = df.select(
+    "id",
+    F.col("address.city").alias("city"),
+    F.col("address.zip").alias("zip"),
+    F.explode("phone_numbers").alias("phone")
+)
+# Or generically flatten all struct fields:
+def flatten(df):
+    flat_cols = []
+    for f in df.schema.fields:
+        if f.dataType.typeName() == "struct":
+            for nested in f.dataType.fields:
+                flat_cols.append(F.col(f"{f.name}.{nested.name}").alias(f"{f.name}_{nested.name}"))
+        else:
+            flat_cols.append(F.col(f.name))
+    return df.select(*flat_cols)</code></pre>`},
+{diff:'Hard', q:'Implement schema drift detection between an incoming DataFrame and a target Delta table', a:`<pre><code>target_cols = {f.name: f.dataType.simpleString() for f in spark.table("target").schema.fields}
+source_cols = {f.name: f.dataType.simpleString() for f in df.schema.fields}
+
+new_cols   = set(source_cols) - set(target_cols)
+missing_cols = set(target_cols) - set(source_cols)
+type_mismatch = {c for c in source_cols.keys() & target_cols.keys()
+                  if source_cols[c] != target_cols[c]}
+
+if new_cols:
+    for c in new_cols:
+        spark.sql(f"ALTER TABLE target ADD COLUMNS ({c} {source_cols[c]})")
+if type_mismatch:
+    raise ValueError(f"Type mismatch detected: {type_mismatch}")  # flag for manual review</code></pre>This mirrors a config-driven drift framework: detect additive changes (auto-handle) vs breaking type changes (fail fast / alert).`},
+{diff:'Hard', q:'Recursive BOM (Bill of Materials) hierarchy explosion in PySpark', a:`<pre><code>from pyspark.sql import functions as F
+
+def explode_bom(bom_df, root_items, max_level=10):
+    result = bom_df.filter(F.col("parent_id").isin(root_items)) \\
+                    .withColumn("level", F.lit(1))
+    current = result
+    for lvl in range(2, max_level+1):
+        next_level = (current.select(F.col("child_id").alias("parent_id"))
+                              .distinct()
+                              .join(bom_df, on="parent_id")
+                              .withColumn("level", F.lit(lvl)))
+        if next_level.rdd.isEmpty():
+            break
+        result = result.unionByName(next_level)
+        current = next_level
+    return result</code></pre>Iterative DataFrame joins (level-by-level) — avoids collect()/driver-side recursion which doesn't scale to 10M+ keys. Cache <code>bom_df</code> since it's reused every iteration.`},
+{diff:'Brutal', q:'Handle a skewed join: order_items joined to a huge orders table where 90% of rows share one customer_id', a:`<pre><code>import pyspark.sql.functions as F
+
+# Salt the skewed side
+SALT_N = 20
+orders_salted = orders.withColumn("salt", (F.rand()*SALT_N).cast("int"))
+
+# Explode the small/skewed key side across all salt buckets
+skew_keys = ["CUST_9999"]
+items_exploded = order_items.withColumn(
+    "salt",
+    F.when(F.col("customer_id").isin(skew_keys),
+           F.explode(F.array([F.lit(i) for i in range(SALT_N)])))
+     .otherwise(F.lit(0))
+)
+orders_salted2 = orders_salted.withColumn(
+    "salt", F.when(F.col("customer_id").isin(skew_keys), F.col("salt")).otherwise(F.lit(0))
+)
+
+joined = items_exploded.join(orders_salted2, ["customer_id", "salt"])</code></pre>Alternative one-liner if on Spark 3.2+: just enable <code>spark.sql.adaptive.skewJoin.enabled=true</code> and let AQE split the skewed partition automatically — mention both, but the salting technique shows you understand the mechanism.`},
+];
+
+const DBX_Q = [
+{diff:'Easy', q:'What is Delta Lake and what problems does it solve over plain Parquet?', a:'Delta Lake is an open-source storage layer on top of Parquet that adds: ACID transactions (via a transaction log, <code>_delta_log</code>), schema enforcement & evolution, time travel (query prior versions), unified batch + streaming, and support for UPDATE/DELETE/MERGE — none of which plain Parquet supports natively (Parquet is just files, no transaction guarantees).'},
+{diff:'Easy', q:'What is the Medallion Architecture?', a:'A layered data design pattern: <b>Bronze</b> (raw, as-ingested data, minimal transformation, full history), <b>Silver</b> (cleansed, deduplicated, conformed/joined data), <b>Gold</b> (business-level aggregates, reporting-ready). Some orgs (like yours) extend it with a <b>Platinum</b> layer for highly curated, consumption-specific marts (e.g. ESG/TCFD reporting).'},
+{diff:'Medium', q:'Explain the Delta Lake transaction log (_delta_log) and how time travel works.', a:'Every write creates a new JSON commit file in <code>_delta_log</code> recording added/removed files (add/remove actions) plus metadata. Periodically Spark writes a Parquet <b>checkpoint</b> to avoid replaying the whole log. Time travel (<code>VERSION AS OF</code> / <code>TIMESTAMP AS OF</code>) works by reconstructing the table state at a point by replaying log entries up to that version — it doesn\'t copy data, just reads a different set of underlying files.'},
+{diff:'Medium', q:'What is OPTIMIZE and Z-ORDER, and how do Deletion Vectors change OPTIMIZE behavior?', a:'<b>OPTIMIZE</b> compacts small files into larger ones (bin-packing) to reduce metadata overhead and improve read performance. <b>Z-ORDER BY(col)</b> co-locates related data in the same files based on a column, improving data-skipping for filters on that column. With <b>Deletion Vectors</b> enabled, DELETE/UPDATE/MERGE mark rows as deleted in a separate vector file rather than rewriting whole Parquet files immediately — this makes DML faster, but means physical file compaction (and true removal of deleted data) is deferred to the next OPTIMIZE / VACUUM.'},
+{diff:'Medium', q:'What is Unity Catalog and what problem does it solve vs Hive Metastore?', a:'Unity Catalog is a unified, account-level governance layer for data and AI assets across workspaces. Unlike Hive Metastore (workspace-scoped, limited access control), UC provides a 3-level namespace (<code>catalog.schema.table</code>), centralized fine-grained access control (GRANT/REVOKE at table/row/column level), data lineage, audit logging, and one place to manage permissions across all workspaces instead of per-workspace ACLs.'},
+{diff:'Medium', q:'Explain VACUUM and why the default 7-day retention matters.', a:'VACUUM physically deletes files no longer referenced by the current table version (i.e. removed by prior OPTIMIZE/DELETE/UPDATE operations) that are older than the retention threshold. Default retention is 7 days — this protects time-travel and any concurrent long-running readers from having their underlying files deleted mid-read. Running VACUUM with a shorter retention (e.g. <code>RETAIN 0 HOURS</code>) risks breaking time travel and concurrent reads; Databricks requires disabling a safety check to do this.'},
+{diff:'Hard', q:'Compare Liquid Clustering vs traditional partitioning + Z-ORDER.', a:'Traditional partitioning splits data into directories by a low-cardinality column — great for pruning but causes small-file problems with high-cardinality or skewed partition columns, and the partitioning scheme is fixed at table creation. <b>Liquid Clustering</b> clusters data by one or more columns without fixed partition boundaries, can be changed anytime without rewriting the whole table, handles high-cardinality columns well, and avoids the "over-partitioning small files" problem — Databricks\' recommended modern replacement for partition + Z-ORDER on new tables.'},
+{diff:'Hard', q:'What is RESTORE TABLE and how would you use it in an incident/rollback scenario?', a:'<code>RESTORE TABLE t TO VERSION AS OF n</code> (or TIMESTAMP AS OF) reverts a Delta table to a previous state by writing new log entries that re-add the files from that version — it doesn\'t delete history, it\'s itself a new commit. Use case: a bad pipeline run corrupted Gold data — instead of manual backfill, RESTORE to the last known-good version, then fix the pipeline and re-run. Caveat: only works within VACUUM retention; if the old files were already vacuumed, restore fails.'},
+{diff:'Hard', q:'Walk through how you implemented PII masking at the Unity Catalog level.', a:'Rather than dynamic regex-based detection (fragile, false positives/negatives), used a <b>config-driven governance model</b>: a Delta table (<code>pii_column_registry</code>) as the single source of truth listing which catalog.schema.table.column combinations are PII and what masking strategy applies. Registered masking logic as UDFs — usable both from the PySpark DataFrame API and from Databricks SQL (via SQL UDF/Unity Catalog function) so the same masking logic applies consistently whether data is accessed through a notebook or a SQL warehouse/BI tool. This is more auditable (registry gives a clear audit trail of what\'s masked and why) than regex scanning at query time.'},
+{diff:'Hard', q:'Explain cluster types on Databricks — All-Purpose vs Job clusters — and when to use each.', a:'<b>All-Purpose clusters</b>: interactive, shared across users/notebooks, stay up (with auto-termination), higher cost per DBU, used for development/exploration. <b>Job clusters</b>: ephemeral, spun up for a specific job run and terminated on completion, cheaper DBU rate, isolated (no noisy-neighbor issues), used for production scheduled pipelines. Best practice: develop on All-Purpose, deploy production workflows on Job clusters via Databricks Workflows/Asset Bundles.'},
+{diff:'Brutal', q:'A Delta table\'s _delta_log is growing huge and queries are getting slower to plan. How do you diagnose and fix it?', a:'Likely causes: 1) Checkpointing not happening often enough or checkpoint interval too large — check <code>DESCRIBE HISTORY</code> and log file count. 2) Too many small commits (e.g. streaming micro-batches every few seconds without file compaction) creating log + file bloat. Fix: run <b>OPTIMIZE</b> regularly (schedule it), consider increasing streaming trigger interval, ensure <b>VACUUM</b> is run to clean orphaned files, verify auto-compaction / optimized writes are enabled (<code>delta.autoOptimize.optimizeWrite</code>, <code>delta.autoOptimize.autoCompact</code>). Also check if the table needs Liquid Clustering to reduce metadata churn from repeated Z-ORDER runs.'},
+];
+
+const AWS_Q = [
+{diff:'Easy', q:'What AWS services would a Databricks-on-AWS deployment typically integrate with?', a:'<b>S3</b> (data lake storage — Delta tables live on S3), <b>IAM</b> (roles/policies for cluster access to S3/other services), <b>VPC</b> (network isolation for Databricks clusters), <b>KMS</b> (encryption key management for data at rest), <b>Glue Data Catalog</b> (can be used as an external metastore), <b>Redshift</b> (via connector, for warehouse workloads), and <b>PrivateLink</b> (private connectivity between Databricks control/data plane and AWS without public internet).'},
+{diff:'Easy', q:'Explain IAM roles vs IAM users, and instance profiles in the context of Databricks clusters.', a:'<b>IAM users</b> are long-lived credentials for a person/service. <b>IAM roles</b> are temporary, assumable credentials with a trust policy — best practice for workloads. Databricks clusters use an <b>instance profile</b> (an IAM role attached to the EC2 instances backing the cluster) so cluster processes can access S3/other AWS resources without embedding static keys — the cluster assumes the role and gets temporary credentials automatically.'},
+{diff:'Medium', q:'How does S3 storage relate to a Delta table, and what consistency guarantees matter?', a:'A Delta table is just Parquet data files + a <code>_delta_log</code> directory sitting in an S3 path (or a UC-managed location). S3 provides strong read-after-write consistency, so Delta\'s transaction log approach (atomic log-file writes to establish table state) works reliably. Historically S3\'s eventual consistency was a concern requiring a "commit service" for multi-cluster writes, but modern S3 is strongly consistent, simplifying this.'},
+{diff:'Medium', q:'What is VPC Peering / PrivateLink and why would a Databricks deployment need it?', a:'PrivateLink allows Databricks\' control plane to reach the customer\'s VPC-hosted data plane resources (or vice versa) over AWS\'s private network backbone instead of the public internet — required for security-sensitive environments (finance, ESG/regulated data) to avoid data egress over public routes, meeting compliance requirements.'},
+{diff:'Medium', q:'How would you secure sensitive data at rest and in transit on AWS?', a:'At rest: S3 server-side encryption (SSE-S3 or SSE-KMS with customer-managed keys for stricter control/rotation/audit), EBS volume encryption for cluster local disks. In transit: TLS for all data plane ↔ control plane communication, VPC security groups/NACLs restricting network access, and PrivateLink/VPC endpoints to avoid public internet exposure entirely.'},
+{diff:'Hard', q:'Compare Databricks vs AWS-native tools (Glue, EMR, Redshift) — how would you frame the trade-offs?', a:'<b>Glue</b>: serverless, good for simple ETL, less control over Spark tuning, tightly coupled to AWS ecosystem. <b>EMR</b>: full control over open-source Spark/Hadoop stack, more ops overhead, cheaper compute but no built-in Delta/Photon-style optimizations. <b>Redshift</b>: MPP warehouse, great for structured BI workloads, less suited to unstructured/large-scale ML pipelines. <b>Databricks</b>: unifies data engineering + ML + BI (via SQL warehouses) on one lakehouse platform with Delta Lake (ACID + time travel), Unity Catalog governance, and Photon-accelerated execution — trades some AWS-native lock-in for a more unified/managed developer experience. Choice depends on team skillset, workload mix (ETL-only vs ETL+ML+BI), and existing AWS investment.'},
+{diff:'Hard', q:'You migrated SharePoint connections from password-based to token-based auth. How does OAuth2 improve this from an AWS/security governance perspective?', a:'Password-based auth means long-lived, often shared, hard-to-rotate credentials — a major audit/compliance risk. OAuth2 token-based auth uses short-lived access tokens + refresh tokens tied to a registered app identity, supports scoped permissions (least privilege), centralized revocation, and avoids storing raw passwords in pipeline configs/secrets at all — aligning with IAM best practices of temporary, scoped, auditable credentials rather than static secrets.'},
+];
+
+const CICD_Q = [
+{diff:'Easy', q:'What is CI/CD and how does it apply to a data engineering pipeline (not just application code)?', a:'<b>CI (Continuous Integration)</b>: automatically test/validate code changes (unit tests on transformation logic, schema checks, linting) on every commit/PR. <b>CD (Continuous Delivery/Deployment)</b>: automatically promote validated code/config through environments (dev → staging → prod). For data pipelines this means version-controlling notebooks/jobs (e.g. via Databricks Asset Bundles), running data-quality tests in CI, and deploying job/workflow definitions declaratively rather than manually clicking in the UI.'},
+{diff:'Medium', q:'What is a Databricks Asset Bundle (DAB) and why use it over manual workspace deployment?', a:'DABs are a YAML-based, source-controlled way to define Databricks resources (jobs, pipelines, clusters) as code. Benefits over manual UI deployment: reproducibility across environments, code review on infra/job changes, easy promotion dev→staging→prod via bundle targets, and integration with CI/CD tools (e.g. GitHub Actions) to validate and deploy automatically instead of relying on manual workspace changes that aren\'t tracked.'},
+{diff:'Medium', q:'Describe a GitHub Actions workflow you\'d set up for a Databricks pipeline.', a:'Trigger on PR: checkout code → set up Python/Databricks CLI → run <code>databricks bundle validate</code> → run unit tests (pytest against transformation functions) → optionally run an integration test on a job cluster in a dev workspace. On merge to main: <code>databricks bundle deploy --target prod</code> with environment-scoped secrets (service principal tokens stored as GitHub encrypted secrets, not hardcoded). Add a manual approval gate before prod deploy for change-management compliance.'},
+{diff:'Medium', q:'What is "change management" in an enterprise data engineering context, and why does the JD call it out?', a:'Change management is the formal process for approving, documenting, and controlling changes to production systems — typically involving a change request/ticket, peer review, testing evidence, a scheduled deployment window, and rollback plan, often needed for SOX/audit compliance in regulated industries. CTS clients likely require this discipline because production pipeline changes can affect downstream financial/ESG reporting — so being able to speak to a structured release process (not just "I pushed to prod") matters.'},
+{diff:'Medium', q:'How do you handle Agile/Scrum ceremonies as a data engineer — walk through your sprint cycle.', a:'Typical cycle: sprint planning (estimate/commit to stories from a groomed backlog), daily stand-up (progress/blockers), mid-sprint refinement (groom upcoming stories), sprint review/demo (show working pipeline output to stakeholders), retrospective (process improvements). As a data engineer, stories often include: cross-team dependencies (waiting on source system access), which should be flagged early as blockers, and technical debt/refactor stories (e.g. schema drift framework) balanced against feature stories.'},
+{diff:'Hard', q:'Describe a production issue you resolved — structure your answer using a clear framework.', a:'Use <b>Situation → Task → Action → Result</b>: e.g. "Ingestion monitoring flagged a failed daily file ingestion for one of 5 ESG applications (Situation). I needed to identify root cause and restore the pipeline before the SLA window closed (Task). I checked the ingestion logs, found a schema drift issue where a source added a new unexpected column, used my schema drift framework to auto-detect and handle the additive change, reprocessed the failed batch, and notified the data owner (Action). Pipeline was restored within SLA, and I added the pattern to prevent recurrence across other feeds (Result)." Always end with the systemic fix, not just the one-off patch — shows engineering maturity.'},
+{diff:'Hard', q:'How would you design a rollback strategy for a Databricks Workflow deployment that broke prod?', a:'1. Immediate: RESTORE the affected Delta table(s) to the last known-good version (fast, doesn\'t require redeploying code). 2. Redeploy the previous bundle version via <code>databricks bundle deploy</code> from the last known-good git tag/commit (DABs make this a one-command rollback since resources are declarative). 3. Post-incident: root-cause the failure (bad schema assumption, untested edge case), add a regression test to CI so the same class of bug can\'t reach prod again, and document in the change record.'},
+];
+
+const PII_Q = [
+{diff:'Easy', q:'Why is a config-driven PII registry better than regex-based dynamic PII detection?', a:'Regex detection at query/scan time is probabilistic — it can miss non-standard formats (false negatives) and flag non-PII data that happens to match a pattern (false positives, e.g. a random 9-digit number mistaken for an SSN). A <b>registry-based</b> approach (a governed Delta table listing exactly which catalog.schema.table.column is PII) is deterministic, auditable (you can show exactly what\'s classified and by whom/when), and avoids runtime false positives/negatives — critical when the output feeds compliance/audit documentation (IPE).'},
+{diff:'Medium', q:'How would you design masking so the same logic works in both PySpark DataFrames and Databricks SQL?', a:'Register the masking logic as a <b>Unity Catalog SQL function / UDF</b> — this makes it callable both via <code>spark.udf</code> in a DataFrame (<code>df.withColumn("col", mask_udf("col"))</code>) and directly in SQL (<code>SELECT mask_fn(col) FROM table</code> in a Databricks SQL warehouse or BI tool). Driving both from one registered function (rather than duplicating logic in Python and SQL separately) avoids drift between the two and ensures consistent masking regardless of access path.'},
+{diff:'Medium', q:'What is IPE documentation and why does it matter for PII/data governance work?', a:'IPE (Information Produced by Entity) documentation is evidence, typically required in SOX/financial-audit contexts, showing that a report or data output was produced through a controlled, verifiable process — e.g. proof that PII masking was consistently applied, data lineage is traceable, and the logic matches what was approved. Producing IPE docs as part of a pipeline shows you understand that data engineering deliverables in regulated environments (ESG/financial reporting here) need to be audit-defensible, not just functionally correct.'},
+{diff:'Medium', q:'Describe your data quality validation approach across the Bronze/Silver/Gold layers.', a:'File-level validation applying 10+ integrity checks at ingestion (Bronze): row counts vs source, null checks on mandatory fields, data type conformance, duplicate detection, referential checks against dimension tables. As data moves to Silver, add business-rule validation (valid ranges, cross-field consistency). Failures route to a quarantine/rejected-records table with the specific rule that failed, rather than silently dropping or blocking the whole batch, so partial good data still flows and issues are traceable back to a specific rule violation.'},
+{diff:'Hard', q:'How do you decide masking strategy per column (e.g. redaction vs tokenization vs hashing) in a registry-driven model?', a:'Registry can carry a <code>masking_strategy</code> attribute per column: <b>full redaction</b> (e.g. replace with \'XXX\') for fields with no analytical value once masked; <b>partial masking</b> (show last 4 digits) where partial visibility is needed for support workflows; <b>hashing</b> (deterministic, e.g. SHA-256) when you need to preserve joinability/uniqueness across tables without revealing the value; <b>tokenization</b> (reversible via a secure vault) when authorized downstream processes occasionally need the real value back. The registry-driven design lets you change strategy per column centrally without touching pipeline code.'},
+{diff:'Hard', q:'How would you enforce that a new column landing in Bronze is automatically classified before it reaches Gold?', a:'Add a governance gate in the schema-drift framework: when a new column is detected, it\'s NOT auto-classified as safe — it\'s flagged into a "pending classification" state in the registry and the pipeline either blocks that column from propagating past Silver/Gold, or propagates it with a default mask, until a data owner explicitly classifies it in the <code>pii_column_registry</code>. This closes the loop where schema drift handling (additive columns auto-onboarded) could otherwise silently leak new PII columns into reporting layers.'},
+];
+
+const CV_Q = [
+{diff:'Medium', q:'Walk me through the DDL auto-generation script — how did it cut onboarding time by 60%?', a:'Frame it as: previously, onboarding a new source (CSV/Parquet) meant manually writing DDL for 100+ tables — slow and error-prone. You built a PySpark script that infers schema from the source file (Spark\'s schema inference / explicit type mapping), generates the corresponding Delta CREATE TABLE DDL programmatically (including data types, and likely partitioning/table properties from a config), and applies it via Databricks SQL execution. The 60% reduction came from eliminating manual DDL authoring and the back-and-forth review cycle for each new table — be ready with a rough before/after time estimate if asked.'},
+{diff:'Medium', q:'Tell me about the recursive BOM hierarchy explosion pipeline — why was this technically hard at 10M+ keys?', a:'BOM (Bill of Materials) data is inherently hierarchical/recursive (a parent material is made of child materials, which have their own children). At 10M+ keys, a driver-side recursive approach (like a Python recursive function pulling data to the driver) doesn\'t scale — you need an iterative, distributed level-by-level join approach entirely within Spark\'s DataFrame API, where each iteration expands one hierarchy level via a join and unions results, avoiding any driver-side collection until the very end. Also worth mentioning: bounding iteration depth to avoid infinite loops from circular references in dirty source data, and caching the base BOM DataFrame since it\'s reused every iteration.'},
+{diff:'Medium', q:'Explain the schema drift framework — what patterns did it detect and how did it cut pipeline failures by 40%?', a:'Before: any unannounced source schema change (new column, renamed column, type change) would crash the pipeline at runtime, discovered only after failure. The framework proactively compares incoming batch schema against the expected/registered schema for each of 10+ feeds, categorizing changes as additive (auto-handle — e.g. ALTER TABLE ADD COLUMN), or breaking (type change/column removal — fail fast with a clear alert rather than a cryptic Spark exception). The 40% reduction came from converting what used to be unplanned production failures into either automatically-handled non-events or early, clearly-diagnosed alerts.'},
+{diff:'Medium', q:'Why did you move from TCS resignation talk to actively interviewing — how do you frame this without an offer letter yet to a new interviewer?', a:'Keep this factual and forward-looking rather than defensive: focus on what you\'re looking for (deeper hands-on Databricks/AWS ownership, broader cloud exposure) and your genuine interest in Cognizant\'s data engineering work, rather than dwelling on internal TCS process details. Interviewers mainly want to confirm you\'re a serious, committed candidate with realistic notice-period expectations — have your notice period and current project transition status ready to state clearly and confidently.'},
+{diff:'Easy', q:'Tell me about yourself (opening question) — how should you structure this for a Databricks Data Engineer role at CTS?', a:'~90 seconds, structured: (1) current role/experience — "Certified Databricks Data Engineer Associate, 4+ years at TCS on an energy-tech ESG platform." (2) core technical scope — PySpark/Delta Lake/Unity Catalog pipelines, Medallion architecture, PII governance. (3) one standout achievement with a number (e.g. "cut onboarding time 60% with a DDL automation framework"). (4) why this role — interest in expanding AWS cloud exposure and complex SQL/production support scope matching the JD. Keep it CV-anchored so every claim can be drilled into.'},
+{diff:'Hard', q:'Your CV is ESG/sustainability-domain heavy — how do you address the JD\'s emphasis on "production issues and resolution" and "Oracle/MS SQL troubleshooting" which aren\'t explicitly on your CV?', a:'Be honest but bridge the gap: your ingestion monitoring framework and file-level DQ validation work are directly production-support-relevant (detecting/alerting on failures = production issue resolution in practice), even if not labeled that way on the CV. For Oracle/MS SQL specifically, if your SQL exposure has been mostly Databricks SQL/Delta, say so plainly and pivot to your strong general SQL fundamentals (window functions, MERGE, complex joins) which transfer directly — SQL syntax differences between platforms are a fast learning curve, not a fundamental skill gap. Don\'t overclaim direct Oracle/MS SQL production support experience you don\'t have.'},
+];
+
+const DATA = {sql:SQL_Q, sqlcode:SQLCODE_Q, pyspark:PYSPARK_Q, pysparkcode:PYSPARKCODE_Q, databricks:DBX_Q, aws:AWS_Q, cicd:CICD_Q, pii:PII_Q, cv:CV_Q};
+
+// ---------- RENDER ----------
+const tabnav = document.getElementById('tabnav');
+const panels = document.getElementById('panels');
+
+TABS.forEach((t,i)=>{
+  const btn = document.createElement('button');
+  btn.textContent = t.label;
+  btn.dataset.tab = t.id;
+  if(i===0) btn.classList.add('active');
+  btn.onclick = ()=> switchTab(t.id);
+  tabnav.appendChild(btn);
+});
+
+function switchTab(id){
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.toggle('active', b.dataset.tab===id));
+  document.querySelectorAll('section.tabpanel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+id));
+}
+
+function renderQBank(containerId, items){
+  const el = document.getElementById(containerId);
+  const diffs = ['all','Easy','Medium','Hard','Brutal'];
+  let html = `<div class="stats">
+    <div class="stat"><b>${items.length}</b>total questions</div>
+    <div class="stat"><b>${items.filter(i=>i.diff==='Easy').length}</b>Easy</div>
+    <div class="stat"><b>${items.filter(i=>i.diff==='Medium').length}</b>Medium</div>
+    <div class="stat"><b>${items.filter(i=>i.diff==='Hard').length}</b>Hard</div>
+    <div class="stat"><b>${items.filter(i=>i.diff==='Brutal').length}</b>Brutal</div>
+  </div>`;
+  html += `<div class="filterbar">
+    <input type="text" placeholder="Search questions..." oninput="filterQ('${containerId}')" id="${containerId}-search">
+    ${diffs.map(d=>`<span class="chip" data-diff="${d}" onclick="setDiff('${containerId}','${d}')">${d==='all'?'All':d}</span>`).join('')}
+  </div><div class="qlist" id="${containerId}-list"></div>`;
+  el.innerHTML = html;
+  el.dataset.activeDiff = 'all';
+  el.querySelector(`[data-diff="all"]`).classList.add('active');
+  drawList(containerId, items);
+}
+
+function drawList(containerId, items){
+  const list = document.getElementById(containerId+'-list');
+  list.innerHTML = items.map((it,idx)=>`
+    <div class="qcard" data-diff="${it.diff}" data-idx="${idx}">
+      <div class="qhead" onclick="toggleCard(this)">
+        <span class="qtitle">${it.q}</span>
+        <span class="tag ${it.diff}">${it.diff}</span>
+        <span class="arrow">▶</span>
+      </div>
+      <div class="qbody">${it.a}</div>
+    </div>`).join('');
+}
+
+function toggleCard(headEl){
+  headEl.parentElement.classList.toggle('open');
+}
+
+function setDiff(containerId, diff){
+  const el = document.getElementById(containerId);
+  el.querySelectorAll('.chip').forEach(c=>c.classList.toggle('active', c.dataset.diff===diff));
+  el.dataset.activeDiff = diff;
+  filterQ(containerId);
+}
+
+function filterQ(containerId){
+  const el = document.getElementById(containerId);
+  const search = document.getElementById(containerId+'-search').value.toLowerCase();
+  const diff = el.dataset.activeDiff || 'all';
+  document.querySelectorAll('#'+containerId+'-list .qcard').forEach(card=>{
+    const text = card.querySelector('.qtitle').textContent.toLowerCase();
+    const matchDiff = diff==='all' || card.dataset.diff===diff;
+    const matchSearch = text.includes(search);
+    card.style.display = (matchDiff && matchSearch) ? '' : 'none';
+  });
+}
+
+// Build panels
+function buildPanel(id, innerHTML){
+  const sec = document.createElement('section');
+  sec.className = 'tabpanel' + (id==='overview' ? ' active' : '');
+  sec.id = 'panel-'+id;
+  sec.innerHTML = innerHTML;
+  panels.appendChild(sec);
+}
+
+buildPanel('overview', `
+  <h2 class="section-title">Interview Snapshot</h2>
+  <div class="cvbox">
+    <b>Cognizant Technology Solutions</b> · via Top Talent Search (Sajid Khan) · Role: <b>AWS Databricks, Python, SQL Data Engineer</b> (Pan India, joining Hyderabad/Bangalore/Chennai/Pune/Noida/Gurugram)<br>
+    F2F on <b>11-July-2026 (Saturday), Kolkata</b> · Work mode: <b>Hybrid</b><br><br>
+    JD asks for: 3-5 yrs data management &amp; software dev · 2+ yrs Databricks · Data Warehousing/integration/cleansing · Data quality rules &amp; mappings · <span class="metric">strong complex SQL</span> · 2+ yrs Python · 3+ yrs Cloud · <span class="metric">Oracle &amp; MS SQL troubleshooting</span> · SDLC · Agile/Scrum · production issue resolution · Perl (plus) · AI tools (plus) · Delta Lake &amp; UC basics · CI/CD · change management.
+  </div>
+
+  <h2 class="section-title">Suggested 2-Hour Round Structure</h2>
+  <p class="lead">CTS F2F rounds for this profile typically run as one extended technical + managerial panel. Plan for this shape and pace yourself:</p>
+  <div class="timeline">
+    <div class="tstep"><span class="dur">0:00 – 0:10</span><h3>Introduction &amp; CV walkthrough</h3><p>"Tell me about yourself" + deep dive into your TCS role progression (System Engineer, Assistant SE). Have your 90-second pitch ready (see CV &amp; Behavioral tab).</p></div>
+    <div class="tstep"><span class="dur">0:10 – 0:35</span><h3>SQL deep dive</h3><p>Expect live coding or whiteboard SQL — window functions, joins, SCD Type 2, query tuning. JD explicitly calls out "strong experience in writing complex SQL" and Oracle/MS SQL troubleshooting — be ready to translate your Databricks SQL fluency into standard T-SQL/PLSQL terms.</p></div>
+    <div class="tstep"><span class="dur">0:35 – 1:00</span><h3>Python / PySpark</h3><p>Conceptual (Catalyst, shuffle, skew) + a coding problem (dedup, schema drift, or a groupby/window transform). Your BOM explosion and schema-drift-framework stories are strong anchors here.</p></div>
+    <div class="tstep"><span class="dur">1:00 – 1:25</span><h3>Databricks, Delta Lake, Unity Catalog &amp; AWS</h3><p>JD says "basics of Delta Lake and UC" — don't over-rotate into advanced internals unprompted, but be ready if probed (you have real depth here). Expect at least one AWS integration question (S3, IAM, instance profiles).</p></div>
+    <div class="tstep"><span class="dur">1:25 – 1:45</span><h3>CI/CD, Agile, Change Management &amp; Production Support</h3><p>This is a JD-called-out area that's easy to under-prepare for. Have one concrete production-issue story ready in STAR format.</p></div>
+    <div class="tstep"><span class="dur">1:45 – 2:00</span><h3>Behavioral, project deep-dive, your questions</h3><p>Likely a managerial/client-facing panelist joins here. Prepare 2-3 sharp questions about the team, tech stack, and the specific client/project you'd join.</p></div>
+  </div>
+
+  <h2 class="section-title">Key Gaps to Shore Up Before 11 July</h2>
+  <div class="callout warn"><b>Gap 1 — Oracle/MS SQL specifics.</b> Your daily driver is Databricks SQL. Skim Oracle PL/SQL syntax differences (ROWNUM vs LIMIT, MERGE syntax nuances, sequences vs IDENTITY) so you're not caught flat-footed if asked "how would you do this in Oracle."</div>
+  <div class="callout warn"><b>Gap 2 — Direct production-support framing.</b> Your CV is strong on building frameworks; make sure you can narrate at least one "something broke, I fixed it live" story crisply (see CV tab).</div>
+  <div class="callout"><b>Strength to lead with.</b> PII masking + schema drift + BOM explosion are all uncommon, senior-signal stories for a 4-year profile — steer follow-up questions toward these whenever you get the chance.</div>
+
+  <h2 class="section-title">General Interview Etiquette Reminders</h2>
+  <ul>
+    <li>For every "how would you..." SQL/PySpark question, state your approach in one sentence <i>before</i> writing code — panelists weight structured thinking heavily.</li>
+    <li>Quantify wherever your CV allows (60% onboarding reduction, 40% failure reduction, 15+ columns, 10M+ keys, 25 daily ingestions) — numbers anchor credibility.</li>
+    <li>If you don't know something (e.g. Perl), say so plainly and pivot to an adjacent strength — don't bluff on a technical panel.</li>
+    <li>Bring 2 printed CV copies and a notebook; F2F rounds in India frequently still expect this.</li>
+  </ul>
+`);
+
+buildPanel('sql', `<h2 class="section-title">SQL Question Bank</h2><p class="lead">Conceptual + scenario SQL questions, tiered by difficulty. Tap to expand.</p><div id="sql-container"></div>`);
+buildPanel('sqlcode', `<h2 class="section-title">SQL Coding Problems</h2><p class="lead">Write these on paper/whiteboard first, then check the solution.</p><div id="sqlcode-container"></div>`);
+buildPanel('pyspark', `<h2 class="section-title">Python / PySpark Question Bank</h2><p class="lead">Includes internals (Catalyst, shuffle, AQE) tied to your CV experience.</p><div id="pyspark-container"></div>`);
+buildPanel('pysparkcode', `<h2 class="section-title">PySpark Coding Problems</h2><p class="lead">Includes problems modeled on your own CV projects (BOM explosion, schema drift).</p><div id="pysparkcode-container"></div>`);
+buildPanel('databricks', `<h2 class="section-title">Databricks / Delta Lake / Unity Catalog</h2><p class="lead">JD says "basics" — but be ready to go deeper since it's your specialty.</p><div id="databricks-container"></div>`);
+buildPanel('aws', `<h2 class="section-title">AWS Cloud Questions</h2><p class="lead">JD requires 3+ years cloud tech — Databricks-on-AWS integration points.</p><div id="aws-container"></div>`);
+buildPanel('cicd', `<h2 class="section-title">CI/CD, Agile &amp; Production Support</h2><p class="lead">Explicitly named in the JD: CI/CD, change management, Agile/Scrum, production issue resolution.</p><div id="cicd-container"></div>`);
+buildPanel('pii', `<h2 class="section-title">PII Masking &amp; Data Quality Governance</h2><p class="lead">Your strongest differentiator — a registry-driven governance story most candidates won't have.</p><div id="pii-container"></div>`);
+buildPanel('cv', `<h2 class="section-title">CV-Based &amp; Behavioral Questions</h2><p class="lead">Questions your own resume bullets will trigger — rehearse these out loud.</p><div id="cv-container"></div>`);
+
+buildPanel('cheat', `
+  <h2 class="section-title">Quick-Reference Cheat Sheet</h2>
+
+  <div class="grid2">
+    <div>
+      <h3>SQL Window Functions</h3>
+      <table class="cheat">
+        <tr><th>Function</th><th>Behavior</th></tr>
+        <tr><td>ROW_NUMBER()</td><td>Unique sequential, no ties</td></tr>
+        <tr><td>RANK()</td><td>Ties share rank, gaps after</td></tr>
+        <tr><td>DENSE_RANK()</td><td>Ties share rank, no gaps</td></tr>
+        <tr><td>LAG/LEAD</td><td>Prior/next row value</td></tr>
+        <tr><td>NTILE(n)</td><td>Split into n buckets</td></tr>
+        <tr><td>FIRST_VALUE/LAST_VALUE</td><td>First/last in window frame</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>Spark Shuffle Triggers (Wide Ops)</h3>
+      <table class="cheat">
+        <tr><th>Op</th><th>Shuffle?</th></tr>
+        <tr><td>map, filter, select</td><td>No (narrow)</td></tr>
+        <tr><td>groupBy, join, distinct</td><td>Yes (wide)</td></tr>
+        <tr><td>repartition</td><td>Yes (full shuffle)</td></tr>
+        <tr><td>coalesce</td><td>No (merges in place)</td></tr>
+        <tr><td>orderBy / sort</td><td>Yes</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div>
+      <h3>Delta Lake Commands</h3>
+      <table class="cheat">
+        <tr><th>Command</th><th>Purpose</th></tr>
+        <tr><td>OPTIMIZE table</td><td>Compact small files</td></tr>
+        <tr><td>ZORDER BY (col)</td><td>Co-locate data for skip</td></tr>
+        <tr><td>VACUUM table</td><td>Delete unreferenced files (7d default)</td></tr>
+        <tr><td>RESTORE TABLE</td><td>Revert to prior version</td></tr>
+        <tr><td>FSCK REPAIR TABLE</td><td>Remove missing-file references from log</td></tr>
+        <tr><td>DESCRIBE HISTORY</td><td>View commit/version log</td></tr>
+        <tr><td>TIME TRAVEL (VERSION/TIMESTAMP AS OF)</td><td>Query prior state</td></tr>
+      </table>
+    </div>
+    <div>
+      <h3>Isolation Levels (ACID)</h3>
+      <table class="cheat">
+        <tr><th>Level</th><th>Prevents</th></tr>
+        <tr><td>Read Uncommitted</td><td>Nothing (dirty reads possible)</td></tr>
+        <tr><td>Read Committed</td><td>Dirty reads</td></tr>
+        <tr><td>Repeatable Read</td><td>Dirty + non-repeatable reads</td></tr>
+        <tr><td>Serializable</td><td>All anomalies incl. phantom reads</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <h3>SCD Type 2 — Two-Step MERGE Pattern (memorize this shape)</h3>
+  <pre><code>-- Step 1: expire changed current rows
+MERGE INTO target t
+USING source s ON t.business_key = s.business_key AND t.is_current = true
+WHEN MATCHED AND (t.attr_hash != s.attr_hash) THEN
+  UPDATE SET t.end_date = current_date(), t.is_current = false;
+
+-- Step 2: insert new current versions
+INSERT INTO target
+SELECT business_key, ..., current_date() start_date, NULL end_date, true is_current
+FROM source s
+WHERE NOT EXISTS (
+  SELECT 1 FROM target t WHERE t.business_key = s.business_key AND t.is_current = true
+);</code></pre>
+
+  <h3>Medallion Architecture Recap</h3>
+  <table class="cheat">
+    <tr><th>Layer</th><th>Content</th><th>Typical ops</th></tr>
+    <tr><td>Bronze</td><td>Raw, as-ingested, full history</td><td>Append-only, minimal transform, DQ checks logged</td></tr>
+    <tr><td>Silver</td><td>Cleansed, deduped, conformed</td><td>MERGE/upsert, joins, SCD Type 2, business rules</td></tr>
+    <tr><td>Gold</td><td>Aggregated, reporting-ready</td><td>Aggregations, star-schema marts</td></tr>
+    <tr><td>Platinum (extended)</td><td>Consumption-specific curated marts</td><td>TCFD/ESG/regulatory-ready outputs</td></tr>
+  </table>
+
+  <h3>AWS Services Quick Map</h3>
+  <table class="cheat">
+    <tr><th>Service</th><th>Role in Databricks-on-AWS</th></tr>
+    <tr><td>S3</td><td>Underlying storage for Delta tables / data lake</td></tr>
+    <tr><td>IAM (roles/instance profiles)</td><td>Cluster access to S3 and other AWS resources</td></tr>
+    <tr><td>VPC</td><td>Network isolation for the Databricks data plane</td></tr>
+    <tr><td>KMS</td><td>Encryption key management at rest</td></tr>
+    <tr><td>Glue Data Catalog</td><td>Optional external metastore</td></tr>
+    <tr><td>Redshift</td><td>MPP warehouse connector for BI workloads</td></tr>
+    <tr><td>PrivateLink</td><td>Private control-plane/data-plane connectivity</td></tr>
+  </table>
+
+  <h3>Your CV Numbers — Have These Memorized Cold</h3>
+  <table class="cheat">
+    <tr><th>Project</th><th>Metric</th></tr>
+    <tr><td>DDL auto-generation</td><td>100+ Delta tables, 60% onboarding time reduction</td></tr>
+    <tr><td>BOM hierarchy explosion</td><td>10M+ material keys, iterative joins</td></tr>
+    <tr><td>Schema drift framework</td><td>10+ source feeds, 40% pipeline failure reduction</td></tr>
+    <tr><td>PII masking</td><td>15+ sensitive columns, Unity Catalog level</td></tr>
+    <tr><td>Ingestion monitoring</td><td>25 daily files, 5 ESG applications</td></tr>
+    <tr><td>SCD Type 2 CSR pipeline</td><td>Employee Dimension, Bronze→Silver</td></tr>
+    <tr><td>DQ validation workflow</td><td>10+ integrity checks</td></tr>
+    <tr><td>UC migration</td><td>100+ views, 15+ framework codes</td></tr>
+    <tr><td>SharePoint auth migration</td><td>10+ connections, password → token-based</td></tr>
+  </table>
+`);
+
+// Render all question banks
+renderQBank('sql-container', SQL_Q);
+renderQBank('sqlcode-container', SQLCODE_Q);
+renderQBank('pyspark-container', PYSPARK_Q);
+renderQBank('pysparkcode-container', PYSPARKCODE_Q);
+renderQBank('databricks-container', DBX_Q);
+renderQBank('aws-container', AWS_Q);
+renderQBank('cicd-container', CICD_Q);
+renderQBank('pii-container', PII_Q);
+renderQBank('cv-container', CV_Q);
+</script>
+</body>
+</html>

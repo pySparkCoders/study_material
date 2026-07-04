@@ -1,0 +1,1464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PwC Interview Prep — Round 2 (Technical Deep-Dive)</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: #f5f4f0; color: #1a1a18; min-height: 100vh; }
+
+  .header { background: #2d2d2b; color: #f0ede6; padding: 2rem 2rem 1.5rem; }
+  .header h1 { font-size: 22px; font-weight: 500; margin-bottom: 4px; }
+  .header p { font-size: 13px; color: #a09d97; }
+  .header .meta { display: flex; gap: 1.5rem; margin-top: 1rem; flex-wrap: wrap; }
+  .meta-badge { font-size: 12px; background: rgba(255,255,255,0.08); border: 0.5px solid rgba(255,255,255,0.15); border-radius: 6px; padding: 4px 10px; color: #d0cdc7; }
+  .meta-badge span { color: #7db8f0; font-weight: 500; }
+
+  .tabs { display: flex; gap: 0; background: #e8e6e0; border-bottom: 1px solid #d0cdc7; overflow-x: auto; position: sticky; top: 0; z-index: 10; }
+  .tab { padding: 12px 16px; font-size: 13px; font-weight: 500; cursor: pointer; color: #6b6965; border-bottom: 2px solid transparent; white-space: nowrap; transition: color 0.15s; user-select: none; }
+  .tab:hover { color: #1a1a18; }
+  .tab.active { color: #1a1a18; border-bottom-color: #3b6fd4; background: #f5f4f0; }
+
+  .content { padding: 1.5rem 2rem; max-width: 960px; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  .q-card { background: #fff; border: 0.5px solid #d8d5ce; border-radius: 12px; margin-bottom: 12px; overflow: hidden; }
+  .q-header { display: flex; align-items: flex-start; gap: 12px; padding: 16px 18px; cursor: pointer; }
+  .q-header:hover { background: #fafaf8; }
+  .q-num { font-size: 11px; font-weight: 500; color: #9d9a94; min-width: 34px; margin-top: 2px; }
+  .q-text { font-size: 14px; font-weight: 500; line-height: 1.5; flex: 1; }
+  .q-right { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .tag { font-size: 11px; font-weight: 500; padding: 3px 8px; border-radius: 4px; white-space:nowrap; }
+  .tag-easy { background: #e8f4e8; color: #2d6b2d; }
+  .tag-medium { background: #fff3e0; color: #8b5a00; }
+  .tag-hard { background: #fde8e8; color: #8b2020; }
+  .tag-brutal { background: #1a1a18; color: #f0ede6; }
+  .chevron { font-size: 12px; color: #9d9a94; transition: transform 0.2s; }
+  .q-card.open .chevron { transform: rotate(180deg); }
+
+  .q-answer { display: none; padding: 0 18px 18px 62px; border-top: 0.5px solid #ece9e2; padding-top: 14px; }
+  .q-card.open .q-answer { display: block; }
+  .q-answer p { font-size: 13px; line-height: 1.7; color: #3d3d3a; margin-bottom: 8px; }
+  .q-answer ul, .q-answer ol { font-size: 13px; line-height: 1.7; color: #3d3d3a; padding-left: 18px; margin-bottom: 8px; }
+  .q-answer li { margin-bottom: 4px; }
+  .q-answer code { font-family: 'SF Mono', Menlo, monospace; font-size: 12px; background: #f0ede6; padding: 1px 5px; border-radius: 4px; color: #2d4d8a; }
+  .q-answer pre { background: #1e1e1c; color: #d4d0c8; font-family: 'SF Mono', Menlo, monospace; font-size: 12px; padding: 14px 16px; border-radius: 8px; overflow-x: auto; line-height: 1.6; margin: 10px 0; }
+  .q-answer .hint { background: #f0f6ff; border-left: 3px solid #3b6fd4; border-radius: 0 6px 6px 0; padding: 10px 14px; font-size: 13px; color: #1a3a6b; margin-top: 8px; }
+  .q-answer .warn { background: #fff8e8; border-left: 3px solid #d4930a; border-radius: 0 6px 6px 0; padding: 10px 14px; font-size: 13px; color: #6b4800; margin-top: 8px; }
+  .q-answer .star { background: #f5f0ff; border-left: 3px solid #7d4fd4; border-radius: 0 6px 6px 0; padding: 10px 14px; font-size: 13px; color: #3a1a6b; margin-top: 8px; }
+
+  .section-label { font-size: 11px; font-weight: 500; color: #9d9a94; text-transform: uppercase; letter-spacing: 0.06em; margin: 1.5rem 0 0.75rem; }
+  .section-label:first-child { margin-top: 0; }
+  .section-intro { font-size: 13px; line-height: 1.7; color: #4a4844; margin-bottom: 1rem; background:#fff; border:0.5px solid #d8d5ce; border-radius:10px; padding:14px 16px; }
+
+  .filter-bar { display: flex; gap: 8px; margin-bottom: 1.25rem; flex-wrap: wrap; }
+  .filter-btn { font-size: 12px; padding: 5px 12px; border-radius: 6px; border: 0.5px solid #d8d5ce; background: #fff; cursor: pointer; color: #4a4844; font-weight: 500; }
+  .filter-btn.active { background: #1a1a18; color: #f0ede6; border-color: #1a1a18; }
+  .filter-btn:hover:not(.active) { background: #f0ede6; }
+
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 1.5rem; }
+  .stat-card { background: #fff; border: 0.5px solid #d8d5ce; border-radius: 10px; padding: 14px 16px; text-align:center;}
+  .stat-label { font-size: 11px; color: #9d9a94; margin-bottom: 4px; }
+  .stat-val { font-size: 22px; font-weight: 500; color:#3b6fd4;}
+
+  .profile-box { background: #fff; border: 0.5px solid #d8d5ce; border-radius: 12px; padding: 18px; margin-bottom: 1.5rem; }
+  .profile-box h3 { font-size: 14px; font-weight: 500; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .profile-box h3::before { content: ''; display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #3b6fd4; }
+  .profile-row { display: flex; gap: 8px; margin-bottom: 6px; font-size: 13px; color: #4a4844; }
+  .profile-key { color: #9d9a94; min-width: 130px; }
+  .chip-row { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+  .chip { font-size: 11px; background: #f0ede6; color: #4a4844; padding: 3px 8px; border-radius: 4px; }
+
+  .check-item { display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: #3d3d3a; margin-bottom: 8px; cursor: pointer; }
+  .check-box { width: 16px; height: 16px; border: 1.5px solid #d8d5ce; border-radius: 4px; flex-shrink: 0; margin-top: 1px; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .check-item.checked .check-box { background: #3b6fd4; border-color: #3b6fd4; }
+  .check-item.checked .check-box::after { content: '✓'; font-size: 10px; color: white; font-weight: 700; }
+  .check-item.checked > span { color: #9d9a94; text-decoration: line-through; }
+
+  .cheat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .cheat-box { background: #fff; border: 0.5px solid #d8d5ce; border-radius: 10px; padding: 14px 16px; }
+  .cheat-box h4 { font-size: 12px; font-weight: 600; color: #1a1a18; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.04em; }
+  .cheat-box table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .cheat-box td { padding: 4px 4px; border-bottom: 0.5px solid #ece9e2; vertical-align: top; line-height:1.5; }
+  .cheat-box td:first-child { color: #3b6fd4; font-weight: 500; white-space: nowrap; padding-right: 8px; }
+  .cheat-box code { font-family: 'SF Mono', Menlo, monospace; font-size: 11px; background: #f0ede6; padding: 1px 4px; border-radius: 4px; }
+  .cheat-box ul { font-size: 12px; padding-left: 16px; line-height: 1.7; color: #3d3d3a; }
+
+  .mm-wrap { background: #fff; border: 0.5px solid #d8d5ce; border-radius: 12px; padding: 18px; margin-bottom: 18px; }
+  .mm-title { font-size: 13px; font-weight: 600; margin-bottom: 10px; color: #1a1a18; }
+  .mm-wrap svg { width: 100%; height: auto; display:block; }
+
+  @media (max-width: 700px) {
+    .content { padding: 1rem; }
+    .stat-row { grid-template-columns: repeat(2, 1fr); }
+    .cheat-grid { grid-template-columns: 1fr; }
+    .header { padding: 1.25rem 1rem 1rem; }
+    .q-answer { padding-left: 18px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>PwC Interview Prep — Round 2 (Technical Deep-Dive)</h1>
+  <p>Databricks Data Engineer · Follow-up technical round · Meeting via MS Teams, Fri 12:09 PM invite</p>
+  <div class="meta">
+    <div class="meta-badge">Duration: <span>up to 2 hrs (extendable)</span></div>
+    <div class="meta-badge">Format: <span>Deep technical + hands-on coding</span></div>
+    <div class="meta-badge">Likely focus: <span>Delta/UC internals · Streaming · Workflows · Cloud · CI/CD</span></div>
+    <div class="meta-badge">This doc: <span>Companion to Round 1 prep — zero overlap</span></div>
+  </div>
+</div>
+
+<div class="tabs" id="tabBar">
+  <div class="tab active" data-tab="overview">Overview</div>
+  <div class="tab" data-tab="delta">Delta &amp; Unity Catalog</div>
+  <div class="tab" data-tab="streaming">Streaming</div>
+  <div class="tab" data-tab="workflows">Workflows &amp; DAB</div>
+  <div class="tab" data-tab="gitci">Git &amp; Code Migration</div>
+  <div class="tab" data-tab="aws">AWS for Databricks</div>
+  <div class="tab" data-tab="kafka">Kafka</div>
+  <div class="tab" data-tab="behavioral">Techno-Behavioral &amp; CV</div>
+  <div class="tab" data-tab="coding">Hands-On Coding</div>
+  <div class="tab" data-tab="mindmaps">Mind Maps</div>
+  <div class="tab" data-tab="cheatsheet">Cheat Sheet</div>
+  <div class="tab" data-tab="checklist">Day-of Checklist</div>
+</div>
+
+<div class="content">
+
+  <!-- OVERVIEW -->
+  <div class="section active" id="tab-overview">
+    <div class="profile-box">
+      <h3>What's different about Round 2</h3>
+      <div class="profile-row"><span class="profile-key">Signal from PwC</span> Same panel type ("technical round"), but a 2-hour slot with extension option strongly suggests a deeper architecture discussion + a live coding/whiteboard segment, not just Q&amp;A.</div>
+      <div class="profile-row"><span class="profile-key">Likely structure</span> ~15 min intro/CV walkthrough → ~45-60 min deep technical (Delta/UC/streaming/workflows) → ~30-40 min hands-on coding (shared screen or Databricks notebook) → ~15 min AWS/CI-CD + your questions</div>
+      <div class="profile-row"><span class="profile-key">Why they'll probe deeper</span> You already passed a screening round — this round tests whether you actually built what's on your CV, not just that you can define terms. Expect "how exactly" follow-ups on every bullet.</div>
+      <div class="profile-row"><span class="profile-key">Your strongest ground</span> Unity Catalog PII masking, SCD Type-2 MERGE, schema-drift framework, DDL auto-generation — these are all CV bullets with real numbers. Anchor answers here.</div>
+      <div class="profile-row"><span class="profile-key">Your weaker ground (prep extra)</span> Kafka (not on CV — likely conceptual only, not deep), AWS IAM specifics, Databricks REST API/DAB syntax if you haven't scripted it yourself.</div>
+    </div>
+
+    <div class="stat-row">
+      <div class="stat-card"><div class="stat-label">Topics covered</div><div class="stat-val">9</div></div>
+      <div class="stat-card"><div class="stat-label">Total questions</div><div class="stat-val">70+</div></div>
+      <div class="stat-card"><div class="stat-label">Mind maps</div><div class="stat-val">5</div></div>
+      <div class="stat-card"><div class="stat-label">Difficulty bands</div><div class="stat-val">4</div></div>
+    </div>
+
+    <div class="section-label">How to use this document</div>
+    <div class="section-intro">
+      <p style="margin-bottom:10px;">Each tab is a self-contained topic — nothing here repeats the Round-1 doc (ADF/Synapse comparisons, the SCD-2 MERGE code walkthrough, or the Top-N/DQ SQL problems). Questions are tagged:</p>
+      <div class="chip-row">
+        <span class="tag tag-easy">Easy</span><span class="chip">definition-level, warm-up</span>
+        <span class="tag tag-medium">Medium</span><span class="chip">requires reasoning or a real example</span>
+        <span class="tag tag-hard">Hard</span><span class="chip">multi-concept, trade-off, or edge case</span>
+        <span class="tag tag-brutal">Brutal</span><span class="chip">senior-level, "prove you actually built it"</span>
+      </div>
+    </div>
+
+    <div class="section-label">Suggested prep order (if short on time)</div>
+    <div class="profile-box">
+      <div class="profile-row"><span class="profile-key">1. Non-negotiable</span> Delta &amp; Unity Catalog tab — this is the core of your CV and almost certainly the biggest chunk of the interview</div>
+      <div class="profile-row"><span class="profile-key">2. High-yield</span> Streaming tab + Workflows/DAB tab — natural extensions of "you built ingestion pipelines"</div>
+      <div class="profile-row"><span class="profile-key">3. Practical</span> Git &amp; Code Migration tab — you described this exact workflow yourself, so it's an easy score if prepped, an awkward gap if not</div>
+      <div class="profile-row"><span class="profile-key">4. Breadth check</span> AWS tab + Kafka tab (conceptual depth is enough — you're not an AWS/Kafka specialist and they likely know that)</div>
+      <div class="profile-row"><span class="profile-key">5. Always comes up</span> Techno-Behavioral &amp; CV tab — rehearse the ESG data-volume numbers and the medallion/SCD-1 rationale, it's a classic "do you understand why, not just how" trap</div>
+      <div class="profile-row"><span class="profile-key">6. Final pass</span> Hands-On Coding tab + Mind Maps + Cheat Sheet the night before / morning of</div>
+    </div>
+  </div>
+
+  <!-- DELTA & UC -->
+  <div class="section" id="tab-delta">
+    <div class="filter-bar" data-filtergroup="delta-list">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="easy">Easy</button>
+      <button class="filter-btn" data-filter="medium">Medium</button>
+      <button class="filter-btn" data-filter="hard">Hard</button>
+      <button class="filter-btn" data-filter="brutal">Brutal</button>
+    </div>
+    <div id="delta-list">
+
+    <div class="q-card" data-diff="easy">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">D1</div><div class="q-text">What makes Delta Lake ACID compliant when the underlying storage (S3/ADLS) is just object storage with no transactions?</div><div class="q-right"><span class="tag tag-easy">Easy</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Delta Lake never mutates existing Parquet files. Every write (insert, update, delete, merge) creates new Parquet files, and a single JSON commit file in <code>_delta_log/</code> atomically records "these files are now part of the table, these old ones are removed." That commit file write is the atomic operation.</p>
+        <ul>
+          <li><b>Atomicity</b> — the JSON commit either lands fully or not at all; readers never see a half-written commit.</li>
+          <li><b>Consistency</b> — schema/constraint checks happen before the commit is accepted.</li>
+          <li><b>Isolation</b> — optimistic concurrency control: two writers can start at the same version, but the second to commit must detect conflicts against the log and either retry or fail.</li>
+          <li><b>Durability</b> — once the commit JSON is durably written to cloud storage, the transaction is permanent.</li>
+        </ul>
+        <div class="hint">Anchor line: "In my PII masking and SCD-2 pipelines, I relied on this - a failed MERGE never leaves a half-updated table because the commit is all-or-nothing."</div>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">D2</div><div class="q-text">Walk me through what's actually inside _delta_log and how a reader reconstructs table state at version N.</div><div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Each write produces a numbered JSON file (000000000000000N.json) containing action records: <code>add</code> (new file added, with stats), <code>remove</code> (file logically deleted - tombstoned, not physically deleted immediately), <code>metaData</code> (schema/partitioning changes), <code>commitInfo</code>, and <code>protocol</code> (reader/writer version requirements).</p>
+        <p>Every 10 commits, Delta writes a checkpoint (a Parquet snapshot of the log state) so readers don't have to replay hundreds of JSON files from scratch - they read the nearest checkpoint at or before N, then replay only the JSON files after it.</p>
+        <p>To reconstruct version N: start from last checkpoint at or before N, apply add/remove actions from subsequent JSON commits in order, and the resulting live file list is the table at version N.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">D3</div><div class="q-text">How does Delta time travel work, and how would you use it to recover from a bad MERGE that ran an hour ago?</div><div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Because old data files aren't deleted immediately (only tombstoned in the log), you can query a prior version directly:</p>
+        <pre>-- by version
+SELECT * FROM my_table VERSION AS OF 128;
+
+-- by timestamp
+SELECT * FROM my_table TIMESTAMP AS OF '2026-07-03T09:00:00';
+
+-- restore the whole table (writes a new commit, doesn't rewrite history)
+RESTORE TABLE my_table TO VERSION AS OF 128;</pre>
+        <p>For recovery: first diagnose using DESCRIBE HISTORY my_table to find the version right before the bad MERGE, validate with a VERSION AS OF SELECT, then run RESTORE TABLE. This is much faster than restoring from a backup because the files already exist - restore just rewrites the log pointer.</p>
+        <div class="warn">Catch: time travel only works within the retention window. VACUUM physically deletes tombstoned files older than the retention threshold (default 7 days) - after that, time travel to an older version fails even though log metadata may still reference it.</div>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">D4</div><div class="q-text">You ran VACUUM with a 0-hour retention override to save storage cost, and now a long-running streaming read fails with "file not found." Explain why, and how you'd prevent it.</div><div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>A streaming reader (or a long batch job, or a concurrent time-travel query) holds a snapshot of the table that references specific Parquet files as of the version it started reading. If VACUUM with a very short/zero retention runs concurrently and physically deletes files that are tombstoned but still referenced by that in-flight read, the reader gets "file not found" mid-stream.</p>
+        <p>Prevention:</p>
+        <ul>
+          <li>Never override retention below the default 7-day delta.deletedFileRetentionDuration in production without a very good reason - it exists specifically to protect concurrent readers/time-travel.</li>
+          <li>If you must vacuum aggressively for cost, coordinate a maintenance window and confirm no long-running streams/batch jobs are mid-read.</li>
+          <li>Databricks blocks retention below 168 hours unless you explicitly disable the retention duration check - treat that override as a loud warning sign in any code review.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="easy">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">D5</div><div class="q-text">Schema enforcement vs schema evolution - define both and when each kicks in.</div><div class="q-right"><span class="tag tag-easy">Easy</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p><b>Schema enforcement</b> is Delta's default, protective behavior: a write is rejected if the incoming DataFrame's schema doesn't match the target table (extra columns, mismatched types, missing non-nullable columns). This is what stops a malformed source file from silently corrupting a curated table.</p>
+        <p><b>Schema evolution</b> is the opt-in override that lets a write actually change the target schema - most commonly adding new columns - instead of failing.</p>
+        <pre># enable evolution for one write
+df.write.format("delta").mode("append") \
+  .option("mergeSchema", "true") \
+  .saveAsTable("silver.esg_data")
+
+# or session-wide for a notebook
+spark.conf.set("spark.databricks.delta.schema.autoMerge.enabled", "true")</pre>
+        <p>For MERGE statements specifically, you need WITH SCHEMA EVOLUTION (SQL) or the mergeSchema option so new source columns get added to the target automatically.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">D6</div><div class="q-text">Your schema-drift framework (from your CV) handles 10+ source feeds. What's the actual failure mode you're guarding against, and how does mergeSchema differ from what you built manually?</div><div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>The naive failure mode: a source system adds a column, renames a column, or changes a type (e.g., an ID field silently switches from int to string in the source), and a rigid ingestion job throws an AnalysisException mid-run, or worse, an implicit cast corrupts data instead of failing loudly.</p>
+        <p>mergeSchema only handles the additive case safely (new nullable column appended to target). It does NOT handle: column renames (looks like a drop + add), incompatible type narrowing (e.g. string to int), or reordering - those still need custom logic.</p>
+        <p>A real framework typically does more than mergeSchema:</p>
+        <ul>
+          <li>Diffs incoming schema against the registered/expected schema per source before writing</li>
+          <li>Classifies the diff: additive (safe, auto-evolve) vs breaking (quarantine + alert)</li>
+          <li>Logs the schema version change for audit (this is exactly the IPE documentation angle from your CV)</li>
+          <li>Applies explicit casting rules rather than relying on Spark's implicit casting</li>
+        </ul>
+        <div class="hint">This is your strongest CV story - be ready to describe the diff logic in your own PySpark, not just cite mergeSchema as the whole answer.</div>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">D7</div><div class="q-text">Explain Unity Catalog's three-level namespace and why it matters compared to the old Hive metastore.</div><div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Unity Catalog namespace is catalog.schema.table - an added top level above the Hive metastore's schema.table (database.table). The catalog level lets you cleanly separate environments or business domains (e.g. prod.esg.tcfd_data vs dev.esg.tcfd_data) inside one metastore instead of relying on naming conventions.</p>
+        <p>Bigger picture: UC is a workspace-independent, account-level metastore. Permissions, lineage, and audit logs are centralized and consistent across every workspace attached to it, whereas Hive metastore was per-workspace, so cross-workspace governance meant duplicating grants everywhere.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">D8</div><div class="q-text">How did you actually implement PII masking at Unity Catalog level with custom UDFs? Walk through the mechanism.</div><div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Two common UC-native approaches, worth knowing both even if your framework used one:</p>
+        <ul>
+          <li><b>Column masking functions</b>: register a SQL/Python UDF, then attach it to a column via ALTER TABLE ... ALTER COLUMN ssn SET MASK mask_ssn_udf. UC evaluates the mask at query time based on the caller's group membership - someone in a pii_readers group sees plaintext, everyone else sees the masked UDF output.</li>
+          <li><b>Row/column-level dynamic views</b>: a view wraps the base table with a CASE WHEN is_member('pii_readers') THEN col ELSE mask(col) END expression, and only the view is granted to consumers.</li>
+        </ul>
+        <pre>CREATE FUNCTION mask_email(email STRING)
+RETURNS STRING
+RETURN CASE WHEN is_account_group_member('pii_readers')
+            THEN email
+            ELSE regexp_replace(email, '(^.).*(@.*$)', '$1***$2') END;
+
+ALTER TABLE silver.hr_data ALTER COLUMN email SET MASK mask_email;</pre>
+        <p>This is enforced centrally at the catalog level - any tool querying through Unity Catalog (notebook, SQL warehouse, Power BI via UC) respects the same mask, so you don't re-implement masking per consumption layer.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="brutal">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">D9</div><div class="q-text">Two pipelines concurrently MERGE into the same Delta table's different, non-overlapping partitions. Will both succeed? What if they touch overlapping rows?</div><div class="q-right"><span class="tag tag-brutal">Brutal</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Delta uses optimistic concurrency control (OCC), not row-level locking. Both writers read the table version at start, do their work, then at commit time Delta checks whether the files they read/modified were changed by someone else's commit in between.</p>
+        <p><b>Non-overlapping partitions/files</b>: Delta's conflict detection is file-level. If the two MERGEs genuinely touch disjoint files, the second commit succeeds because there's no overlap - Delta detects this via add/remove action comparison against the log, not manual partition math.</p>
+        <p><b>Overlapping rows/files</b>: the second committer detects that files it read have since been removed/changed by the first commit, throws a ConcurrentAppendException or ConcurrentDeleteReadException, and must retry - re-read the new version and redo the MERGE. Delta itself does not silently merge the two writers' changes; the losing writer's job needs retry logic.</p>
+        <div class="hint">If asked "how do you handle this in production" - mention job-level retry with exponential backoff around the MERGE call, not just "Delta handles it."</div>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="brutal">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">D10</div><div class="q-text">Your DDL auto-generation script provisions 100+ Delta tables from CSV/Parquet schemas. What breaks this approach, and what safeguards did you (or should you) add?</div><div class="q-right"><span class="tag tag-brutal">Brutal</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Naive schema inference from CSV/Parquet is fragile in specific, predictable ways:</p>
+        <ul>
+          <li><b>Type inference drift</b> - a numeric-looking column with one blank/text row in a sample can infer as string instead of double, silently changing the DDL from run to run if inference is re-triggered.</li>
+          <li><b>Column name collisions with reserved words / invalid characters</b> - spaces, dots, or Delta-reserved characters in CSV headers need sanitization before CREATE TABLE.</li>
+          <li><b>Precision loss</b> - Parquet's stored type may not map 1:1 to the desired Delta type (e.g., timestamps without timezone vs with).</li>
+          <li><b>Partition column selection</b> - auto-generation needs an explicit rule (config-driven, not purely inferred) for which column(s) to partition by.</li>
+        </ul>
+        <p>Safeguards: a config/mapping file that pins expected types per known source (not blind inference every run), a dry-run mode that prints the generated DDL for review before executing, and idempotency - re-running the generator against an existing table should diff and evolve, not drop/recreate.</p>
+      </div>
+    </div>
+
+    </div>
+  </div>
+
+  <!-- STREAMING -->
+  <div class="section" id="tab-streaming">
+    <div class="filter-bar" data-filtergroup="stream-list">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="easy">Easy</button>
+      <button class="filter-btn" data-filter="medium">Medium</button>
+      <button class="filter-btn" data-filter="hard">Hard</button>
+      <button class="filter-btn" data-filter="brutal">Brutal</button>
+    </div>
+    <div id="stream-list">
+
+    <div class="q-card" data-diff="easy">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">S1</div><div class="q-text">What is Spark Structured Streaming's core model - "streaming as an unbounded table"? Explain simply.</div><div class="q-right"><span class="tag tag-easy">Easy</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Structured Streaming treats a live data stream as a table that keeps growing - new rows keep getting appended to an unbounded input table. You write a normal batch-style DataFrame query against it, and Spark incrementally re-runs that logic on each new micro-batch of rows, producing an incremental result table that gets written to the output sink.</p>
+        <p>This means the same DataFrame/SQL API works for batch and streaming - you don't learn a separate streaming DSL like you would with raw Kafka consumers.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">S2</div><div class="q-text">What is Auto Loader and how is it different from just using Structured Streaming's file source?</div><div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Auto Loader (<code>cloudFiles</code> format) is Databricks' optimized incremental file ingestion connector. The plain Structured Streaming file source does a directory listing on every trigger to find new files, which gets slow and expensive as file counts grow into the millions.</p>
+        <p>Auto Loader instead tracks new files via cloud-native notification services (S3 event notifications + SQS, or ADLS event grid) instead of repeated listing, so discovery cost stays roughly constant regardless of how many files already exist in the directory. It also has built-in schema inference and evolution for the ingestion layer.</p>
+        <pre>df = (spark.readStream.format("cloudFiles")
+      .option("cloudFiles.format", "csv")
+      .option("cloudFiles.schemaLocation", "/mnt/schema/ingest_x")
+      .option("cloudFiles.inferColumnTypes", "true")
+      .load("s3://bucket/raw/source_x/"))
+
+(df.writeStream.format("delta")
+   .option("checkpointLocation", "/mnt/checkpoints/ingest_x")
+   .trigger(availableNow=True)
+   .table("bronze.source_x"))</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="easy">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">S3</div><div class="q-text">When would you use COPY INTO instead of Auto Loader?</div><div class="q-right"><span class="tag tag-easy">Easy</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>COPY INTO is a simple, idempotent, SQL-based batch load command - good for smaller, less frequent file drops (thousands of files, not millions) where you don't need continuous/near-real-time ingestion or complex schema evolution tracking. It's re-runnable: files already loaded are tracked and skipped automatically.</p>
+        <pre>COPY INTO bronze.source_x
+FROM 's3://bucket/raw/source_x/'
+FILEFORMAT = CSV
+FORMAT_OPTIONS ('header' = 'true', 'inferSchema' = 'true')
+COPY_OPTIONS ('mergeSchema' = 'true');</pre>
+        <p>Auto Loader wins at scale (huge file volumes, needs directory listing avoidance) and when you want a continuously running streaming job rather than a scheduled batch trigger. Rule of thumb they may expect: COPY INTO for simpler/smaller/less frequent, Auto Loader for high-volume/continuous.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">S4</div><div class="q-text">Explain watermarking in Structured Streaming and why it's needed for stateful aggregations.</div><div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>In event-time based windowed aggregation (e.g., "count events per 5-minute window based on event_time, not arrival time"), Spark must keep state for a window open until it's sure no more late-arriving data will show up for it - otherwise it never knows when to finalize and emit results. Left unbounded, that state grows forever.</p>
+        <p>A watermark tells Spark "I'll tolerate data up to N minutes late; anything later than that, drop it" - which lets Spark safely close and evict state for old windows.</p>
+        <pre>events \
+  .withWatermark("event_time", "10 minutes") \
+  .groupBy(window("event_time", "5 minutes")) \
+  .count()</pre>
+        <p>Trade-off to mention explicitly: a tighter watermark keeps state small and results timely but drops more late data; a looser watermark captures more late data but uses more memory/state and delays final output.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">S5</div><div class="q-text">What are Spark Declarative Pipelines (formerly Delta Live Tables / DLT), and what problem do they solve that hand-written streaming jobs don't?</div><div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Instead of manually wiring readStream/writeStream, checkpoints, and orchestration between Bronze/Silver/Gold notebooks, you declare each table as a Python/SQL function decorated with <code>@dlt.table</code>, and the framework figures out the dependency graph, execution order, checkpoint management, and incremental processing for you.</p>
+        <pre>import dlt
+from pyspark.sql.functions import col
+
+@dlt.table
+def bronze_esg():
+    return (spark.readStream.format("cloudFiles")
+            .option("cloudFiles.format", "json")
+            .load("/mnt/raw/esg/"))
+
+@dlt.table
+@dlt.expect_or_drop("valid_id", "id IS NOT NULL")
+def silver_esg():
+    return dlt.read_stream("bronze_esg").filter(col("status") == "active")</pre>
+        <p>It also gives you built-in data quality constraints (<code>@dlt.expect</code> family: warn, drop, or fail the pipeline on violation), automatic lineage visualization, and unified batch+streaming semantics per table without you separately managing triggers.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">S6</div><div class="q-text">Compare trigger modes: default micro-batch, fixed interval, Trigger.AvailableNow, and continuous processing. When would you pick each for an ESG-style daily ingestion job?</div><div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <ul>
+          <li><b>Default micro-batch</b> - runs the next batch immediately after the previous one finishes. Good for lowest achievable latency without continuous mode's constraints.</li>
+          <li><b>Fixed interval (<code>Trigger.ProcessingTime("5 minutes")</code>)</b> - runs on a schedule regardless of how long the previous batch took (waits if still running). Predictable cadence, useful when downstream systems expect data at fixed times.</li>
+          <li><b><code>Trigger.AvailableNow</code></b> - processes everything currently available then stops, like a scheduled batch job but with streaming's incremental/checkpoint machinery. This is the right fit for your 25-daily-file ESG ingestion: you don't need a cluster running 24/7, so you fire this once a day via a Databricks Job, it drains whatever landed, and shuts down - much cheaper than always-on streaming.</li>
+          <li><b>Continuous processing</b> - experimental, low-latency (~1ms) mode with a different execution engine; rarely relevant for file-based ESG ingestion, more for true low-latency event processing.</li>
+        </ul>
+        <div class="hint">This directly maps to your CV: "25 daily file ingestions across 5 ESG apps" is a textbook Trigger.AvailableNow + Auto Loader pattern, not always-on streaming.</div>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="brutal">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">S7</div><div class="q-text">Your streaming job crashes mid-micro-batch after writing some output but before the checkpoint commits. What happens on restart, and how does Delta as a sink guarantee exactly-once semantics here?</div><div class="q-right"><span class="tag tag-brutal">Brutal</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Structured Streaming checkpoints record two things per batch: the offsets read from the source, and (implicitly, via the sink's transaction) whether the batch's output was durably committed. If the job dies after writing data but before the checkpoint's commit log entry for that batch is finalized, Spark treats the batch as not-yet-completed on restart and reprocesses it from the same source offsets.</p>
+        <p>Because Delta is itself ACID/transactional, re-writing the same micro-batch's output is safe: Delta's streaming sink uses the checkpoint's batch ID to make the write idempotent - it won't double-append the same batch twice, because Delta records which batch IDs have already been committed to that table in the transaction log (<code>txnAppId</code>/<code>txnVersion</code> in the commit metadata). That combination - source-side offset tracking + Delta-side idempotent write on retry - is what gives you exactly-once end-to-end, not just "restart and hope."</p>
+      </div>
+    </div>
+
+    </div>
+  </div>
+
+  <!-- WORKFLOWS & DAB -->
+  <div class="section" id="tab-workflows">
+    <div class="filter-bar" data-filtergroup="wf-list">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="easy">Easy</button>
+      <button class="filter-btn" data-filter="medium">Medium</button>
+      <button class="filter-btn" data-filter="hard">Hard</button>
+      <button class="filter-btn" data-filter="brutal">Brutal</button>
+    </div>
+    <div id="wf-list">
+
+    <div class="q-card" data-diff="easy">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">W1</div><div class="q-text">How do you call one notebook from another in Databricks?</div><div class="q-right"><span class="tag tag-easy">Easy</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <pre># from a "driver" notebook
+result = dbutils.notebook.run(
+    "/Repos/project/etl/silver_transform",
+    timeout_seconds=1800,
+    arguments={"run_date": "2026-07-04", "source": "tcfd"}
+)
+print(result)  # value returned by the child's dbutils.notebook.exit()</pre>
+        <p><code>dbutils.notebook.run()</code> runs the target notebook as a separate job-like execution (its own detached run), waits for it, and returns whatever string the child passed to <code>dbutils.notebook.exit()</code>. Contrast with <code>%run ./other_notebook</code>, which inlines the other notebook's code into the current session (shares variables/context) rather than running it as a separate job - useful for importing shared utility code, not for orchestration.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="easy">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">W2</div><div class="q-text">How does a notebook receive parameters when run as a Databricks Workflow task?</div><div class="q-right"><span class="tag tag-easy">Easy</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <pre># in the notebook, define a widget matching the job's parameter key
+dbutils.widgets.text("run_date", "2026-01-01")
+dbutils.widgets.text("source_system", "")
+
+run_date = dbutils.widgets.get("run_date")
+source_system = dbutils.widgets.get("source_system")</pre>
+        <p>In the Workflow UI (or the job JSON/DAB YAML), you set <code>base_parameters</code> (or <code>parameters</code> for Python tasks) with key-value pairs. Databricks maps the job parameter key to the widget name automatically when the task runs. Job-level parameters can be overridden per-task, and you can also reference dynamic values like <code>{{job.start_time}}</code> or <code>{{job.trigger.time}}</code>.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">W3</div><div class="q-text">How do you pass a value computed in Task A to Task B within the same Workflow (not via a widget/parameter set at job-start)?</div><div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <pre># Task A notebook
+row_count = df.count()
+dbutils.jobs.taskValues.set(key="rows_processed", value=row_count)
+
+# Task B notebook (must list Task A as a dependency in the Workflow)
+rows = dbutils.jobs.taskValues.get(
+    taskKey="task_a", key="rows_processed",
+    default=0, debugValue=100
+)</pre>
+        <p>This is <b>Task Values</b> - the mechanism specifically designed for cross-task data passing inside one job run. It only works if Task B has Task A configured as an upstream dependency in the Workflow DAG (so the scheduler knows the order and can resolve the value at runtime). The <code>debugValue</code> is what's used when you run the notebook interactively outside a job context, so your code doesn't break during dev.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">W4</div><div class="q-text">How would you create a Databricks Job via the REST API (not the UI)? Sketch the call.</div><div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <pre>curl -X POST https://<workspace-url>/api/2.1/jobs/create \
+  -H "Authorization: Bearer $DATABRICKS_TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "esg_bronze_to_silver",
+    "tasks": [
+      {
+        "task_key": "ingest_bronze",
+        "notebook_task": {
+          "notebook_path": "/Repos/project/ingest/bronze_loader",
+          "base_parameters": {"run_date": "{{job.start_time.iso_date}}"}
+        },
+        "new_cluster": {
+          "spark_version": "14.3.x-scala2.12",
+          "node_type_id": "i3.xlarge",
+          "num_workers": 2
+        }
+      },
+      {
+        "task_key": "transform_silver",
+        "depends_on": [{"task_key": "ingest_bronze"}],
+        "notebook_task": {"notebook_path": "/Repos/project/etl/silver_transform"}
+      }
+    ],
+    "schedule": {"quartz_cron_expression": "0 0 6 * * ?", "timezone_id": "Asia/Kolkata"}
+  }'</pre>
+        <p>Key points to say out loud: it's a POST to <code>/api/2.1/jobs/create</code> with a JSON body defining <code>tasks[]</code> and their dependencies, cluster spec (or a reference to a job cluster / existing cluster ID / SQL warehouse), and an optional schedule. The response returns a <code>job_id</code> you then use with <code>/jobs/run-now</code> to trigger it, or <code>/jobs/update</code>/<code>reset</code> to modify it.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">W5</div><div class="q-text">What is a Databricks Asset Bundle (DAB), and why would a team move from "REST API scripts" or manual UI job creation to DABs?</div><div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>A DAB is a YAML-defined, source-controlled representation of your Databricks resources (jobs, DLT pipelines, cluster policies) plus the code they run, deployed via the Databricks CLI (<code>databricks bundle deploy</code>). It's Databricks' answer to "infrastructure as code" for jobs, replacing brittle hand-written REST API scripts or manual UI clicking.</p>
+        <pre># databricks.yml
+bundle:
+  name: esg-pipelines
+
+targets:
+  dev:
+    workspace: {host: https://dev-workspace.databricks.com}
+  prod:
+    workspace: {host: https://prod-workspace.databricks.com}
+
+resources:
+  jobs:
+    esg_ingestion:
+      name: esg-bronze-to-silver-${bundle.target}
+      tasks:
+        - task_key: ingest_bronze
+          notebook_task:
+            notebook_path: ./notebooks/bronze_loader.py
+          new_cluster: {spark_version: 14.3.x-scala2.12, num_workers: 2}</pre>
+        <p>Benefits worth naming: environment parameterization (dev/staging/prod from the same definition via <code>targets</code>), the whole job definition lives in Git next to the code so it's reviewable and versioned, and deployment is a single reproducible CLI command that fits directly into a CI/CD pipeline - instead of "someone manually recreated the job in prod and forgot a setting."</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="brutal">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">W6</div><div class="q-text">Design a Workflow for your ESG monitoring framework: 5 apps, 25 daily files, needs to alert data owners on failure. How would you structure tasks, retries, and alerting?</div><div class="q-right"><span class="tag tag-brutal">Brutal</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>A reasonable structure to describe:</p>
+        <ul>
+          <li><b>One job per app or one job with per-app task branches</b> - given 5 distinct ESG apps (TCFD, LCA, Sustainability, ESG HR, ESG HSE) with likely different schedules/owners, separate jobs per app is cleaner for isolated retries and ownership, vs. one giant job where one app's failure blocks visibility into the others.</li>
+          <li><b>Task-level retry policy</b> - each ingestion task configured with <code>max_retries</code> and <code>min_retry_interval_millis</code> for transient failures (source system momentarily unavailable, throttling).</li>
+          <li><b>A dedicated monitoring/validation task</b> downstream of ingestion that checks expected file count (e.g. "did all 25 files land today") vs actual, comparing against a control table.</li>
+          <li><b>Alerting</b> via Job-level email/webhook notifications on failure (<code>on_failure</code> notification list), or a custom task that posts to Slack/Teams/PagerDuty via a webhook when the validation task detects missing/delayed files - this is likely closer to what you actually built given "alerting data owners on pipeline success, failures, and delays" on your CV.</li>
+          <li><b>Idempotency</b> so a retried task doesn't double-ingest - COPY INTO/Auto Loader's checkpoint-based tracking already gives this for free.</li>
+        </ul>
+        <div class="hint">Be ready to describe your actual alerting mechanism precisely (email? Teams webhook? a custom table + a separate notifier job?) - this is exactly the kind of CV bullet they'll drill into.</div>
+      </div>
+    </div>
+
+    </div>
+  </div>
+
+  <!-- GIT & CI/CD -->
+  <div class="section" id="tab-gitci">
+    <div class="section-intro">Based on what you described: PySpark framework + ETL code written in notebooks, pushed to GitHub, application-owner approval required to merge; DDL migrations handed to a release team who raise a PR to deploy. Expect them to probe both sides of this.</div>
+    <div class="filter-bar" data-filtergroup="git-list">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="easy">Easy</button>
+      <button class="filter-btn" data-filter="medium">Medium</button>
+      <button class="filter-btn" data-filter="hard">Hard</button>
+      <button class="filter-btn" data-filter="brutal">Brutal</button>
+    </div>
+    <div id="git-list">
+
+    <div class="q-card" data-diff="easy">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">G1</div><div class="q-text">Walk me through your team's Git workflow from writing a notebook to it running in production.</div><div class="q-right"><span class="tag tag-easy">Easy</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Structure your answer as a clean pipeline, e.g.: "I develop in a feature branch off <code>develop</code>/<code>main</code> using Databricks Repos (Git-integrated notebooks) &rarr; commit and push to GitHub &rarr; open a PR &rarr; the application owner reviews for correctness, naming conventions, and impact on downstream consumers &rarr; once approved and merged, our CI pipeline (or the release team) deploys the notebook/job definition to the target environment."</p>
+        <p>Be specific about what "deploy" means in your setup - is it a DAB, a Databricks Repos pull-and-checkout to prod, or a manual copy? Interviewers will ask this as a natural follow-up.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">G2</div><div class="q-text">How do you handle merge conflicts in notebook-based code specifically (as opposed to plain .py files)?</div><div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Two layers to this answer:</p>
+        <ul>
+          <li><b>Mechanically</b>: Databricks Repos stores notebooks as source files (.py/.sql with <code># COMMAND ----------</code> cell markers, or .ipynb), so standard git diff/merge tooling works, but .ipynb JSON diffs are notoriously unreadable if that format is used - preferring the "source" format (.py with Databricks cell markers) makes conflicts far easier to resolve because it's just text.</li>
+          <li><b>Process-wise</b>: pull the latest target branch before starting work, keep feature branches short-lived and scoped to one logical change to minimize the surface area for conflicts, and when a conflict does happen, resolve it in an IDE/Databricks Repos UI by understanding both changes' intent (not blindly picking "ours" or "theirs"), then re-test the notebook end-to-end before re-pushing.</li>
+        </ul>
+        <p>If your real answer is "we mostly avoid this because each dev owns separate notebooks/modules," that's a legitimate and honest answer too - say that rather than inventing a conflict-resolution war story you haven't had.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">G3</div><div class="q-text">Your DDL migrations go through a release team who raise a PR to deploy - you said you're not fully sure what process they follow. What's the most likely underlying mechanism, and what would you want to find out before this interview?</div><div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Most enterprise setups doing this pattern use one of:</p>
+        <ul>
+          <li><b>A schema-migration tool</b> (Flyway, Liquibase, or a custom versioned-DDL-scripts folder) where each DDL change is a numbered, idempotent script; the release team's PR against that migrations repo triggers a CI job that applies pending scripts in order against the target environment, tracking applied versions in a metadata table.</li>
+          <li><b>A DAB or Terraform-based approach</b> where table/schema definitions are declared as code and a <code>terraform apply</code> / <code>databricks bundle deploy</code> in a CD pipeline reconciles the target environment to match.</li>
+          <li><b>A simpler manual-gate model</b>: the PR itself is the approval gate, and merging triggers a release pipeline (Jenkins/Azure DevOps/GitHub Actions) that runs the DDL against prod using a service principal with elevated permissions the individual devs don't have - which is often exactly why the release team exists, as a separation-of-duties control for prod schema changes.</li>
+        </ul>
+        <p>Honest framing for the interview: "I write and test the DDL, hand it off with documentation, and the release team owns the deployment gate - likely for separation of duties around prod access. I'd want to understand whether they're using a migration tool or a straight CI/CD trigger, since that affects how I'd write scripts to be safely idempotent." Showing you understand <i>why</i> the separation exists (governance/compliance, matches your IPE/audit documentation work) is worth more than guessing the exact tool.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">G4</div><div class="q-text">Why does DDL typically need a separate, more controlled deployment path than regular ETL code changes?</div><div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>DDL changes are structural and often destructive/irreversible in ways ETL logic bugs aren't: dropping a column loses data permanently, renaming breaks every downstream consumer silently, and changing a type can corrupt existing rows or break constraints. ETL logic bugs usually just produce wrong output that can be rerun once fixed; a bad DDL change can require a restore from backup or Delta time travel to undo, and may have already broken dependent pipelines by the time it's caught.</p>
+        <p>That's why DDL changes typically need: a separate approval gate (often a DBA/release team, not just the app owner), an explicit rollback script paired with every forward migration, and deployment outside of business hours / with monitoring - none of which is usually required for a routine transformation logic PR.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="brutal">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">G5</div><div class="q-text">Design a branching + environment promotion strategy for a team of 5 data engineers building Databricks notebooks that need to move through dev &rarr; test &rarr; prod, with the application-owner-approval gate you described.</div><div class="q-right"><span class="tag tag-brutal">Brutal</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>A defensible design to describe:</p>
+        <ul>
+          <li><b>Branches</b>: <code>main</code> reflects prod; <code>develop</code> reflects the current integration/test state; short-lived <code>feature/*</code> branches per ticket, rebased/merged into <code>develop</code> via PR.</li>
+          <li><b>Environments</b>: each branch maps to a Databricks workspace or catalog (dev catalog/workspace tracks <code>feature</code>/<code>develop</code>, a test catalog tracks <code>develop</code> after merge, prod catalog tracks <code>main</code>) - Unity Catalog's catalog-per-environment pattern fits naturally here.</li>
+          <li><b>Gates</b>: PR from feature &rarr; develop needs peer review; PR from develop &rarr; main needs the application owner's sign-off plus a passing CI run (linting, unit tests on transformation logic using a small fixture dataset, and a DAB validate/dry-run).</li>
+          <li><b>Deployment</b>: a DAB per environment target, deployed by a CI/CD pipeline (GitHub Actions/Azure DevOps) on merge to the relevant branch, using environment-specific service principals with least-privilege Unity Catalog grants.</li>
+          <li><b>Rollback</b>: since Delta tables carry version history, a bad prod deploy can often be paired with a table-level RESTORE while the code fix goes through the same PR path.</li>
+        </ul>
+      </div>
+    </div>
+
+    </div>
+  </div>
+
+  <!-- AWS -->
+  <div class="section" id="tab-aws">
+    <div class="section-intro">Your CV doesn't mention AWS directly, so expect these at a conceptual/architecture level rather than "show me the console" - they're checking you understand the platform Databricks runs on, not that you're an AWS admin.</div>
+    <div class="filter-bar" data-filtergroup="aws-list">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="easy">Easy</button>
+      <button class="filter-btn" data-filter="medium">Medium</button>
+      <button class="filter-btn" data-filter="hard">Hard</button>
+      <button class="filter-btn" data-filter="brutal">Brutal</button>
+    </div>
+    <div id="aws-list">
+
+    <div class="q-card" data-diff="easy">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">A1</div><div class="q-text">In Databricks on AWS, what runs on EC2 and what lives in S3?</div><div class="q-right"><span class="tag tag-easy">Easy</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Compute and storage are decoupled, which is the core of the Lakehouse pitch. <b>EC2</b> instances are the actual driver + worker nodes of a Databricks cluster - this is where Spark executors run, where compute cost is incurred, and where you choose instance types (e.g. <code>i3.xlarge</code> for I/O-heavy jobs, memory-optimized for large shuffles). Clusters are ephemeral - spun up on demand, auto-terminated when idle.</p>
+        <p><b>S3</b> holds the actual data - Delta Lake table files (Parquet + <code>_delta_log</code>), notebooks (if not using workspace storage), library artifacts, and cluster logs. Because storage is separate from compute, you can shut down every cluster overnight and the data (and its full transaction history) just sits durably in S3, costing only storage, not compute.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">A2</div><div class="q-text">How does Unity Catalog manage access to S3 without every user having raw AWS credentials?</div><div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>UC introduces two objects that sit between users and raw S3 access: a <b>Storage Credential</b> (an IAM role UC's control plane can assume, with trust policy scoped to Databricks' AWS account) and an <b>External Location</b> (a specific S3 path bound to that storage credential). Catalogs/schemas/tables are then created pointing at (or under) an external location.</p>
+        <p>When a user queries a UC table, Databricks' compute plane requests short-lived, scoped-down credentials from the UC control plane (which assumes the IAM role) rather than the user or cluster having any standing S3 keys. Grants (<code>GRANT SELECT ON TABLE</code>) are enforced at the UC layer before that credential vending even happens - so no direct IAM policy per user is needed; UC becomes the single access-control plane instead of S3 bucket policies.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">A3</div><div class="q-text">Explain the difference between a Databricks service principal's IAM role and a group's IAM role. Why would you use one over the other?</div><div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p><b>Service principal</b> = a non-human identity for automated workloads (a scheduled Job, a CI/CD pipeline, a DAB deployment). It's assigned its own IAM role (via a storage credential) so a production job's data access is tied to the job itself, not to whichever engineer happened to trigger it - critical for auditability ("who/what touched this table" points to a system identity, not a rotating set of humans) and for surviving an engineer leaving the team without breaking prod pipelines.</p>
+        <p><b>Group-based IAM role/UC grants</b> = for human users, grouped by function (e.g. <code>esg_data_engineers</code>, <code>pii_readers</code>). You grant catalog/schema/table permissions to the group in Unity Catalog rather than to individuals, so onboarding/offboarding is just an add/remove from the group, not per-person grant management.</p>
+        <p>Rule of thumb they may want to hear: production pipelines run as service principals; interactive/ad-hoc access is via user groups. Never run a scheduled prod job under a personal user token - that's a classic audit finding.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">A4</div><div class="q-text">The person asked about "AWS Key Vault" - AWS doesn't have a service by that exact name (that's Azure's). What's the AWS equivalent, and how do you configure it for Databricks?</div><div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Worth knowing this distinction cold, because if the interviewer says "Key Vault" and you're on AWS, the honest and correct answer is: "On AWS the equivalent is <b>AWS Secrets Manager</b> (or Parameter Store for simpler config); Key Vault is Azure's version - are we talking about an Azure integration here, or AWS Secrets Manager?" That clarification itself signals real cloud knowledge rather than pattern-matching a keyword.</p>
+        <p>Configuring AWS Secrets Manager as a Databricks secret backend:</p>
+        <ul>
+          <li>Databricks natively supports its own <b>Secret Scopes</b> (<code>databricks secrets create-scope</code>) backed by Databricks' internal encrypted store - most teams put credentials here directly rather than integrating Secrets Manager.</li>
+          <li>If the requirement is specifically to source secrets from AWS Secrets Manager (e.g. centralized secret rotation across many AWS services, not just Databricks), you'd typically fetch them at runtime via <code>boto3</code> inside a notebook/job using an instance-profile-scoped IAM role with <code>secretsmanager:GetSecretValue</code> permission, rather than there being a native "AWS Secrets Manager-backed scope" the way Azure Key Vault-backed scopes work natively in Databricks on Azure.</li>
+        </ul>
+        <pre>import boto3, json
+client = boto3.client("secretsmanager", region_name="ap-south-1")
+secret = json.loads(client.get_secret_value(SecretId="prod/esg/db-creds")["SecretString"])</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="brutal">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">A5</div><div class="q-text">Design the AWS + Databricks setup for a new project from scratch: compute sizing philosophy, storage layout, and the IAM boundary between dev and prod.</div><div class="q-right"><span class="tag tag-brutal">Brutal</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>A structured answer:</p>
+        <ul>
+          <li><b>Compute</b>: job clusters (ephemeral, spun up per job run, auto-terminate) for scheduled ETL rather than always-on interactive clusters, to control EC2 cost; pick instance families by workload shape - memory-optimized for wide shuffles/joins, storage-optimized (i3-series with local NVMe) for shuffle-heavy or Delta caching workloads; enable autoscaling with a sensible min/max worker range instead of a fixed cluster size.</li>
+          <li><b>Storage</b>: one S3 bucket per environment (or per catalog) with a clear prefix convention (<code>s3://company-lakehouse-prod/bronze/</code>, <code>/silver/</code>, <code>/gold/</code>) matching the medallion layers, each registered as a distinct Unity Catalog external location so grants can be scoped per layer, not just per bucket.</li>
+          <li><b>IAM boundary</b>: separate AWS accounts (or at minimum separate IAM roles + S3 prefixes) for dev/test/prod so a dev service principal's storage credential physically cannot resolve to the prod bucket, rather than relying on Databricks-side grants alone as the only boundary - defense in depth.</li>
+          <li><b>Networking</b> (if pushed further): Databricks deployed into a customer-managed VPC with private subnets and S3 accessed via a VPC gateway endpoint rather than public internet, for a PwC-style regulated-client engagement.</li>
+        </ul>
+      </div>
+    </div>
+
+    </div>
+  </div>
+
+  <!-- KAFKA -->
+  <div class="section" id="tab-kafka">
+    <div class="section-intro">Not on your CV at all, so this is almost certainly a breadth check ("do you know how streaming ingestion usually works upstream of Databricks") rather than a deep-dive. Get the concepts solid; don't over-invest in obscure internals.</div>
+    <div class="filter-bar" data-filtergroup="kafka-list">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="easy">Easy</button>
+      <button class="filter-btn" data-filter="medium">Medium</button>
+      <button class="filter-btn" data-filter="hard">Hard</button>
+    </div>
+    <div id="kafka-list">
+
+    <div class="q-card" data-diff="easy">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">K1</div><div class="q-text">What is a Kafka topic, partition, and consumer group, in one sentence each?</div><div class="q-right"><span class="tag tag-easy">Easy</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <ul>
+          <li><b>Topic</b> - a named, durable log of messages (like a table name for a stream of events).</li>
+          <li><b>Partition</b> - a topic is split into ordered partitions for parallelism; order is guaranteed only within a partition, not across the whole topic.</li>
+          <li><b>Consumer group</b> - a set of consumers that split a topic's partitions among themselves so each message is processed once per group, enabling horizontal scaling of consumption.</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">K2</div><div class="q-text">How would you read from Kafka into Databricks with Structured Streaming?</div><div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <pre>df = (spark.readStream.format("kafka")
+      .option("kafka.bootstrap.servers", "broker1:9092,broker2:9092")
+      .option("subscribe", "esg_events")
+      .option("startingOffsets", "latest")
+      .load())
+
+parsed = df.selectExpr("CAST(key AS STRING)", "CAST(value AS STRING)", "timestamp")
+
+(parsed.writeStream.format("delta")
+   .option("checkpointLocation", "/mnt/checkpoints/kafka_esg")
+   .table("bronze.esg_events"))</pre>
+        <p>Key point: Kafka's payload arrives as raw bytes in <code>key</code>/<code>value</code> columns - you must explicitly cast/deserialize (often JSON or Avro with a schema registry) before it's usable, unlike Auto Loader which infers structured file schemas for you.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">K3</div><div class="q-text">What's the difference between "at-least-once" and "exactly-once" delivery, and where does Kafka sit by default?</div><div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Kafka's default consumer behavior is <b>at-least-once</b>: if a consumer crashes after processing a message but before committing its offset, it will re-read and reprocess that message on restart - safe against data loss, but can create duplicates downstream unless the consumer/sink is idempotent.</p>
+        <p><b>Exactly-once</b> semantics require additional machinery: Kafka's transactional producer/consumer APIs on the Kafka side, or - more relevant to your Databricks context - relying on Delta's idempotent streaming sink (checkpoint-tracked batch IDs) so that even if Spark reprocesses the same Kafka offsets after a failure, the write into the Delta table doesn't duplicate rows.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">K4</div><div class="q-text">Compare Kafka + Structured Streaming vs. Auto Loader for building the Bronze layer. When would you actually need Kafka rather than file-based ingestion?</div><div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Kafka is the right choice when data originates as a genuine event stream with low-latency requirements - application event logs, IoT sensor telemetry, transactional CDC feeds - where sub-second to few-second freshness matters and there's no natural "file" being produced by the source.</p>
+        <p>Auto Loader/file-based ingestion (your actual ESG use case) fits when the source system's natural unit of delivery already is a file - a nightly CSV/Parquet export, an SFTP/SharePoint drop - and near-real-time latency isn't the requirement. Building a Kafka pipeline to ingest a system that already produces daily CSV files would be needless complexity; you'd be adding a message broker in front of data that's already batch in nature.</p>
+        <div class="hint">If they push on "why don't you use Kafka for ESG," the honest answer is your sources are file-based systems (TCFD, LCA, etc. exporting on a schedule) - Kafka would solve a latency problem you don't have.</div>
+      </div>
+    </div>
+
+    </div>
+  </div>
+
+  <!-- BEHAVIORAL & CV -->
+  <div class="section" id="tab-behavioral">
+    <div class="section-label">Techno-behavioral (scale, judgment, communication)</div>
+    <div class="filter-bar" data-filtergroup="tb-list">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="easy">Easy</button>
+      <button class="filter-btn" data-filter="medium">Medium</button>
+      <button class="filter-btn" data-filter="hard">Hard</button>
+      <button class="filter-btn" data-filter="brutal">Brutal</button>
+    </div>
+    <div id="tb-list">
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">TB1</div><div class="q-text">How much data are you actually processing in the ESG project - rows, file sizes, daily volume?</div><div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>This is a classic "sanity-check the CV" question - they want a believable, specific-sounding estimate, not silence or a wild guess. Reason it out loud from what you do know:</p>
+        <ul>
+          <li>You track <b>25 daily file ingestions across 5 ESG apps</b> - so roughly 5 files/app/day on average.</li>
+          <li>Your BOM hierarchy pipeline processes <b>1 crore+ (10 million+) material keys</b> - that's your single largest-scale number, good to lead with for "biggest dataset you've handled."</li>
+          <li>For the daily files, a reasonable framing: "Individual daily files range from a few thousand to a few hundred thousand rows depending on the source app - TCFD and Sustainability tend to be smaller reference/config-style updates, while transactional feeds like CSR/Your-Cause data are larger. Cumulative daily volume across all 5 apps is in the low-to-mid single-digit GB range, but the BOM/material hierarchy job is our biggest single job at 10M+ keys with recursive joins."</li>
+        </ul>
+        <div class="warn">Do not invent a precise number you can't defend (e.g. "500GB/day") if you're not sure - a vague-but-honest range grounded in your actual CV numbers is safer than a specific number that falls apart under one follow-up question.</div>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">TB2</div><div class="q-text">Tell me about a time your pipeline failed in production. What did you do?</div><div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Use STAR, and pull from a real CV bullet rather than a generic story. Your SharePoint auth migration bullet is a strong fit:</p>
+        <div class="star">
+          <b>Situation</b>: SharePoint connections used password-based auth across 15+ data sources, causing periodic pipeline downtime when credentials expired/rotated.<br>
+          <b>Task</b>: Remove the manual credential-management dependency without disrupting the 15+ scheduled workflows depending on it.<br>
+          <b>Action</b>: Migrated authentication from password-based to token-based across all connections, likely coordinating a cutover window and validating each connection post-migration.<br>
+          <b>Result</b>: Reduced pipeline downtime and removed the manual credential-rotation dependency going forward.
+        </div>
+        <p>Follow-up they may ask: "how did you detect the failure in the first place?" - be ready to describe your monitoring/alerting setup (your ingestion monitoring framework bullet) as the detection mechanism, tying two CV bullets together coherently.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">TB3</div><div class="q-text">How do you decide priority when three ESG source systems all have data quality issues on the same day?</div><div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>A good answer shows judgment, not just "I'd fix them all": prioritize by downstream impact and deadline sensitivity - e.g. if TCFD feeds into a regulatory disclosure with a hard filing date, that outranks an internal HR dashboard refresh even if the HR issue is technically "worse" in row-count terms. Communicate the triage decision and ETA to affected data owners immediately rather than silently working through them in arbitrary order - this ties back to your "alerting data owners" framework and shows you think about stakeholder communication, not just code.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="brutal">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">TB4</div><div class="q-text">A stakeholder wants a new source onboarded in 2 days using your DDL auto-generation script, but the source has messy, undocumented data. Do you push back, and how?</div><div class="q-right"><span class="tag tag-brutal">Brutal</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>They're testing whether you'll blindly automate a bad outcome under time pressure. Strong answer: agree the auto-generation script gets the mechanical table creation fast, but flag explicitly that "fast DDL" and "correct DDL" aren't the same thing when the source is undocumented - type inference on messy data is exactly the failure mode from question D10. Propose a concrete middle ground: onboard in 2 days with inferred types plus a visible caveat/tag marking the source as "provisional schema," then follow up within a defined window (e.g. 1 week) to validate against the actual business rules and evolve the schema properly - rather than either blocking the stakeholder for a week or silently shipping something you know is fragile.</p>
+      </div>
+    </div>
+
+    </div>
+
+    <div class="section-label" style="margin-top:2rem;">Medallion architecture &amp; SCD Type-1 rationale</div>
+    <div class="filter-bar" data-filtergroup="med-list">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="easy">Easy</button>
+      <button class="filter-btn" data-filter="medium">Medium</button>
+      <button class="filter-btn" data-filter="hard">Hard</button>
+      <button class="filter-btn" data-filter="brutal">Brutal</button>
+    </div>
+    <div id="med-list">
+
+    <div class="q-card" data-diff="brutal">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">MED1</div><div class="q-text">For a simple SCD Type-1 lookup table, why bother with Bronze &rarr; Silver &rarr; Gold at all? Isn't that just 3 copies of the same data wasting storage?</div><div class="q-right"><span class="tag tag-brutal">Brutal</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>This is a genuinely good challenge and worth answering with real trade-off reasoning rather than reciting "medallion is best practice." The honest answer has two parts:</p>
+        <p><b>1. They're right that storage cost is real, but it's usually the wrong axis to optimize.</b> Cloud object storage (S3/ADLS) is cheap - often fractions of a cent per GB per month - while engineering time spent debugging a mixed raw/curated table, or a compliance failure from ungoverned raw data, is expensive. For a genuinely tiny, stable lookup table (say, a country-code or currency table with a few hundred rows), the medallion pattern is arguably overkill - a pragmatic team might collapse Bronze and Silver for something that small and low-risk.</p>
+        <p><b>2. But the value of Bronze isn't "storage of the same data" - each layer earns its keep by adding something the others don't have:</b></p>
+        <ul>
+          <li><b>Bronze</b> is the immutable audit trail of exactly what the source sent, as-is (even including bad rows). This is what lets you replay history when a business rule changes, and it's your only recovery point if Silver logic had a bug - you reprocess from Bronze instead of re-pulling from a source system that may not retain history.</li>
+          <li><b>Silver</b> is where SCD-1 dedup/overwrite logic, type casting, and validation actually happen - it's queryable and clean, but still close to source grain, useful for other Silver-to-Silver joins.</li>
+          <li><b>Gold</b> is business-consumption shaped - aggregated, denormalized, dimension-modeled, matching what a report or another team's SCD-2 fact table actually joins against.</li>
+        </ul>
+        <p>For an SCD-1 lookup specifically, the real question isn't "why 3 copies" but "does this table ever need Bronze's replay capability or Gold's aggregation shape, or is it small/stable enough that Silver alone (with governance/versioning via Delta itself) is sufficient." A senior answer says: "Medallion is a default posture for consistency and governance across the pipeline, not a religious rule - for a trivial static lookup table I'd apply judgment rather than dogma, but I'd still keep at least a Bronze snapshot if the source system doesn't retain its own history, because Delta time travel on a Silver table only protects you from your own bugs, not from the source overwriting its own history before you captured it."</p>
+        <div class="hint">This is the single best question in this whole document to show seniority - most candidates just recite "medallion = best practice," this one rewards actually reasoning about when the pattern doesn't pay for itself.</div>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">MED2</div><div class="q-text">What specifically breaks if you skip Bronze and load a source directly into a cleaned Silver-style table?</div><div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>You lose the raw audit trail - if a transformation bug is discovered a week later, you can't replay the original as-received data to reprocess correctly unless the source system itself retains full history (most operational source systems don't, or purge quickly). You also couple ingestion and transformation into one step, so a schema change or bad row from the source can break the "clean" table directly rather than being caught/quarantined at an earlier, cheaper-to-fix stage. It also removes your ability to reconstruct exactly what a source sent for compliance/audit purposes - directly relevant to your IPE documentation work.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">MED3</div><div class="q-text">Your Your-Cause CSR pipeline uses SCD Type-2 into an Employee Dimension. Why SCD-2 there but presumably SCD-1 for a simple lookup table elsewhere - what's the actual decision rule?</div><div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>The decision rule is whether historical state matters to the business question being answered. For the Employee Dimension feeding ESG KPI reporting, you likely need to answer questions like "what was this employee's department/location/tenure at the time of a specific CSR contribution or HSE incident" - if you overwrote (SCD-1) and only kept current employee attributes, a historical report would incorrectly show today's department attached to a contribution from two years ago. SCD-2 preserves the as-of-that-time attributes via effective-dated rows.</p>
+        <p>A simple lookup table (currency codes, status code descriptions) has no "as of a point in time" business meaning - a status code meant the same thing yesterday as today, so overwrite-in-place (SCD-1) is correct and SCD-2's extra complexity (surrogate keys, effective/end dates, current-flag) buys you nothing.</p>
+      </div>
+    </div>
+
+    </div>
+
+    <div class="section-label" style="margin-top:2rem;">Questions likely pulled straight from your CV</div>
+    <div class="filter-bar" data-filtergroup="cv-list">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="easy">Easy</button>
+      <button class="filter-btn" data-filter="medium">Medium</button>
+      <button class="filter-btn" data-filter="hard">Hard</button>
+    </div>
+    <div id="cv-list">
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">CV1</div><div class="q-text">"Reduced pipeline failures by 40%" - 40% of what baseline, measured how?</div><div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Be ready to describe the before/after concretely: a baseline failure rate or failure count over some period before the schema-drift framework existed, versus after. E.g. "before the framework, roughly X out of Y Bronze-to-Silver runs per month failed on unexpected source schema changes requiring manual fixes; after building the drift-handling logic, failures dropped to roughly 0.4X." If you don't remember the exact baseline numbers, say so honestly and describe the mechanism instead: "the reduction came specifically from automatically classifying additive schema changes and auto-evolving instead of hard-failing, while still failing loudly on breaking changes."</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">CV2</div><div class="q-text">"Cutting new source onboarding time by 60%" - what did onboarding look like before, manually?</div><div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Describe the manual baseline: presumably someone manually inspected the CSV/Parquet, hand-wrote a CREATE TABLE DDL with type mappings, then hand-wrote the ingestion notebook - a process that could take a day or more per new source, especially with back-and-forth if the DDL was wrong the first time. Your script collapses schema inspection + DDL generation into a script-driven process. Have a one-line description of what specifically got automated (schema detection, type mapping, and CREATE TABLE generation) vs what still required human review (final sign-off, business-rule validation).</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">CV3</div><div class="q-text">You built a "recursive BOM hierarchy explosion pipeline using iterative DataFrame joins." Why iterative joins instead of Spark's native recursive CTE-style approaches, and what's the performance concern at 1 crore+ keys?</div><div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Spark SQL doesn't support recursive CTEs natively (unlike traditional RDBMSs), so exploding a parent-child bill-of-materials hierarchy (where you don't know the depth in advance) requires an iterative approach: repeatedly self-join the "frontier" of newly discovered children against the mapping table, accumulate results, and stop when an iteration produces no new rows (fixed-point iteration).</p>
+        <p>Performance concern at 10M+ keys: each iteration is a full join, and if the hierarchy is deep, you pay for N sequential Spark jobs (one per level), each with shuffle cost - this is fundamentally different from a single-pass join. Mitigations worth naming: caching/persisting the accumulating result to avoid recomputing the whole lineage on each iteration, using broadcast joins if the per-level frontier is small relative to the full mapping table, and setting a sane max-iteration safety cap to avoid infinite loops from a cyclic (bad) parent-child mapping in the source data.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="easy">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">CV4</div><div class="q-text">What's the difference between the Databricks Data Engineer Associate cert content and what you actually use day-to-day?</div><div class="q-right"><span class="tag tag-easy">Easy</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <p>Honest, low-risk answer: the cert covers the breadth of the Lakehouse platform (Delta Lake fundamentals, basic DLT/pipelines, Unity Catalog basics, SQL analytics) at a conceptual level, whereas day-to-day work goes deeper into the specific patterns your project needs - schema-drift handling, PII masking UDFs, custom monitoring frameworks - that aren't exam topics but are what production reliability actually depends on. Framing it this way shows the cert as a foundation, not the ceiling of your knowledge.</p>
+      </div>
+    </div>
+
+    </div>
+  </div>
+
+  <!-- CODING -->
+  <div class="section" id="tab-coding">
+    <div class="section-intro">These target the topics above that weren't in your Round-1 SQL coding set (no repeat of Top-N/DQ queries). Expect them live in a Databricks notebook or shared screen - talk through your approach before typing.</div>
+    <div class="filter-bar" data-filtergroup="pc-list">
+      <button class="filter-btn active" data-filter="all">All</button>
+      <button class="filter-btn" data-filter="easy">Easy</button>
+      <button class="filter-btn" data-filter="medium">Medium</button>
+      <button class="filter-btn" data-filter="hard">Hard</button>
+      <button class="filter-btn" data-filter="brutal">Brutal</button>
+    </div>
+    <div id="pc-list">
+
+    <div class="q-card" data-diff="easy">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">C1</div><div class="q-text">Write a MERGE statement that upserts into a Silver table and auto-evolves the schema if the source has a new column.</div><div class="q-right"><span class="tag tag-easy">Easy</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <pre>MERGE WITH SCHEMA EVOLUTION INTO silver.esg_data AS target
+USING staging.esg_incoming AS source
+ON target.record_id = source.record_id
+WHEN MATCHED THEN UPDATE SET *
+WHEN NOT MATCHED THEN INSERT *;</pre>
+        <p>PySpark equivalent using the DeltaTable API:</p>
+        <pre>from delta.tables import DeltaTable
+
+target = DeltaTable.forName(spark, "silver.esg_data")
+(target.alias("t")
+  .merge(source_df.alias("s"), "t.record_id = s.record_id")
+  .withSchemaEvolution()
+  .whenMatchedUpdateAll()
+  .whenNotMatchedInsertAll()
+  .execute())</pre>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">C2</div><div class="q-text">Write PySpark that classifies a schema diff between an expected schema and an incoming DataFrame as SAFE (additive) or BREAKING.</div><div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <pre>def classify_schema_diff(expected_schema, incoming_df):
+    expected_fields = {f.name: f.dataType for f in expected_schema.fields}
+    incoming_fields = {f.name: f.dataType for f in incoming_df.schema.fields}
+
+    new_cols = set(incoming_fields) - set(expected_fields)
+    missing_cols = set(expected_fields) - set(incoming_fields)
+    type_changes = {
+        col: (expected_fields[col], incoming_fields[col])
+        for col in expected_fields.keys() & incoming_fields.keys()
+        if expected_fields[col] != incoming_fields[col]
+    }
+
+    if missing_cols or type_changes:
+        return "BREAKING", {"missing": missing_cols, "type_changes": type_changes}
+    if new_cols:
+        return "SAFE_ADDITIVE", {"new_columns": new_cols}
+    return "NO_CHANGE", {}</pre>
+        <p>Talk through the decision: missing columns or type changes should quarantine + alert (breaking), new nullable columns can auto-evolve safely (additive), and no diff is a no-op. This is the shape of logic your CV's schema-drift framework almost certainly implements.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="medium">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">C3</div><div class="q-text">Write a Structured Streaming job with Auto Loader that ingests JSON files, applies a watermark, and writes 5-minute windowed counts to a Delta table.</div><div class="q-right"><span class="tag tag-medium">Medium</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <pre>from pyspark.sql.functions import window, col
+
+raw = (spark.readStream.format("cloudFiles")
+       .option("cloudFiles.format", "json")
+       .option("cloudFiles.schemaLocation", "/mnt/schema/events")
+       .load("/mnt/raw/events/"))
+
+windowed = (raw
+    .withWatermark("event_time", "10 minutes")
+    .groupBy(window(col("event_time"), "5 minutes"))
+    .count())
+
+(windowed.writeStream
+    .format("delta")
+    .outputMode("update")
+    .option("checkpointLocation", "/mnt/checkpoints/events_windowed")
+    .trigger(processingTime="1 minute")
+    .table("gold.events_5min_counts"))</pre>
+        <p>Note the <code>outputMode("update")</code> choice - windowed aggregations can't use "append" mode until the watermark closes the window, so "update" (or "complete" for small result sets) is required to emit intermediate updates to still-open windows.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="hard">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">C4</div><div class="q-text">Write a PySpark function that recursively explodes a parent-child BOM hierarchy into a flat ancestor path table (your CV's BOM pipeline, simplified).</div><div class="q-right"><span class="tag tag-hard">Hard</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <pre>from pyspark.sql.functions import col, lit, concat_ws
+
+def explode_bom(bom_df, root_material_col="material_id",
+                 parent_col="parent_id", max_depth=20):
+    # bom_df: parent_id, material_id  (self-referencing mapping)
+    result = bom_df.filter(col(parent_col).isNull()) \
+                    .select(col(root_material_col).alias("material_id"),
+                            col(root_material_col).alias("root_id"),
+                            lit(0).alias("level"))
+    frontier = result
+
+    for depth in range(1, max_depth + 1):
+        next_level = (frontier.alias("f")
+            .join(bom_df.alias("b"), col("f.material_id") == col(f"b.{parent_col}"))
+            .select(col(f"b.{root_material_col}").alias("material_id"),
+                    col("f.root_id"),
+                    lit(depth).alias("level")))
+
+        if next_level.rdd.isEmpty():
+            break
+
+        result = result.unionByName(next_level)
+        frontier = next_level.cache()
+
+    return result</pre>
+        <p>Call out the production concerns unprompted: cache the frontier each iteration to avoid recomputation, cap <code>max_depth</code> to guard against a cyclic mapping causing an infinite loop, and mention that at 10M+ keys you'd want to persist/checkpoint intermediate results (or use <code>spark.sparkContext.setCheckpointDir</code>) to avoid an enormous, ever-growing lineage/query plan across many iterations.</p>
+      </div>
+    </div>
+
+    <div class="q-card" data-diff="brutal">
+      <div class="q-header" onclick="toggle(this)"><div class="q-num">C5</div><div class="q-text">Write the PySpark for a UC-aware PII masking check: given a list of "sensitive" column names, dynamically build and apply a masking expression to any matching columns in a DataFrame.</div><div class="q-right"><span class="tag tag-brutal">Brutal</span><span class="chevron">▼</span></div></div>
+      <div class="q-answer">
+        <pre>from pyspark.sql.functions import col, when, sha2, lit
+from pyspark.sql.functions import expr
+
+def apply_pii_masking(df, sensitive_columns, group_check_expr="is_account_group_member('pii_readers')"):
+    select_exprs = []
+    for field in df.schema.fields:
+        if field.name in sensitive_columns:
+            masked_expr = (
+                f"CASE WHEN {group_check_expr} THEN {field.name} "
+                f"ELSE sha2(CAST({field.name} AS STRING), 256) END AS {field.name}"
+            )
+            select_exprs.append(expr(masked_expr))
+        else:
+            select_exprs.append(col(field.name))
+    return df.select(*select_exprs)
+
+masked_df = apply_pii_masking(
+    raw_df,
+    sensitive_columns=["ssn", "email", "phone_number"]
+)</pre>
+        <p>If pushed further: explain why this DataFrame-level approach is weaker than UC's native <code>SET MASK</code> column masks (question D8) - this version only protects consumers of this specific notebook's output, whereas a UC column mask is enforced centrally for every future query against the table, including ones from tools/users you don't control. Mention that in production you'd prefer the UC-native mask and only reach for a DataFrame-level masking function for a one-off export or a system that doesn't go through UC.</p>
+      </div>
+    </div>
+
+    </div>
+  </div>
+
+  <!-- MIND MAPS -->
+  <div class="section" id="tab-mindmaps">
+    <div class="section-intro">Five visual maps, one per major topic cluster, deliberately non-overlapping with the cheat sheet (maps show relationships/decision paths; cheat sheet shows terse facts/syntax).</div>
+
+    <div class="mm-wrap">
+      <div class="mm-title">1. Delta Lake + Unity Catalog ecosystem</div>
+      <svg viewBox="0 0 900 420" xmlns="http://www.w3.org/2000/svg">
+        <rect x="370" y="10" width="160" height="46" rx="8" fill="#1a1a18"/>
+        <text x="450" y="38" text-anchor="middle" fill="#f0ede6" font-size="14" font-weight="600">Delta Lake Table</text>
+
+        <line x1="450" y1="56" x2="220" y2="120" stroke="#9d9a94" stroke-width="1.5"/>
+        <line x1="450" y1="56" x2="450" y2="120" stroke="#9d9a94" stroke-width="1.5"/>
+        <line x1="450" y1="56" x2="680" y2="120" stroke="#9d9a94" stroke-width="1.5"/>
+
+        <rect x="120" y="120" width="200" height="60" rx="8" fill="#fff" stroke="#3b6fd4" stroke-width="1.5"/>
+        <text x="220" y="144" text-anchor="middle" font-size="12" font-weight="600" fill="#1a1a18">_delta_log/</text>
+        <text x="220" y="162" text-anchor="middle" font-size="10.5" fill="#4a4844">JSON commits + checkpoints</text>
+
+        <rect x="350" y="120" width="200" height="60" rx="8" fill="#fff" stroke="#3b6fd4" stroke-width="1.5"/>
+        <text x="450" y="144" text-anchor="middle" font-size="12" font-weight="600" fill="#1a1a18">Parquet data files</text>
+        <text x="450" y="162" text-anchor="middle" font-size="10.5" fill="#4a4844">immutable, never overwritten</text>
+
+        <rect x="580" y="120" width="220" height="60" rx="8" fill="#fff" stroke="#3b6fd4" stroke-width="1.5"/>
+        <text x="690" y="144" text-anchor="middle" font-size="12" font-weight="600" fill="#1a1a18">ACID guarantees</text>
+        <text x="690" y="162" text-anchor="middle" font-size="10.5" fill="#4a4844">OCC + atomic commit JSON</text>
+
+        <line x1="220" y1="180" x2="220" y2="230" stroke="#9d9a94" stroke-width="1.5"/>
+        <rect x="100" y="230" width="240" height="55" rx="8" fill="#f0f6ff" stroke="#3b6fd4" stroke-width="1"/>
+        <text x="220" y="252" text-anchor="middle" font-size="11.5" font-weight="600" fill="#1a3a6b">Time Travel</text>
+        <text x="220" y="269" text-anchor="middle" font-size="10" fill="#1a3a6b">VERSION/TIMESTAMP AS OF, RESTORE</text>
+
+        <line x1="450" y1="180" x2="450" y2="230" stroke="#9d9a94" stroke-width="1.5"/>
+        <rect x="340" y="230" width="220" height="55" rx="8" fill="#f0f6ff" stroke="#3b6fd4" stroke-width="1"/>
+        <text x="450" y="252" text-anchor="middle" font-size="11.5" font-weight="600" fill="#1a3a6b">Schema Enforce/Evolve</text>
+        <text x="450" y="269" text-anchor="middle" font-size="10" fill="#1a3a6b">mergeSchema, WITH SCHEMA EVOLUTION</text>
+
+        <line x1="690" y1="180" x2="690" y2="230" stroke="#9d9a94" stroke-width="1.5"/>
+        <rect x="580" y="230" width="230" height="55" rx="8" fill="#f0f6ff" stroke="#3b6fd4" stroke-width="1"/>
+        <text x="695" y="252" text-anchor="middle" font-size="11.5" font-weight="600" fill="#1a3a6b">VACUUM</text>
+        <text x="695" y="269" text-anchor="middle" font-size="10" fill="#1a3a6b">deletes tombstoned files past retention</text>
+
+        <line x1="450" y1="56" x2="450" y2="310" stroke="#7d4fd4" stroke-width="1.5" stroke-dasharray="4,3"/>
+        <rect x="300" y="310" width="300" height="95" rx="10" fill="#f5f0ff" stroke="#7d4fd4" stroke-width="1.5"/>
+        <text x="450" y="332" text-anchor="middle" font-size="12.5" font-weight="700" fill="#3a1a6b">Unity Catalog (governs above)</text>
+        <text x="450" y="352" text-anchor="middle" font-size="10.5" fill="#3a1a6b">catalog.schema.table namespace</text>
+        <text x="450" y="368" text-anchor="middle" font-size="10.5" fill="#3a1a6b">Storage Credential + External Location -&gt; S3</text>
+        <text x="450" y="384" text-anchor="middle" font-size="10.5" fill="#3a1a6b">Column masks, grants, lineage, audit log</text>
+      </svg>
+    </div>
+
+    <div class="mm-wrap">
+      <div class="mm-title">2. Ingestion decision tree: which tool for which source?</div>
+      <svg viewBox="0 0 900 380" xmlns="http://www.w3.org/2000/svg">
+        <rect x="360" y="10" width="180" height="46" rx="8" fill="#1a1a18"/>
+        <text x="450" y="38" text-anchor="middle" fill="#f0ede6" font-size="13" font-weight="600">New source arrives?</text>
+
+        <line x1="360" y1="33" x2="120" y2="100" stroke="#9d9a94" stroke-width="1.5"/>
+        <text x="230" y="72" font-size="10.5" fill="#6b6965">event stream, no files</text>
+        <rect x="20" y="100" width="200" height="60" rx="8" fill="#fff" stroke="#3b6fd4" stroke-width="1.5"/>
+        <text x="120" y="124" text-anchor="middle" font-size="12" font-weight="600">Kafka + Structured Streaming</text>
+        <text x="120" y="142" text-anchor="middle" font-size="10" fill="#4a4844">low-latency, true event data</text>
+
+        <line x1="450" y1="56" x2="450" y2="100" stroke="#9d9a94" stroke-width="1.5"/>
+        <text x="530" y="80" font-size="10.5" fill="#6b6965">files, very high volume</text>
+        <rect x="350" y="100" width="200" height="60" rx="8" fill="#fff" stroke="#3b6fd4" stroke-width="1.5"/>
+        <text x="450" y="124" text-anchor="middle" font-size="12" font-weight="600">Auto Loader</text>
+        <text x="450" y="142" text-anchor="middle" font-size="10" fill="#4a4844">cloudFiles, event notification-based</text>
+
+        <line x1="540" y1="33" x2="770" y2="100" stroke="#9d9a94" stroke-width="1.5"/>
+        <text x="660" y="72" font-size="10.5" fill="#6b6965">files, small/simple</text>
+        <rect x="670" y="100" width="200" height="60" rx="8" fill="#fff" stroke="#3b6fd4" stroke-width="1.5"/>
+        <text x="770" y="124" text-anchor="middle" font-size="12" font-weight="600">COPY INTO</text>
+        <text x="770" y="142" text-anchor="middle" font-size="10" fill="#4a4844">simple SQL, idempotent batch</text>
+
+        <line x1="450" y1="160" x2="450" y2="210" stroke="#9d9a94" stroke-width="1.5"/>
+        <rect x="280" y="210" width="340" height="55" rx="10" fill="#f0f6ff" stroke="#3b6fd4" stroke-width="1"/>
+        <text x="450" y="232" text-anchor="middle" font-size="12" font-weight="600" fill="#1a3a6b">Orchestrate with Spark Declarative Pipelines</text>
+        <text x="450" y="250" text-anchor="middle" font-size="10.5" fill="#1a3a6b">@dlt.table + expectations, auto dependency graph</text>
+
+        <line x1="450" y1="265" x2="450" y2="300" stroke="#9d9a94" stroke-width="1.5"/>
+        <rect x="230" y="300" width="440" height="60" rx="10" fill="#fff8e8" stroke="#d4930a" stroke-width="1"/>
+        <text x="450" y="322" text-anchor="middle" font-size="12" font-weight="600" fill="#6b4800">Trigger: Trigger.AvailableNow</text>
+        <text x="450" y="340" text-anchor="middle" font-size="10.5" fill="#6b4800">fits daily/scheduled ESG-style loads (your 25-file case)</text>
+      </svg>
+    </div>
+
+    <div class="mm-wrap">
+      <div class="mm-title">3. Databricks Workflows &amp; DAB architecture</div>
+      <svg viewBox="0 0 900 380" xmlns="http://www.w3.org/2000/svg">
+        <rect x="30" y="30" width="220" height="60" rx="8" fill="#fff" stroke="#3b6fd4" stroke-width="1.5"/>
+        <text x="140" y="55" text-anchor="middle" font-size="12" font-weight="600">databricks.yml (DAB)</text>
+        <text x="140" y="73" text-anchor="middle" font-size="10" fill="#4a4844">jobs, targets, resources as code</text>
+
+        <line x1="250" y1="60" x2="330" y2="60" stroke="#9d9a94" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <rect x="330" y="30" width="220" height="60" rx="8" fill="#fff" stroke="#3b6fd4" stroke-width="1.5"/>
+        <text x="440" y="55" text-anchor="middle" font-size="12" font-weight="600">databricks bundle deploy</text>
+        <text x="440" y="73" text-anchor="middle" font-size="10" fill="#4a4844">or REST API /jobs/create</text>
+
+        <line x1="550" y1="60" x2="630" y2="60" stroke="#9d9a94" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <rect x="630" y="30" width="220" height="60" rx="8" fill="#1a1a18"/>
+        <text x="740" y="55" text-anchor="middle" font-size="12" font-weight="600" fill="#f0ede6">Databricks Job (DAG)</text>
+        <text x="740" y="73" text-anchor="middle" font-size="10" fill="#d0cdc7">tasks + dependencies</text>
+
+        <line x1="740" y1="90" x2="740" y2="130" stroke="#9d9a94" stroke-width="1.5"/>
+        <rect x="530" y="130" width="150" height="55" rx="8" fill="#fff" stroke="#7d4fd4" stroke-width="1.5"/>
+        <text x="605" y="152" text-anchor="middle" font-size="11.5" font-weight="600">Task A</text>
+        <text x="605" y="169" text-anchor="middle" font-size="9.5" fill="#4a4844">dbutils.widgets.get()</text>
+
+        <line x1="680" y1="157" x2="740" y2="157" stroke="#9d9a94" stroke-width="1.5" marker-end="url(#arrow)"/>
+        <text x="710" y="148" font-size="9" fill="#6b6965">taskValues.set/get</text>
+        <rect x="740" y="130" width="150" height="55" rx="8" fill="#fff" stroke="#7d4fd4" stroke-width="1.5"/>
+        <text x="815" y="152" text-anchor="middle" font-size="11.5" font-weight="600">Task B</text>
+        <text x="815" y="169" text-anchor="middle" font-size="9.5" fill="#4a4844">depends_on: [Task A]</text>
+
+        <line x1="605" y1="185" x2="605" y2="220" stroke="#9d9a94" stroke-width="1.5"/>
+        <line x1="815" y1="185" x2="815" y2="220" stroke="#9d9a94" stroke-width="1.5"/>
+        <rect x="500" y="220" width="380" height="60" rx="10" fill="#f0f6ff" stroke="#3b6fd4" stroke-width="1"/>
+        <text x="690" y="242" text-anchor="middle" font-size="12" font-weight="600" fill="#1a3a6b">dbutils.notebook.run() for ad-hoc calls</text>
+        <text x="690" y="260" text-anchor="middle" font-size="10.5" fill="#1a3a6b">%run for shared inline code/utilities</text>
+
+        <line x1="690" y1="280" x2="690" y2="310" stroke="#9d9a94" stroke-width="1.5"/>
+        <rect x="500" y="310" width="380" height="55" rx="10" fill="#fff8e8" stroke="#d4930a" stroke-width="1"/>
+        <text x="690" y="332" text-anchor="middle" font-size="12" font-weight="600" fill="#6b4800">On failure: notification/webhook</text>
+        <text x="690" y="349" text-anchor="middle" font-size="10.5" fill="#6b4800">alerts data owners (your monitoring framework)</text>
+
+        <defs>
+          <marker id="arrow" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#9d9a94"/></marker>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="mm-wrap">
+      <div class="mm-title">4. Code &amp; DDL promotion path (Git &rarr; prod)</div>
+      <svg viewBox="0 0 900 320" xmlns="http://www.w3.org/2000/svg">
+        <rect x="20" y="30" width="160" height="55" rx="8" fill="#fff" stroke="#3b6fd4" stroke-width="1.5"/>
+        <text x="100" y="52" text-anchor="middle" font-size="11.5" font-weight="600">feature branch</text>
+        <text x="100" y="69" text-anchor="middle" font-size="9.5" fill="#4a4844">notebook + ETL code</text>
+
+        <line x1="180" y1="57" x2="240" y2="57" stroke="#9d9a94" stroke-width="1.5" marker-end="url(#arrow2)"/>
+        <rect x="240" y="30" width="160" height="55" rx="8" fill="#fff" stroke="#3b6fd4" stroke-width="1.5"/>
+        <text x="320" y="52" text-anchor="middle" font-size="11.5" font-weight="600">GitHub PR</text>
+        <text x="320" y="69" text-anchor="middle" font-size="9.5" fill="#4a4844">push to GitHub</text>
+
+        <line x1="400" y1="57" x2="460" y2="57" stroke="#9d9a94" stroke-width="1.5" marker-end="url(#arrow2)"/>
+        <rect x="460" y="30" width="180" height="55" rx="8" fill="#f0f6ff" stroke="#3b6fd4" stroke-width="1.5"/>
+        <text x="550" y="52" text-anchor="middle" font-size="11.5" font-weight="600" fill="#1a3a6b">App owner approval</text>
+        <text x="550" y="69" text-anchor="middle" font-size="9.5" fill="#1a3a6b">review gate</text>
+
+        <line x1="640" y1="57" x2="700" y2="57" stroke="#9d9a94" stroke-width="1.5" marker-end="url(#arrow2)"/>
+        <rect x="700" y="30" width="180" height="55" rx="8" fill="#1a1a18"/>
+        <text x="790" y="52" text-anchor="middle" font-size="11.5" font-weight="600" fill="#f0ede6">Merge to main</text>
+        <text x="790" y="69" text-anchor="middle" font-size="9.5" fill="#d0cdc7">deploy trigger</text>
+
+        <line x1="790" y1="85" x2="790" y2="130" stroke="#9d9a94" stroke-width="1.5"/>
+        <rect x="600" y="130" width="280" height="55" rx="8" fill="#fff" stroke="#7d4fd4" stroke-width="1.5"/>
+        <text x="740" y="152" text-anchor="middle" font-size="11.5" font-weight="600">ETL code: CI/CD or DAB deploy</text>
+        <text x="740" y="169" text-anchor="middle" font-size="9.5" fill="#4a4844">app owner already gated this</text>
+
+        <text x="450" y="120" text-anchor="middle" font-size="10.5" fill="#6b6965" font-style="italic">DDL takes a different, stricter path below --&gt;</text>
+
+        <rect x="20" y="220" width="200" height="55" rx="8" fill="#fff" stroke="#8b2020" stroke-width="1.5"/>
+        <text x="120" y="242" text-anchor="middle" font-size="11.5" font-weight="600">DDL script written</text>
+        <text x="120" y="259" text-anchor="middle" font-size="9.5" fill="#4a4844">by you, tested in dev</text>
+
+        <line x1="220" y1="247" x2="290" y2="247" stroke="#9d9a94" stroke-width="1.5" marker-end="url(#arrow2)"/>
+        <rect x="290" y="220" width="220" height="55" rx="8" fill="#fff" stroke="#8b2020" stroke-width="1.5"/>
+        <text x="400" y="242" text-anchor="middle" font-size="11.5" font-weight="600">Handed to release team</text>
+        <text x="400" y="259" text-anchor="middle" font-size="9.5" fill="#4a4844">separation of duties</text>
+
+        <line x1="510" y1="247" x2="570" y2="247" stroke="#9d9a94" stroke-width="1.5" marker-end="url(#arrow2)"/>
+        <rect x="570" y="220" width="180" height="55" rx="8" fill="#fde8e8" stroke="#8b2020" stroke-width="1.5"/>
+        <text x="660" y="242" text-anchor="middle" font-size="11.5" font-weight="600" fill="#8b2020">Release team PR</text>
+        <text x="660" y="259" text-anchor="middle" font-size="9.5" fill="#8b2020">likely migration tool/CI</text>
+
+        <line x1="750" y1="247" x2="810" y2="247" stroke="#9d9a94" stroke-width="1.5" marker-end="url(#arrow2)"/>
+        <rect x="770" y="220" width="110" height="55" rx="8" fill="#1a1a18"/>
+        <text x="825" y="242" text-anchor="middle" font-size="11" font-weight="600" fill="#f0ede6">Prod DDL</text>
+        <text x="825" y="259" text-anchor="middle" font-size="9" fill="#d0cdc7">applied</text>
+
+        <defs>
+          <marker id="arrow2" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#9d9a94"/></marker>
+        </defs>
+      </svg>
+    </div>
+
+    <div class="mm-wrap">
+      <div class="mm-title">5. Medallion architecture: what each layer earns (and when to skip one)</div>
+      <svg viewBox="0 0 900 300" xmlns="http://www.w3.org/2000/svg">
+        <rect x="30" y="40" width="250" height="90" rx="10" fill="#fde8e8" stroke="#8b2020" stroke-width="1.5"/>
+        <text x="155" y="65" text-anchor="middle" font-size="13" font-weight="700" fill="#8b2020">BRONZE</text>
+        <text x="155" y="83" text-anchor="middle" font-size="10" fill="#6b2020">raw, as-received, immutable</text>
+        <text x="155" y="99" text-anchor="middle" font-size="10" fill="#6b2020">earns: replay/audit capability</text>
+        <text x="155" y="115" text-anchor="middle" font-size="9.5" fill="#8b2020" font-style="italic">skip only if source retains own history</text>
+
+        <line x1="280" y1="85" x2="330" y2="85" stroke="#9d9a94" stroke-width="1.5" marker-end="url(#arrow3)"/>
+
+        <rect x="330" y="40" width="250" height="90" rx="10" fill="#fff3e0" stroke="#8b5a00" stroke-width="1.5"/>
+        <text x="455" y="65" text-anchor="middle" font-size="13" font-weight="700" fill="#8b5a00">SILVER</text>
+        <text x="455" y="83" text-anchor="middle" font-size="10" fill="#6b4800">cleaned, validated, deduped</text>
+        <text x="455" y="99" text-anchor="middle" font-size="10" fill="#6b4800">earns: queryable, typed, SCD logic lives here</text>
+        <text x="455" y="115" text-anchor="middle" font-size="9.5" fill="#8b5a00" font-style="italic">SCD-1 lookup tables often stop here</text>
+
+        <line x1="580" y1="85" x2="630" y2="85" stroke="#9d9a94" stroke-width="1.5" marker-end="url(#arrow3)"/>
+
+        <rect x="630" y="40" width="250" height="90" rx="10" fill="#e8f4e8" stroke="#2d6b2d" stroke-width="1.5"/>
+        <text x="755" y="65" text-anchor="middle" font-size="13" font-weight="700" fill="#2d6b2d">GOLD</text>
+        <text x="755" y="83" text-anchor="middle" font-size="10" fill="#1d4b1d">aggregated, business/report-shaped</text>
+        <text x="755" y="99" text-anchor="middle" font-size="10" fill="#1d4b1d">earns: dimension models, KPI marts</text>
+        <text x="755" y="115" text-anchor="middle" font-size="9.5" fill="#2d6b2d" font-style="italic">SCD-2 facts/dims typically land here</text>
+
+        <rect x="180" y="170" width="540" height="100" rx="10" fill="#f5f0ff" stroke="#7d4fd4" stroke-width="1.5"/>
+        <text x="450" y="195" text-anchor="middle" font-size="12.5" font-weight="700" fill="#3a1a6b">The real question isn't "3 copies?" - it's "does this table need each layer's specific benefit?"</text>
+        <text x="450" y="216" text-anchor="middle" font-size="10.5" fill="#3a1a6b">Storage is cheap; ungoverned/unreplayable data and prod incidents are expensive.</text>
+        <text x="450" y="234" text-anchor="middle" font-size="10.5" fill="#3a1a6b">Medallion is a default posture for consistency, not a rule with no exceptions.</text>
+        <text x="450" y="252" text-anchor="middle" font-size="10.5" fill="#3a1a6b">Apply judgment for tiny/static lookups; keep it for anything audited, historical, or reused.</text>
+
+        <defs>
+          <marker id="arrow3" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="#9d9a94"/></marker>
+        </defs>
+      </svg>
+    </div>
+  </div>
+
+  <!-- CHEAT SHEET -->
+  <div class="section" id="tab-cheatsheet">
+    <div class="section-intro">Quick-glance facts and syntax only - no explanations repeated from the Q&amp;A tabs. Use this for a 10-minute refresh right before the call.</div>
+    <div class="cheat-grid">
+
+      <div class="cheat-box">
+        <h4>Delta Lake internals</h4>
+        <table>
+          <tr><td>_delta_log</td><td>JSON commits + Parquet checkpoint every 10 commits</td></tr>
+          <tr><td>Actions</td><td>add, remove, metaData, commitInfo, protocol</td></tr>
+          <tr><td>Concurrency</td><td>Optimistic (OCC), file-level conflict detection</td></tr>
+          <tr><td>Retention default</td><td>7 days (168 hrs) - deletedFileRetentionDuration</td></tr>
+          <tr><td>Time travel</td><td><code>VERSION AS OF n</code> / <code>TIMESTAMP AS OF ts</code></td></tr>
+          <tr><td>Restore</td><td><code>RESTORE TABLE t TO VERSION AS OF n</code></td></tr>
+          <tr><td>History</td><td><code>DESCRIBE HISTORY t</code></td></tr>
+          <tr><td>Optimize</td><td><code>OPTIMIZE t ZORDER BY (col)</code></td></tr>
+        </table>
+      </div>
+
+      <div class="cheat-box">
+        <h4>Schema evolution/enforcement</h4>
+        <table>
+          <tr><td>Enable (write)</td><td><code>.option("mergeSchema","true")</code></td></tr>
+          <tr><td>Enable (session)</td><td><code>spark.databricks.delta.schema.autoMerge.enabled</code></td></tr>
+          <tr><td>Enable (MERGE)</td><td><code>MERGE WITH SCHEMA EVOLUTION</code></td></tr>
+          <tr><td>Default behavior</td><td>Enforcement - rejects mismatched writes</td></tr>
+          <tr><td>Handles</td><td>New nullable columns only (additive)</td></tr>
+          <tr><td>Doesn't handle</td><td>Renames, type narrowing, reorders</td></tr>
+        </table>
+      </div>
+
+      <div class="cheat-box">
+        <h4>Unity Catalog objects</h4>
+        <table>
+          <tr><td>Namespace</td><td>catalog.schema.table</td></tr>
+          <tr><td>Storage Credential</td><td>IAM role UC can assume</td></tr>
+          <tr><td>External Location</td><td>S3 path bound to a credential</td></tr>
+          <tr><td>Column mask</td><td><code>ALTER COLUMN c SET MASK fn</code></td></tr>
+          <tr><td>Group check</td><td><code>is_account_group_member('grp')</code></td></tr>
+          <tr><td>Grant</td><td><code>GRANT SELECT ON TABLE t TO group</code></td></tr>
+        </table>
+      </div>
+
+      <div class="cheat-box">
+        <h4>Streaming ingestion tools</h4>
+        <table>
+          <tr><td>Auto Loader format</td><td><code>cloudFiles</code></td></tr>
+          <tr><td>Discovery</td><td>Cloud notifications (SQS/Event Grid), not listing</td></tr>
+          <tr><td>Schema tracking</td><td><code>cloudFiles.schemaLocation</code></td></tr>
+          <tr><td>COPY INTO</td><td>SQL, idempotent, tracks loaded files</td></tr>
+          <tr><td>Watermark</td><td><code>.withWatermark("ts","10 minutes")</code></td></tr>
+          <tr><td>Windowed output mode</td><td>update or complete, not append</td></tr>
+          <tr><td>Batch-like trigger</td><td><code>.trigger(availableNow=True)</code></td></tr>
+          <tr><td>DLT decorator</td><td><code>@dlt.table</code>, <code>@dlt.expect_or_drop</code></td></tr>
+        </table>
+      </div>
+
+      <div class="cheat-box">
+        <h4>Workflows &amp; notebooks</h4>
+        <table>
+          <tr><td>Run child notebook</td><td><code>dbutils.notebook.run(path, timeout, args)</code></td></tr>
+          <tr><td>Inline shared code</td><td><code>%run ./utils</code></td></tr>
+          <tr><td>Get param in notebook</td><td><code>dbutils.widgets.get("key")</code></td></tr>
+          <tr><td>Cross-task pass (set)</td><td><code>dbutils.jobs.taskValues.set(key,val)</code></td></tr>
+          <tr><td>Cross-task pass (get)</td><td><code>dbutils.jobs.taskValues.get(taskKey,key)</code></td></tr>
+          <tr><td>REST create job</td><td><code>POST /api/2.1/jobs/create</code></td></tr>
+          <tr><td>REST run job</td><td><code>POST /api/2.1/jobs/run-now</code></td></tr>
+          <tr><td>DAB deploy</td><td><code>databricks bundle deploy -t prod</code></td></tr>
+        </table>
+      </div>
+
+      <div class="cheat-box">
+        <h4>AWS quick facts</h4>
+        <table>
+          <tr><td>Compute plane</td><td>EC2 (driver + worker nodes)</td></tr>
+          <tr><td>Storage plane</td><td>S3 (Delta files, logs, libraries)</td></tr>
+          <tr><td>Secrets (AWS)</td><td>Secrets Manager (not "Key Vault" - that's Azure)</td></tr>
+          <tr><td>Prod identity</td><td>Service principal, not personal token</td></tr>
+          <tr><td>Human access</td><td>Group-based UC grants</td></tr>
+          <tr><td>Least privilege</td><td>Separate roles/prefixes per env (dev/test/prod)</td></tr>
+        </table>
+      </div>
+
+      <div class="cheat-box">
+        <h4>Kafka essentials</h4>
+        <table>
+          <tr><td>Topic</td><td>Named durable log</td></tr>
+          <tr><td>Partition</td><td>Ordered subset; parallelism unit</td></tr>
+          <tr><td>Consumer group</td><td>Splits partitions across consumers</td></tr>
+          <tr><td>Spark read</td><td><code>format("kafka")</code>, cast key/value</td></tr>
+          <tr><td>Default delivery</td><td>At-least-once</td></tr>
+          <tr><td>Exactly-once w/ Delta</td><td>Idempotent sink via checkpoint batch IDs</td></tr>
+        </table>
+      </div>
+
+      <div class="cheat-box">
+        <h4>Medallion / SCD quick rules</h4>
+        <ul>
+          <li>Bronze = replay capability (as-received)</li>
+          <li>Silver = clean, typed, SCD logic lives here</li>
+          <li>Gold = aggregated, report/KPI-shaped</li>
+          <li>SCD-1: overwrite, no history needed</li>
+          <li>SCD-2: effective-dated rows, "as of" queries matter</li>
+          <li>Storage is cheap; unaudited/unreplayable data is expensive</li>
+          <li>Skip layers only for tiny, static, low-risk lookups</li>
+        </ul>
+      </div>
+
+      <div class="cheat-box">
+        <h4>Your CV numbers (memorize)</h4>
+        <ul>
+          <li>40% fewer pipeline failures (schema-drift framework)</li>
+          <li>60% faster onboarding (DDL auto-generation)</li>
+          <li>100+ Delta tables auto-provisioned</li>
+          <li>15+ PII columns masked via UC-level UDFs</li>
+          <li>25 daily file ingestions, 5 ESG apps monitored</li>
+          <li>15+ SharePoint sources migrated to token auth</li>
+          <li>1 crore+ (10M+) material keys, BOM hierarchy pipeline</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- CHECKLIST -->
+  <div class="section" id="tab-checklist">
+    <div class="section-label">Before the call (this week)</div>
+    <div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>Read Delta &amp; Unity Catalog tab twice - it's the highest-probability topic given your CV</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>Practice writing the MERGE-with-schema-evolution and Auto Loader code from the Coding tab without looking (2x each)</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>Prepare your honest answer for "how does DDL actually get deployed by the release team" - don't guess a tool name, explain the likely mechanism</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>Rehearse the medallion/SCD-1 "why 3 copies" answer out loud - it's the single best differentiator question in this doc</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>Sanity-check your ESG data volume story so it's specific but honest (don't invent a precise number you can't defend)</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>Skim AWS + Kafka tabs once - breadth, not depth, is what's being tested there</span></div>
+    </div>
+
+    <div class="section-label">Morning of</div>
+    <div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>Re-read the Cheat Sheet tab top to bottom (10 min)</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>Glance through all 5 mind maps once for the big-picture relationships</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>Keep this doc open in a second tab/monitor if the interview is remote - it's fine to reference during a coding pause, just don't read verbatim</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>Join the Teams meeting a couple minutes early using the link from the invite email</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>Have a Databricks notebook (Community Edition or trial) open in case they want you to actually type code</span></div>
+    </div>
+
+    <div class="section-label">During the call</div>
+    <div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>For every conceptual answer, land it on a specific CV bullet with a number - it's your strongest asset over a generic candidate</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>On anything AWS/Kafka you're unsure of, say what you do know first, then honestly flag the edge of your knowledge rather than bluffing</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>On coding questions, narrate your approach before typing - a 2-hour slot rewards demonstrated thinking, not just a correct final answer</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>If they ask the "3 copies of data" question, don't just defend medallion - acknowledge the storage-cost point is valid, then explain what each layer actually earns</span></div>
+      <div class="check-item" onclick="toggleCheck(this)"><div class="check-box"></div><span>Ask at least one sharp question back near the end - e.g. "what does the release team's DDL deployment pipeline actually look like under the hood?" shows genuine curiosity about exactly the gap they may probe</span></div>
+    </div>
+
+    <div class="section-label">Meeting details (from your invite)</div>
+    <div class="profile-box">
+      <div class="profile-row"><span class="profile-key">Platform</span> Microsoft Teams</div>
+      <div class="profile-row"><span class="profile-key">Meeting ID</span> 287 962 810 934 113</div>
+      <div class="profile-row"><span class="profile-key">Passcode</span> Dw2QC9iV</div>
+      <div class="profile-row"><span class="profile-key">Dial-in (India, Mumbai)</span> +91 22 6219 2532, Phone Conference ID: 374 278 63#</div>
+      <div class="profile-row"><span class="profile-key">Sent by</span> M H TPR (IN) - a third-party resource per the email footer, not an employee; route non-routine questions to your PM/partner instead</div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function toggle(header) {
+  const card = header.closest('.q-card');
+  card.classList.toggle('open');
+}
+function toggleCheck(item) {
+  item.classList.toggle('checked');
+}
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
+  });
+});
+document.querySelectorAll('[data-filtergroup]').forEach(bar => {
+  bar.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      bar.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const filter = btn.dataset.filter;
+      const container = document.getElementById(bar.dataset.filtergroup);
+      container.querySelectorAll('.q-card').forEach(card => {
+        card.style.display = (filter === 'all' || card.dataset.diff === filter) ? '' : 'none';
+      });
+    });
+  });
+});
+</script>
+</body>
+</html>
