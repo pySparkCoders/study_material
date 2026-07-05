@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>PwC Round 2 — Databricks Interview Command Center</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+:root{
+  --bg:#0b0f14;
+  --panel:#121821;
+  --panel-2:#161f2b;
+  --border:#223044;
+  --text:#dbe4ee;
+  --muted:#7f93ab;
+  --amber:#f2a93b;
+  --teal:#45c4b0;
+  --easy:#4ade80;
+  --medium:#f2c94c;
+  --hard:#fb7a3c;
+  --brutal:#ef4458;
+  --mono: ui-monospace, "Cascadia Code", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --sans: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;background:var(--bg);color:var(--text);font-family:var(--sans);}
+body{display:flex;min-height:100vh;}
+
+/* ---------- SIDEBAR ---------- */
+.sidebar{
+  width:250px;flex:0 0 250px;background:var(--panel);border-right:1px solid var(--border);
+  padding:20px 14px;position:sticky;top:0;height:100vh;overflow-y:auto;
+}
+.brand{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--amber);text-transform:uppercase;margin-bottom:4px;}
+.brand-sub{font-size:12px;color:var(--muted);margin-bottom:18px;line-height:1.5;}
+.pipeline{display:flex;gap:4px;margin-bottom:22px;}
+.pipeline span{flex:1;text-align:center;font-family:var(--mono);font-size:9px;padding:5px 2px;border-radius:3px;letter-spacing:.06em;}
+.pipeline .b{background:#3d2f14;color:#cd7f32;}
+.pipeline .s{background:#2b3038;color:#c7ccd1;}
+.pipeline .g{background:#3a3216;color:#e7bf3f;}
+nav a{
+  display:block;font-size:13.5px;color:var(--muted);text-decoration:none;padding:9px 10px;
+  border-radius:6px;margin-bottom:2px;border-left:2px solid transparent;font-weight:500;
+}
+nav a:hover{color:var(--text);background:var(--panel-2);}
+nav a.active{color:var(--amber);background:var(--panel-2);border-left:2px solid var(--amber);}
+.side-foot{margin-top:24px;padding-top:14px;border-top:1px solid var(--border);font-size:11px;color:var(--muted);font-family:var(--mono);line-height:1.6;}
+
+/* ---------- MAIN ---------- */
+main{flex:1;padding:34px 44px;max-width:1180px;}
+section{display:none;animation:fade .25s ease;}
+section.active{display:block;}
+@keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+h1{font-family:var(--mono);font-size:22px;letter-spacing:.02em;margin:0 0 6px;color:var(--text);}
+h1 .tag{color:var(--amber);}
+.subtitle{color:var(--muted);font-size:14px;margin-bottom:28px;max-width:760px;line-height:1.6;}
+h2.sec-h{font-family:var(--mono);font-size:14px;color:var(--teal);text-transform:uppercase;letter-spacing:.1em;margin:34px 0 14px;border-bottom:1px solid var(--border);padding-bottom:8px;}
+h2.sec-h:first-of-type{margin-top:0;}
+p{line-height:1.65;font-size:14.5px;}
+code, .code-inline{font-family:var(--mono);background:#1a2330;padding:1px 6px;border-radius:4px;font-size:13px;color:#9fd8cf;}
+
+/* cards */
+.grid{display:grid;gap:14px;}
+.grid.cols-2{grid-template-columns:1fr 1fr;}
+.grid.cols-3{grid-template-columns:1fr 1fr 1fr;}
+@media(max-width:900px){.grid.cols-2,.grid.cols-3{grid-template-columns:1fr;}}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:10px;padding:16px 18px;}
+.card h3{margin:0 0 10px;font-size:14px;font-family:var(--mono);color:var(--amber);}
+.card ul{margin:0;padding-left:18px;font-size:13.5px;color:var(--text);line-height:1.7;}
+.card ul li{margin-bottom:2px;}
+.card .note{color:var(--muted);font-size:12.5px;margin-top:8px;border-top:1px dashed var(--border);padding-top:8px;}
+
+/* mind map */
+.mindmap-center{text-align:center;background:linear-gradient(135deg,#1c2534,#141b26);border:1px solid var(--amber);border-radius:10px;padding:14px;font-family:var(--mono);font-size:13px;color:var(--amber);margin-bottom:18px;letter-spacing:.04em;}
+.branch{background:var(--panel);border:1px solid var(--border);border-top:3px solid var(--teal);border-radius:8px;padding:14px 16px;}
+.branch h3{margin:0 0 8px;font-family:var(--mono);font-size:13px;color:var(--teal);}
+.branch ul{margin:0;padding-left:16px;font-size:13px;color:var(--muted);line-height:1.75;}
+.branch ul li b{color:var(--text);font-weight:600;}
+
+/* difficulty badges */
+.badge{display:inline-block;font-family:var(--mono);font-size:10px;text-transform:uppercase;letter-spacing:.07em;padding:3px 8px;border-radius:4px;margin-right:8px;font-weight:700;}
+.badge.easy{background:rgba(74,222,128,.15);color:var(--easy);}
+.badge.medium{background:rgba(242,201,76,.15);color:var(--medium);}
+.badge.hard{background:rgba(251,122,60,.15);color:var(--hard);}
+.badge.brutal{background:rgba(239,68,88,.18);color:var(--brutal);}
+
+/* filter bar */
+.filterbar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px;}
+.filterbar button{
+  font-family:var(--mono);font-size:11.5px;text-transform:uppercase;letter-spacing:.06em;
+  background:var(--panel);border:1px solid var(--border);color:var(--muted);padding:7px 13px;border-radius:20px;cursor:pointer;
+}
+.filterbar button.active{border-color:var(--amber);color:var(--amber);background:#1c1710;}
+
+/* qa items via details */
+details.qa{background:var(--panel);border:1px solid var(--border);border-radius:8px;margin-bottom:9px;padding:0;overflow:hidden;}
+details.qa summary{list-style:none;cursor:pointer;padding:13px 16px;font-size:14px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:6px;}
+details.qa summary::-webkit-details-marker{display:none;}
+details.qa summary::before{content:"▸";color:var(--muted);margin-right:2px;transition:transform .15s;}
+details.qa[open] summary::before{transform:rotate(90deg);}
+details.qa .qa-body{padding:0 16px 16px 30px;color:var(--text);font-size:13.8px;line-height:1.7;}
+details.qa .qa-body ul{margin:6px 0;padding-left:18px;}
+.topic-block{margin-bottom:30px;}
+.topic-block > h3{font-family:var(--mono);font-size:15px;color:var(--amber);margin-bottom:10px;border-left:3px solid var(--amber);padding-left:10px;}
+
+/* code coding section */
+.tabs{display:flex;gap:6px;margin-bottom:18px;}
+.tabs button{
+  font-family:var(--mono);font-size:12.5px;padding:9px 18px;border-radius:6px 6px 0 0;
+  background:var(--panel);border:1px solid var(--border);border-bottom:none;color:var(--muted);cursor:pointer;
+}
+.tabs button.active{color:var(--amber);background:var(--panel-2);}
+.tabpane{display:none;}
+.tabpane.active{display:block;}
+.problem{background:var(--panel);border:1px solid var(--border);border-radius:0 8px 8px 8px;padding:18px 20px;margin-bottom:16px;}
+.problem h4{margin:0 0 8px;font-size:14.5px;color:var(--text);}
+.problem .diff{margin-bottom:10px;}
+pre{background:#0a0e13;border:1px solid var(--border);border-radius:6px;padding:14px 16px;overflow-x:auto;font-family:var(--mono);font-size:12.6px;line-height:1.6;color:#c6d6e2;}
+pre .cm{color:#5f7186;}
+.hint{color:var(--muted);font-size:12.8px;margin-top:8px;border-top:1px dashed var(--border);padding-top:8px;}
+
+/* cv section */
+.cv-item{background:var(--panel);border:1px solid var(--border);border-left:3px solid var(--teal);border-radius:0 8px 8px 0;padding:14px 18px;margin-bottom:12px;}
+.cv-item .cv-tag{font-family:var(--mono);font-size:10.5px;color:var(--teal);text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;}
+.cv-item p{margin:4px 0;font-size:13.7px;}
+.cv-item ul{margin:6px 0 0;padding-left:18px;font-size:13.5px;line-height:1.7;}
+
+/* checklist */
+.checklist label{display:flex;align-items:flex-start;gap:10px;font-size:13.8px;padding:9px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.checklist input{margin-top:3px;accent-color:var(--amber);}
+.timeline{border-left:2px solid var(--border);padding-left:20px;margin-left:6px;}
+.timeline .tstep{margin-bottom:18px;position:relative;}
+.timeline .tstep::before{content:"";position:absolute;left:-26px;top:4px;width:9px;height:9px;border-radius:50%;background:var(--amber);}
+.timeline .tstep .ttime{font-family:var(--mono);font-size:11.5px;color:var(--amber);letter-spacing:.05em;}
+.timeline .tstep p{margin:4px 0 0;font-size:13.5px;color:var(--text);}
+</style>
+</head>
+<body>
+
+<div class="sidebar">
+  <div class="brand">// pwc_round2.prep()</div>
+  <div class="brand-sub">Sankha Subhra Mondal<br>Azure / Databricks Data Engineer</div>
+  <div class="pipeline"><span class="b">BRONZE</span><span class="s">SILVER</span><span class="g">GOLD</span></div>
+  <nav>
+    <a href="#" data-target="overview" class="active">Overview & Timing</a>
+    <a href="#" data-target="mindmap">Mind Map</a>
+    <a href="#" data-target="cheatsheets">Cheat Sheets</a>
+    <a href="#" data-target="cvdive">CV Deep-Dive</a>
+    <a href="#" data-target="topicqa">Topic Q&A Bank</a>
+    <a href="#" data-target="handson">Hands-On Coding</a>
+    <a href="#" data-target="checklist">Final Checklist</a>
+  </nav>
+  <div class="side-foot">Sources: PwC interview mail (Jul 3 '26) · Tech Interview Titans (Big4 DE guide) · Databricks Q-bank · Praveen Patel's PwC SDE interview experience · your CV</div>
+</div>
+
+<main>
+
+<!-- ============ OVERVIEW ============ -->
+<section id="overview" class="active">
+  <h1><span class="tag">//</span> Round 2 Command Center</h1>
+  <p class="subtitle">This is built specifically around your CV (schema-drift framework, DDL auto-generation, Unity Catalog PII masking, SCD2 MERGE, recursive BOM explosion) crossed with what PwC and other Big-4 interviewers actually asked for Databricks/Azure Data Engineer roles at the 3–5 yr level. No JD file was attached — this is calibrated to a Databricks-heavy Senior/experienced Azure Data Engineer round based on your CV, the PwC interview invite, and the reference material you provided.</p>
+
+  <h2 class="sec-h">Likely interview shape (30 min – 1.5 hr)</h2>
+  <div class="timeline">
+    <div class="tstep"><span class="ttime">00:00 – 00:05</span><p><b>Intro / warm-up</b> — "Walk me through your current project." Have a 90-second version ready (domain → your role → architecture → one number-backed impact).</p></div>
+    <div class="tstep"><span class="ttime">00:05 – 00:20</span><p><b>Conceptual grilling</b> — Spark internals, Delta Lake, Unity Catalog, ADF. They will pick 1–2 topics and go deep rather than breadth-first, especially anything you mention unprompted (you said "PII masking UDF at Unity Catalog level" — expect 3 follow-ups on exactly that).</p></div>
+    <div class="tstep"><span class="ttime">00:20 – 00:45</span><p><b>Hands-on / live coding</b> — SQL window function or dedup, PySpark DataFrame transformation, sometimes a whiteboard MERGE statement. Screen-share, so type clean code, narrate as you go.</p></div>
+    <div class="tstep"><span class="ttime">00:45 – 01:05</span><p><b>Scenario/design</b> — "Design a pipeline for X TB/day," "Job runs for 4 hours, what do you check," "duplicate data in reports" — they want your troubleshooting order, not a perfect answer.</p></div>
+    <div class="tstep"><span class="ttime">01:05 – 01:20</span><p><b>Behavioral + project cross-questioning</b> — conflict, ownership, awards, "why this approach," client-facing situations (PwC cares about this a lot — it's consulting).</p></div>
+    <div class="tstep"><span class="ttime">01:20 – 01:30</span><p><b>Your questions for them</b> — always have 2–3 ready (team structure, tech stack maturity, what a strong first 90 days looks like).</p></div>
+  </div>
+
+  <h2 class="sec-h">How to use this doc</h2>
+  <div class="grid cols-3">
+    <div class="card"><h3>1. Mind Map</h3><p style="font-size:13px;color:var(--muted)">6 non-overlapping topic clusters so you know what "buckets" questions fall into mid-interview.</p></div>
+    <div class="card"><h3>2. Cheat Sheets</h3><p style="font-size:13px;color:var(--muted)">One-glance recall cards — read these 30 min before the call.</p></div>
+    <div class="card"><h3>3. Topic Q&A</h3><p style="font-size:13px;color:var(--muted)">Easy → Brutal, filterable by difficulty, across every core topic.</p></div>
+    <div class="card"><h3>4. CV Deep-Dive</h3><p style="font-size:13px;color:var(--muted)">Exact follow-ups they'll ask on your own bullet points — technical and behavioral.</p></div>
+    <div class="card"><h3>5. Hands-On Coding</h3><p style="font-size:13px;color:var(--muted)">SQL / PySpark / Python problems with solutions, including a brutal recursive one drawn from your own resume.</p></div>
+    <div class="card"><h3>6. Checklist</h3><p style="font-size:13px;color:var(--muted)">Night-before / hour-before tick list.</p></div>
+  </div>
+</section>
+
+<!-- ============ MIND MAP ============ -->
+<section id="mindmap">
+  <h1><span class="tag">//</span> Interview Topic Mind Map</h1>
+  <p class="subtitle">Six clusters, deliberately non-overlapping — if a question doesn't fit cleanly into one bucket, it's usually a scenario question that blends two.</p>
+  <div class="mindmap-center">◆ PwC ROUND 2 — AZURE DATABRICKS DATA ENGINEER ◆</div>
+  <div class="grid cols-3">
+    <div class="branch"><h3>① Spark & PySpark Core</h3><ul>
+      <li><b>Architecture:</b> Driver/Executor/Cluster Manager</li>
+      <li><b>Transformations:</b> narrow vs wide, lazy eval</li>
+      <li><b>Performance pain:</b> data skew, spill, shuffle</li>
+      <li><b>Joins:</b> broadcast, sort-merge, skew joins</li>
+      <li><b>Streaming:</b> structured streaming, watermarking, late data</li>
+    </ul></div>
+    <div class="branch"><h3>② Delta Lake & Lakehouse</h3><ul>
+      <li><b>ACID</b> on object storage, transaction log</li>
+      <li><b>MERGE INTO</b> — upsert, SCD2, CDC</li>
+      <li><b>Time travel</b>, VACUUM, OPTIMIZE</li>
+      <li><b>Z-Order vs V-Order</b> vs partitioning</li>
+      <li><b>Medallion architecture</b> — Bronze/Silver/Gold, DLT</li>
+    </ul></div>
+    <div class="branch"><h3>③ Unity Catalog & Governance</h3><ul>
+      <li><b>3-level namespace:</b> catalog.schema.table</li>
+      <li><b>Row/column-level security</b>, dynamic views</li>
+      <li><b>PII masking</b> via UDFs / column masks</li>
+      <li><b>Secrets & Key Vault</b>-backed scopes</li>
+      <li><b>Lineage & audit</b> for compliance (IPE)</li>
+    </ul></div>
+    <div class="branch"><h3>④ Azure Integration & Orchestration</h3><ul>
+      <li><b>ADF:</b> pipelines, triggers, Integration Runtime</li>
+      <li><b>Self-hosted vs Azure IR</b> — networking/security</li>
+      <li><b>Incremental load</b> — watermark, CDC</li>
+      <li><b>Failure handling:</b> retries, alerting, checkpoints</li>
+      <li><b>ADLS Gen2</b> hierarchy & mount strategy</li>
+    </ul></div>
+    <div class="branch"><h3>⑤ Performance & Cost Optimization</h3><ul>
+      <li><b>Partitioning vs Z-Ordering</b> trade-offs at scale</li>
+      <li><b>Caching</b>, AQE, dynamic allocation</li>
+      <li><b>Cluster sizing</b> — job clusters vs all-purpose</li>
+      <li><b>Data quality gates</b> Bronze → Silver</li>
+      <li><b>Schema evolution</b> without breaking Power BI</li>
+    </ul></div>
+    <div class="branch"><h3>⑥ Your Projects & Behavioral</h3><ul>
+      <li><b>Schema drift framework</b> (10+ feeds, 40% fewer failures)</li>
+      <li><b>DDL auto-generation</b> (100+ tables, 60% faster onboarding)</li>
+      <li><b>PII masking / IPE docs</b> for audit</li>
+      <li><b>Conflict, ownership, client conversations</b></li>
+      <li><b>"Why this approach"</b> — justify design trade-offs</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ============ CHEAT SHEETS ============ -->
+<section id="cheatsheets">
+  <h1><span class="tag">//</span> Cheat Sheets</h1>
+  <p class="subtitle">Non-overlapping, one card per topic. Skim these right before the call.</p>
+
+  <div class="grid cols-2">
+    <div class="card"><h3>Narrow vs Wide Transformations</h3><ul>
+      <li><b>Narrow</b> — output partition depends on 1 input partition. <code>map, filter, union</code>. No shuffle.</li>
+      <li><b>Wide</b> — depends on multiple partitions. <code>groupBy, join, distinct, repartition</code>. Triggers shuffle → network I/O, disk spill, stage boundary.</li>
+      <li>Perf impact: more wide transforms = more stages = more shuffle = slower job. Minimize by filtering early, using broadcast joins for small tables.</li>
+    </ul></div>
+
+    <div class="card"><h3>Spark Spill</h3><ul>
+      <li>Happens when a task's in-memory data (shuffle/aggregation buffer) exceeds executor memory → spills to disk.</li>
+      <li><b>Spark UI signal:</b> Stage detail page shows "Spill (Memory)" / "Spill (Disk)" columns.</li>
+      <li><b>Fix:</b> increase <code>spark.executor.memory</code>, reduce partition size (more partitions), salt skewed keys, use broadcast join, enable AQE.</li>
+    </ul></div>
+
+    <div class="card"><h3>Delta MERGE INTO (upsert/SCD2)</h3><pre style="margin-top:8px;font-size:11.5px">MERGE INTO target t
+USING source s ON t.id = s.id
+WHEN MATCHED AND s.hash != t.hash
+  THEN UPDATE SET *
+WHEN NOT MATCHED
+  THEN INSERT *</pre>
+      <div class="note">For SCD2: matched → close old row (set end_date, is_current=false) instead of overwrite, then insert new version.</div>
+    </div>
+
+    <div class="card"><h3>Z-Order vs V-Order vs Partitioning</h3><ul>
+      <li><b>Partitioning:</b> physical folders by low-cardinality column (date). Enables partition pruning; too many small partitions → small-file problem.</li>
+      <li><b>Z-Order:</b> co-locates related data across files for multi-column data skipping (good on high-cardinality filter columns).</li>
+      <li><b>V-Order (Fabric/Databricks):</b> writes Parquet with special sorting/encoding so downstream Power BI/DirectLake reads are faster — a write-time optimization, not a query hint.</li>
+      <li>Rule of thumb for 10TB: partition by date (coarse), Z-Order on 1–3 frequently filtered columns within partitions.</li>
+    </ul></div>
+
+    <div class="card"><h3>Medallion Architecture</h3><ul>
+      <li><b>Bronze:</b> raw, as-is, append-only, schema-on-read.</li>
+      <li><b>Silver:</b> cleaned, deduped, conformed, business keys enforced — <i>engineers treat this as source of truth</i> because it's validated but not yet aggregated/opinionated like Gold.</li>
+      <li><b>Gold:</b> aggregated, denormalized, consumption-ready (star schema, BI).</li>
+    </ul></div>
+
+    <div class="card"><h3>Column-Level Security / PII Masking</h3><ul>
+      <li>Unity Catalog: <code>CREATE MASKING POLICY</code> or dynamic views with <code>CASE WHEN is_member('pii_group') THEN col ELSE 'MASKED' END</code>.</li>
+      <li>Custom-UDF approach (your CV): apply masking function at ingestion/write time when catalog-native masking isn't available or when policy needs custom logic (hashing, partial masking).</li>
+      <li>Trade-off: catalog-native masking = centrally managed, works for anyone querying; UDF-at-write = simpler but bakes the decision in at write time.</li>
+    </ul></div>
+
+    <div class="card"><h3>Watermarking (Structured Streaming)</h3><ul>
+      <li>Tells Spark "how late is too late" — <code>withWatermark("event_time","10 minutes")</code>.</li>
+      <li>Used with windowed aggregations to bound state size; anything later than watermark is dropped (or side-outputted).</li>
+      <li>Late data beyond watermark → route to a dead-letter/late table instead of silently dropping, if correctness matters.</li>
+    </ul></div>
+
+    <div class="card"><h3>Self-Hosted IR vs Azure IR</h3><ul>
+      <li><b>Azure IR:</b> fully managed, public network, for cloud-to-cloud movement.</li>
+      <li><b>Self-hosted IR:</b> installed on-prem/VM, needed when source is behind firewall / on-prem (e.g. on-prem SQL Server, SharePoint on private network).</li>
+      <li>Security: self-hosted IR needs outbound-only connectivity setup, node redundancy for HA; Azure IR relies on Azure's managed network + private endpoints/VNET integration for security.</li>
+    </ul></div>
+  </div>
+</section>
+
+<!-- ============ CV DEEP DIVE ============ -->
+<section id="cvdive">
+  <h1><span class="tag">//</span> CV Deep-Dive — Questions From Your Own Resume</h1>
+  <p class="subtitle">Interviewers love pulling on the thread of whatever you wrote. Every bullet below is paired with the exact follow-ups likely to come, plus what a strong answer touches on.</p>
+
+  <h2 class="sec-h">Technical — Project Bullets</h2>
+
+  <div class="cv-item">
+    <div class="cv-tag">Schema drift framework — 10+ source feeds, 40% fewer Bronze→Silver failures</div>
+    <p><b>They'll ask:</b></p>
+    <ul>
+      <li>"How exactly did you detect schema drift — column added, removed, or type changed?"</li>
+      <li>"What did the framework <i>do</i> when it detected drift — auto-evolve, quarantine, alert?"</li>
+      <li>"How is this different from just using <code>mergeSchema</code>?"</li>
+      <li>"What happens if a column type changes incompatibly (string→int)? Walk me through failure mode."</li>
+    </ul>
+    <p><b>Strong answer hits:</b> comparing incoming schema against a stored expected schema (from Delta table metadata or a schema registry), classifying drift type (additive/breaking), auto-handling additive drift via <code>mergeSchema</code>/explicit ALTER, routing breaking drift to a quarantine table + alert instead of failing the whole pipeline job.</p>
+  </div>
+
+  <div class="cv-item">
+    <div class="cv-tag">Dynamic DDL auto-generation — 100+ Delta tables from CSV/Parquet, 60% faster onboarding</div>
+    <p><b>They'll ask:</b></p>
+    <ul>
+      <li>"How do you infer types reliably from CSV — what about ambiguous columns (dates vs strings)?"</li>
+      <li>"How do you handle naming convention/column name sanitization (spaces, special chars)?"</li>
+      <li>"What if two sources have a column with same name but different meaning?"</li>
+      <li>"Is this idempotent — can you re-run it safely?"</li>
+    </ul>
+    <p><b>Strong answer hits:</b> use <code>spark.read.option("inferSchema")</code> as a starting point but override with explicit type mapping rules/config, sanitize column names programmatically, generate DDL text and diff against existing table before applying (idempotent — CREATE TABLE IF NOT EXISTS / ALTER only if diff exists).</p>
+  </div>
+
+  <div class="cv-item">
+    <div class="cv-tag">PII masking with custom UDFs — 15+ columns at Unity Catalog level, IPE docs</div>
+    <p><b>They'll ask:</b></p>
+    <ul>
+      <li>"Why UDF instead of Unity Catalog's native column masking policies?"</li>
+      <li>"Is the masking reversible? Who can see unmasked data and how is that controlled?"</li>
+      <li>"What's IPE and why does it matter here?" <span style="color:var(--muted)">(Information Produced by Entity — auditors need to trust the report was generated correctly; you need documented evidence of controls, e.g. masking logic, for SOX/audit trails)</span></li>
+      <li>"How would you performance-test a UDF applied to 15 columns across billions of rows?" — expect them to push toward <code>pandas_udf</code>/vectorized UDFs vs regular UDFs.</li>
+    </ul>
+  </div>
+
+  <div class="cv-item">
+    <div class="cv-tag">Ingestion monitoring — 25 daily files, 5 ESG apps (TCFD, LCA, Sustainability, ESG HR, ESG HSE)</div>
+    <p><b>They'll ask:</b> "How do you define 'success' vs 'delay' vs 'failure' for a file?" · "Who gets alerted and how (email, Teams, PagerDuty)?" · "How do you avoid alert fatigue?"</p>
+    <p><b>Strong answer hits:</b> a control/audit table logging expected-vs-actual arrival time and row counts, SLA thresholds per feed, tiered alerting (warn at delay, page at failure), dashboard for data owners.</p>
+  </div>
+
+  <div class="cv-item">
+    <div class="cv-tag">Bronze→Silver SCD Type 2 MERGE — Your-Cause CSR data vs Employee Dimension</div>
+    <p><b>They'll ask:</b> "Why SCD2 and not SCD1 here?" · "What's your business/surrogate key?" · "How do you detect 'what changed' — full row hash?" · "What if the same employee record changes twice in one batch?"</p>
+    <p><b>Strong answer hits:</b> SCD2 needed because ESG KPI/disclosure reporting requires point-in-time history (what was the org structure/employee attribute when the disclosure was filed); use hash of tracked columns to detect change; dedupe intra-batch changes by taking the latest per key before merging.</p>
+  </div>
+
+  <div class="cv-item">
+    <div class="cv-tag">Recursive BOM hierarchy explosion — 1 crore+ material keys, iterative joins</div>
+    <p><b>They'll ask:</b> "Spark doesn't do native recursive CTEs — how did you implement recursion?" · "How many iterations, and how did you know when to stop?" · "How did you avoid exploding row counts/cartesian blowup at that scale?" · "Could this be done differently in native Delta/Databricks today (e.g. GraphFrames)?"</p>
+    <p><b>Strong answer hits:</b> iterative self-join (parent→child) with a loop, alias-based join per level, break condition = no new rows joined in an iteration, checkpoint/cache each iteration's DataFrame to cut the lineage (avoid huge recomputation graphs), consider <code>GraphFrames</code>' <code>connectedComponents</code>/BFS as an alternative for very deep hierarchies.</p>
+  </div>
+
+  <div class="cv-item">
+    <div class="cv-tag">SharePoint auth migration — password → token-based, 15+ connections</div>
+    <p><b>They'll ask:</b> "Why is token-based more secure/reliable?" · "How do you handle token refresh/expiry in a scheduled pipeline?" · "Where are secrets stored — Key Vault?"</p>
+  </div>
+
+  <h2 class="sec-h">Behavioral (PwC weighs this heavily — it's consulting)</h2>
+  <div class="grid cols-2">
+    <div class="card"><h3>Likely questions</h3><ul>
+      <li>Tell me about a time a pipeline broke in production — what did you do?</li>
+      <li>Tell me about a disagreement with a teammate or client — how resolved?</li>
+      <li>What's the "On the Spot Award" for — walk me through it.</li>
+      <li>How do you prioritize across 5 ESG applications with competing deadlines?</li>
+      <li>Tell me about a time you had to explain a technical limitation to a non-technical stakeholder.</li>
+      <li>Why are you moving from TCS to PwC?</li>
+      <li>What do you know about PwC's business / data engineering practice?</li>
+    </ul></div>
+    <div class="card"><h3>STAR prep tip</h3><p style="font-size:13.5px;color:var(--muted)">Pre-write 3 stories (one technical failure recovered, one conflict resolved, one initiative that drove a metric) and map each to Situation → Task → Action → Result with a number in the Result. Your resume already has the numbers (40%, 60%, 1.8hr from 5hr-style improvements) — reuse them verbatim.</p></div>
+  </div>
+</section>
+
+<!-- ============ TOPIC Q&A ============ -->
+<section id="topicqa">
+  <h1><span class="tag">//</span> Topic Q&A Bank</h1>
+  <p class="subtitle">Filter by difficulty. Click a question to expand the answer.</p>
+  <div class="filterbar" id="diffFilter">
+    <button class="active" data-diff="all">All</button>
+    <button data-diff="easy">Easy</button>
+    <button data-diff="medium">Medium</button>
+    <button data-diff="hard">Hard</button>
+    <button data-diff="brutal">Brutal</button>
+  </div>
+
+  <div class="topic-block">
+    <h3>Spark & PySpark Core</h3>
+
+    <details class="qa" data-diff="easy"><summary><span class="badge easy">Easy</span>Transformation vs Action?</summary>
+      <div class="qa-body">Transformations (<code>select, filter, map, join</code>) are lazy — build a logical plan. Actions (<code>show, count, collect, write</code>) trigger execution of the DAG.</div>
+    </details>
+
+    <details class="qa" data-diff="easy"><summary><span class="badge easy">Easy</span>What is lazy evaluation and why does Spark do it?</summary>
+      <div class="qa-body">Spark delays execution until an action is hit so it can build an optimized physical plan (Catalyst optimizer) across the whole chain — predicate pushdown, combining narrow transforms into one stage — instead of executing each line eagerly.</div>
+    </details>
+
+    <details class="qa" data-diff="medium"><summary><span class="badge medium">Medium</span>Explain data skew — symptoms and 3 fixes.</summary>
+      <div class="qa-body">Uneven key distribution across partitions → a few tasks take far longer than others (visible in Spark UI as long-tail task duration, executor idle time). Fixes: <b>salting</b> the skewed key with a random suffix and exploding the small side, <b>broadcast join</b> if one side is small, <b>repartition</b> on a better key, or enable <b>AQE skew join optimization</b> (auto-splits skewed partitions in Spark 3+).</div>
+    </details>
+
+    <details class="qa" data-diff="medium"><summary><span class="badge medium">Medium</span>How would you handle late-arriving data in a PySpark structured streaming pipeline?</summary>
+      <div class="qa-body">Define a watermark on event time (<code>withWatermark</code>) sized to your acceptable lateness; do windowed aggregation with that watermark. Data arriving after the watermark is dropped by default — if you can't afford to lose it, write a parallel "late arrivals" sink (foreachBatch capturing rows older than watermark) and reconcile downstream, or use Delta MERGE to correct Gold-layer aggregates when late data does arrive.</div>
+    </details>
+
+    <details class="qa" data-diff="hard"><summary><span class="badge hard">Hard</span>Spark job that normally runs 40 min is now taking 4 hours — walk me through your diagnosis order.</summary>
+      <div class="qa-body">1) Spark UI → find the slow stage, check for skew (task duration variance) and spill (memory/disk spill columns). 2) Check shuffle read/write size — did upstream data volume spike? 3) Check for a cartesian/exploding join (row count blowup mid-DAG). 4) Check cluster health — are executors being killed/restarted (check event log for executor loss)? 5) Check if a broadcast join silently stopped being broadcast (table grew past <code>autoBroadcastJoinThreshold</code>). 6) Only after isolating the cause, apply the fix (repartition/salt/broadcast/cache) — don't just "throw more cluster" at it without knowing why.</div>
+    </details>
+
+    <details class="qa" data-diff="brutal"><summary><span class="badge brutal">Brutal</span>Two jobs reading the same Delta table concurrently — one is a batch overwrite, one is a streaming reader. What can go wrong, and how do you design around it?</summary>
+      <div class="qa-body">Delta's transaction log gives ACID at the table level but a streaming reader tracks its own read progress via the log; a concurrent <code>overwrite</code> (not append/merge) rewrites files and can break the stream's file tracking or cause it to reprocess/duplicate if not handled via <code>ignoreDeletes</code>/<code>ignoreChanges</code> options, or fail outright with a "files were deleted" error. Design: avoid full overwrites on tables with active streaming readers — use MERGE/append patterns instead, or explicitly set the stream's `ignoreChanges` option knowing it changes exactly-once semantics into at-least-once for changed rows.</div>
+    </details>
+  </div>
+
+  <div class="topic-block">
+    <h3>Delta Lake</h3>
+
+    <details class="qa" data-diff="easy"><summary><span class="badge easy">Easy</span>Delta Lake vs Parquet?</summary>
+      <div class="qa-body">Parquet is a file format only — no transaction log, no ACID, no schema enforcement across writes. Delta = Parquet files + a JSON/checkpoint transaction log giving ACID, time travel, schema enforcement/evolution, and support for concurrent reads/writes.</div>
+    </details>
+
+    <details class="qa" data-diff="medium"><summary><span class="badge medium">Medium</span>Describe ACID properties in Delta Lake with an example.</summary>
+      <div class="qa-body"><b>Atomicity:</b> a MERGE either fully commits or not at all (no partial writes) — tracked via the transaction log's commit JSON. <b>Consistency:</b> schema enforcement rejects a write that violates the table's schema. <b>Isolation:</b> concurrent writers use optimistic concurrency control — a conflicting concurrent commit fails and retries rather than corrupting data. <b>Durability:</b> once committed to the log, the write survives failures since it's persisted to cloud storage.</div>
+    </details>
+
+    <details class="qa" data-diff="medium"><summary><span class="badge medium">Medium</span>When would you use Delta Live Tables (DLT) over a standard Spark notebook pipeline?</summary>
+      <div class="qa-body">When you want declarative pipelines with built-in data quality expectations (<code>@dlt.expect</code>), automatic dependency/DAG management between Bronze→Silver→Gold tables, automatic retries, and managed incremental processing — instead of hand-writing orchestration and manual checkpointing. Trade-off: less granular control than hand-rolled notebooks, and a bit of a learning curve/lock-in.</div>
+    </details>
+
+    <details class="qa" data-diff="hard"><summary><span class="badge hard">Hard</span>How do you ensure data quality between Bronze and Silver?</summary>
+      <div class="qa-body">Explicit validation layer: schema/type checks, null checks on business keys, referential checks against dimension tables, row-count reconciliation vs source, duplicate detection on business key + hash of tracked columns. Failing rows get quarantined to a "reject" table with a reason code rather than failing the whole batch. Track pass/fail metrics per run for trend monitoring (a sudden jump in rejects = upstream schema/data problem).</div>
+    </details>
+
+    <details class="qa" data-diff="brutal"><summary><span class="badge brutal">Brutal</span>Design a Bronze table strategy that has to support both daily batch loads and near-real-time streaming from the same source, without duplicating logic or data.</summary>
+      <div class="qa-body">Use Delta's unified batch+streaming API on one Bronze table: streaming writer does structured streaming appends with checkpointing; batch backfills/reprocessing use the same Delta table with idempotent writes keyed on a natural dedup key (source_id + ingestion_timestamp) so re-running batch for a historical date doesn't duplicate what streaming already wrote. Silver layer's MERGE (keyed on business key + max(event_time)) naturally absorbs whichever arrives — batch or stream — as the same logical upsert, so downstream doesn't need to know which path the row came from.</div>
+    </details>
+  </div>
+
+  <div class="topic-block">
+    <h3>Unity Catalog & Governance</h3>
+
+    <details class="qa" data-diff="easy"><summary><span class="badge easy">Easy</span>What's the 3-level namespace in Unity Catalog?</summary>
+      <div class="qa-body"><code>catalog.schema.table</code> — catalog is the top-level container (often maps to an environment or business unit), schema = database, table = the object. This lets one metastore govern multiple catalogs with isolated permissions.</div>
+    </details>
+
+    <details class="qa" data-diff="medium"><summary><span class="badge medium">Medium</span>How do you implement column-level security in a Lakehouse?</summary>
+      <div class="qa-body">Unity Catalog column masks/row filters defined via SQL (<code>ALTER TABLE ... SET MASK</code>) that evaluate the querying user's group membership and return masked/null for unauthorized users — enforced centrally regardless of which tool (notebook, BI, SQL warehouse) queries the table. Alternative for engines without native support: dynamic views with CASE-based masking, or masking at write time via UDF (less flexible — one mask for everyone).</div>
+    </details>
+
+    <details class="qa" data-diff="medium"><summary><span class="badge medium">Medium</span>How do you manage secrets/credentials securely in Databricks?</summary>
+      <div class="qa-body">Azure Key Vault-backed secret scope — <code>dbutils.secrets.get(scope, key)</code> — so secrets never appear in notebook code or logs; access to the scope itself is controlled by Databricks ACLs, and the underlying values live in Key Vault (rotated centrally, audited via Key Vault logs).</div>
+    </details>
+
+    <details class="qa" data-diff="hard"><summary><span class="badge hard">Hard</span>How would you prove to an auditor that PII was actually masked for every query, not just the ones you tested?</summary>
+      <div class="qa-body">Point to centrally-enforced Unity Catalog masking policies (not per-notebook logic) — since the mask lives on the table object, it applies to every access path (SQL warehouse, notebook, BI tool) and you can show the policy definition + Unity Catalog audit logs proving no user without the entitlement group ever received unmasked values. This is exactly why catalog-native masking is generally preferred over UDF-at-write for anything audit-sensitive — a UDF only protects the one pipeline that calls it, not other consumers of the raw table.</div>
+    </details>
+
+    <details class="qa" data-diff="brutal"><summary><span class="badge brutal">Brutal</span>A data scientist needs row-level access to only their region's data across 40 tables, and requirements change monthly. How do you avoid rewriting 40 view definitions every time?</summary>
+      <div class="qa-body">Externalize the entitlement mapping into a small control table (user/group → allowed region list) rather than hardcoding in the view SQL. Write one row-filter function referencing that control table (<code>is_account_group_member</code> combined with a lookup), attach it as a Unity Catalog row filter to all 40 tables. Changing access = updating the control table, not touching 40 view definitions — governance change becomes a data change, not a code deployment.</div>
+    </details>
+  </div>
+
+  <div class="topic-block">
+    <h3>Azure Integration & Orchestration</h3>
+
+    <details class="qa" data-diff="easy"><summary><span class="badge easy">Easy</span>What are the core components of ADF?</summary>
+      <div class="qa-body">Pipelines (containers of activities), Activities (the actual work, e.g. Copy), Datasets (schema/location pointers), Linked Services (connection info), Triggers (schedule/event), Integration Runtime (compute that executes the activity).</div>
+    </details>
+
+    <details class="qa" data-diff="medium"><summary><span class="badge medium">Medium</span>How do you handle incremental loads using MERGE in Delta Lake?</summary>
+      <div class="qa-body">Track a high-watermark (last modified timestamp or CDC sequence) per source; pull only rows changed since the last successful run into a staging table; run <code>MERGE INTO target USING staging</code> keyed on business key, updating matched rows and inserting new ones; on success, advance the watermark (store it in a control table, not just "now()" — use the max value actually processed, to be safe against clock skew).</div>
+    </details>
+
+    <details class="qa" data-diff="medium"><summary><span class="badge medium">Medium</span>How do you troubleshoot a bottleneck in an ADF Copy Activity?</summary>
+      <div class="qa-body">Check the Copy Activity's monitoring detail: DIU (Data Integration Unit) usage, parallel copy count, and where time is spent (source read vs sink write vs data movement). Common fixes: increase DIUs, enable parallel copy, check if the source (e.g. on-prem via self-hosted IR) is the actual bottleneck (network/VM sizing) rather than ADF itself, switch to staged copy (via Blob) for cross-region transfers.</div>
+    </details>
+
+    <details class="qa" data-diff="hard"><summary><span class="badge hard">Hard</span>How do you handle schema evolution in Bronze/Silver without breaking downstream Power BI reports?</summary>
+      <div class="qa-body">Additive changes (new column) flow through automatically via <code>mergeSchema</code> but Gold/serving views should explicitly SELECT named columns (not <code>SELECT *</code>) so a new column doesn't silently appear/break a report expecting a fixed shape. Breaking changes (renamed/retyped column) should go through a versioned view or a deliberate migration window communicated to BI consumers — never let a schema change flow straight to a live Power BI dataset without a contract/versioning layer in between.</div>
+    </details>
+
+    <details class="qa" data-diff="brutal"><summary><span class="badge brutal">Brutal</span>Source API fails intermittently (roughly 1 in 20 calls) inside an ADF pipeline feeding a Databricks job. Design the end-to-end resilience strategy.</summary>
+      <div class="qa-body">At the ADF Copy/Web activity: retry policy with exponential backoff (not fixed interval, to avoid hammering a struggling API) and a max retry cap; on exhausted retries, activity fails into a documented "partial success" branch rather than failing the whole pipeline. Downstream Databricks job must be idempotent (MERGE-based, not blind append) so a retried/partial batch doesn't create duplicates. Add a reconciliation job comparing source record counts vs landed counts, and alert (not silently continue) if a gap persists beyond a threshold, with checkpointing so a re-run resumes from the last successful point, not from scratch.</div>
+    </details>
+  </div>
+
+  <div class="topic-block">
+    <h3>Performance & Optimization</h3>
+
+    <details class="qa" data-diff="easy"><summary><span class="badge easy">Easy</span>What is a broadcast join and when do you use it?</summary>
+      <div class="qa-body">When one side of a join is small enough to fit in executor memory (default threshold ~10MB, configurable), Spark ships a full copy to every executor instead of shuffling both sides — avoids the shuffle entirely, much faster. Use for dimension-vs-fact joins where the dimension is small.</div>
+    </details>
+
+    <details class="qa" data-diff="medium"><summary><span class="badge medium">Medium</span>How do you choose between partitioning and Z-Ordering for a 10TB dataset?</summary>
+      <div class="qa-body">Partitioning is coarse and physical — best for a low-cardinality column that's always in the filter (date). Over-partitioning (e.g. by customer_id with millions of values) causes a small-file explosion and slow metadata ops. Z-Ordering is for higher-cardinality columns you filter/join on frequently, applied within partitions — it doesn't create physical folders, just co-locates data in files for better data-skipping. Practical approach: partition by date, Z-Order by 1–3 other hot filter columns, and re-run OPTIMIZE ZORDER periodically as new data lands.</div>
+    </details>
+
+    <details class="qa" data-diff="hard"><summary><span class="badge hard">Hard</span>Explain Adaptive Query Execution (AQE) and name 3 concrete things it changes at runtime.</summary>
+      <div class="qa-body">AQE re-optimizes the physical plan mid-execution using actual runtime statistics instead of only static estimates. Three things it does: (1) dynamically coalesces shuffle partitions if they turn out too small, (2) dynamically switches a sort-merge join to a broadcast join if a table turns out smaller than expected after filtering, (3) dynamically splits skewed partitions in a join to avoid one task dominating runtime.</div>
+    </details>
+
+    <details class="qa" data-diff="brutal"><summary><span class="badge brutal">Brutal</span>Your daily Gold aggregation job costs 3x more compute than it did 6 months ago, but data volume has only grown 20%. How do you find and fix the real cause?</summary>
+      <div class="qa-body">Don't assume — compare Spark UI/job history metrics month-over-month: shuffle read/write bytes, spill, number of stages, and cluster utilization (are executors idle waiting, i.e. over-provisioned, or maxed out, i.e. under-provisioned?). Common real causes at this magnitude: (a) upstream schema drift added columns that are now unnecessarily carried through wide shuffles, (b) a join that used to be broadcast now exceeds the threshold as one side quietly grew, (c) accumulated small files in Bronze/Silver making scans slower (check if OPTIMIZE/VACUUM has been running), (d) a well-meaning code change added a <code>.cache()</code> or repartition that's now counter-productive. Fix only after the metric comparison points to a specific stage — resist the urge to "just add more cluster."</div>
+    </details>
+  </div>
+
+  <div class="topic-block">
+    <h3>Data Modeling & Architecture</h3>
+
+    <details class="qa" data-diff="easy"><summary><span class="badge easy">Easy</span>Star vs Snowflake schema?</summary>
+      <div class="qa-body">Star: denormalized dimensions, fewer joins, faster for BI queries — generally preferred in Big-4 reporting projects. Snowflake: normalized dimensions (less redundancy, more joins) — better for storage efficiency and complex hierarchies, less common in BI-serving layers.</div>
+    </details>
+
+    <details class="qa" data-diff="medium"><summary><span class="badge medium">Medium</span>SCD Type 2 — explain with a use case, and how you'd implement it with Delta MERGE.</summary>
+      <div class="qa-body">Keeps full history of dimension changes (e.g. employee changes department) by inserting a new row with a new surrogate key and closing the old row's validity window (<code>end_date</code>, <code>is_current</code>) instead of overwriting. Implementation: MERGE with two WHEN MATCHED branches conceptually — first pass closes changed current rows, second pass (or a UNION staging trick) inserts new versions; many teams do this as two MERGE/INSERT statements in one transaction rather than a single MERGE, since native MERGE can't easily insert-and-update the same logical row in one WHEN clause.</div>
+    </details>
+
+    <details class="qa" data-diff="hard"><summary><span class="badge hard">Hard</span>Design a pipeline processing 1TB/day end-to-end (Azure/Databricks stack).</summary>
+      <div class="qa-body">Source systems → ADF (orchestration, incremental extract via watermark) → ADLS Gen2 Bronze (raw, partitioned by ingestion date) → Databricks/Spark (validation, dedup, conform) → Delta Silver (business-key MERGE, SCD2 where needed) → Delta Gold (star schema aggregates) → Power BI / Synapse serving layer. Optimization levers: incremental loads (never full reprocess), autoscaling job clusters, partition + Z-Order strategy on Silver/Gold, DQ gates between each layer, and a control/metadata table driving the whole thing generically (config-driven pipelines rather than one notebook per source).</div>
+    </details>
+
+    <details class="qa" data-diff="brutal"><summary><span class="badge brutal">Brutal</span>Finance says yesterday's Gold-layer revenue number doesn't match the source system by 2%. Walk me through your root-cause process, end to end.</summary>
+      <div class="qa-body">Work backwards through the medallion layers, not forwards: (1) reconcile Gold aggregate against Silver — is it an aggregation/join fan-out bug? (2) reconcile Silver against Bronze — row counts and a hash-based diff on key columns, to catch a dropped dedup or a bad MERGE match condition. (3) reconcile Bronze against source — did the ADF watermark miss a late-changed record, or did a retry double-count via non-idempotent load? Check the transaction log / job run history for that specific date to see if a job was manually re-run or partially failed. Only once the layer is isolated do you look at the specific transformation logic in that layer — this ordered, layer-by-layer reconciliation is the actual skill being tested, not a guess at the bug.</div>
+    </details>
+  </div>
+</section>
+
+<!-- ============ HANDS ON ============ -->
+<section id="handson">
+  <h1><span class="tag">//</span> Hands-On Coding</h1>
+  <p class="subtitle">Type these yourself before the call — muscle memory matters more than reading them.</p>
+  <div class="tabs" id="codeTabs">
+    <button class="active" data-tab="sql">SQL</button>
+    <button data-tab="pyspark">PySpark</button>
+    <button data-tab="python">Python</button>
+  </div>
+
+  <!-- SQL -->
+  <div class="tabpane active" id="sql">
+    <div class="problem"><div class="diff"><span class="badge easy">Easy</span></div>
+      <h4>Find and remove duplicate rows, keeping the latest by <code>updated_at</code></h4>
+      <pre>WITH ranked AS (
+  SELECT *,
+         ROW_NUMBER() OVER (
+           PARTITION BY business_key
+           ORDER BY updated_at DESC
+         ) AS rn
+  FROM staging_table
+)
+SELECT * FROM ranked WHERE rn = 1;</pre>
+      <div class="hint">This is your dedup-before-MERGE pattern — say this out loud if asked "how do you dedupe intra-batch changes."</div>
+    </div>
+
+    <div class="problem"><div class="diff"><span class="badge medium">Medium</span></div>
+      <h4>Second highest salary per department</h4>
+      <pre>SELECT department_id, employee_id, salary
+FROM (
+  SELECT department_id, employee_id, salary,
+         DENSE_RANK() OVER (
+           PARTITION BY department_id ORDER BY salary DESC
+         ) AS rnk
+  FROM employees
+) t
+WHERE rnk = 2;</pre>
+      <div class="hint">Use DENSE_RANK (not ROW_NUMBER) so ties for 1st place don't accidentally make the 2nd row someone tied for 1st.</div>
+    </div>
+
+    <div class="problem"><div class="diff"><span class="badge medium">Medium</span></div>
+      <h4>Running total of daily ingested rows per feed</h4>
+      <pre>SELECT feed_name, load_date, row_count,
+       SUM(row_count) OVER (
+         PARTITION BY feed_name
+         ORDER BY load_date
+         ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
+       ) AS running_total
+FROM ingestion_log
+ORDER BY feed_name, load_date;</pre>
+    </div>
+
+    <div class="problem"><div class="diff"><span class="badge hard">Hard</span></div>
+      <h4>Gaps-and-islands: find consecutive date ranges of "success" status per pipeline</h4>
+      <pre>WITH flagged AS (
+  SELECT pipeline_id, run_date, status,
+         ROW_NUMBER() OVER (PARTITION BY pipeline_id ORDER BY run_date)
+         - ROW_NUMBER() OVER (PARTITION BY pipeline_id, status ORDER BY run_date) AS grp
+  FROM pipeline_runs
+  WHERE status = 'SUCCESS'
+)
+SELECT pipeline_id, MIN(run_date) AS island_start, MAX(run_date) AS island_end
+FROM flagged
+GROUP BY pipeline_id, grp
+ORDER BY pipeline_id, island_start;</pre>
+      <div class="hint">Classic trick: the difference between two row-number sequences is constant within a consecutive run — that constant is your grouping key.</div>
+    </div>
+
+    <div class="problem"><div class="diff"><span class="badge brutal">Brutal</span></div>
+      <h4>Write the SCD2 close-and-insert as one atomic statement pattern (MERGE-based)</h4>
+      <pre>MERGE INTO dim_employee AS t
+USING (
+  SELECT s.*, 
+         CASE WHEN t2.emp_id IS NOT NULL AND t2.row_hash != s.row_hash
+              THEN 'UPDATE' ELSE 'INSERT' END AS action
+  FROM staging_employee s
+  LEFT JOIN dim_employee t2
+    ON s.emp_id = t2.emp_id AND t2.is_current = true
+) AS src
+ON t.emp_id = src.emp_id AND t.is_current = true AND src.action = 'UPDATE'
+WHEN MATCHED THEN
+  UPDATE SET t.is_current = false, t.end_date = current_date();
+-- second statement (Delta MERGE can't insert+update the same key in one pass cleanly):
+INSERT INTO dim_employee
+SELECT ... FROM staging_employee s
+LEFT ANTI JOIN dim_employee t
+  ON s.emp_id = t.emp_id AND t.is_current = true AND t.row_hash = s.row_hash;</pre>
+      <div class="hint">Be upfront in the interview that native MERGE struggles to update+insert the same logical entity in a single pass — showing you know the limitation is worth more than a "perfect" one-liner.</div>
+    </div>
+  </div>
+
+  <!-- PYSPARK -->
+  <div class="tabpane" id="pyspark">
+    <div class="problem"><div class="diff"><span class="badge easy">Easy</span></div>
+      <h4>Highest salary per department (DataFrame API)</h4>
+      <pre>from pyspark.sql import Window
+from pyspark.sql.functions import col, row_number
+
+w = Window.partitionBy("department_id").orderBy(col("salary").desc())
+
+result = (
+    df.withColumn("rnk", row_number().over(w))
+      .filter(col("rnk") == 1)
+      .drop("rnk")
+)</pre>
+    </div>
+
+    <div class="problem"><div class="diff"><span class="badge easy">Easy</span></div>
+      <h4>Broadcast join example (dimension vs fact)</h4>
+      <pre>from pyspark.sql.functions import broadcast
+
+result = fact_df.join(
+    broadcast(dim_customer_df),
+    fact_df.customer_id == dim_customer_df.customer_id,
+    "left"
+)</pre>
+    </div>
+
+    <div class="problem"><div class="diff"><span class="badge medium">Medium</span></div>
+      <h4>PII masking with a vectorized UDF (pandas_udf) — from your own CV context</h4>
+      <pre>import hashlib
+from pyspark.sql.functions import pandas_udf
+import pandas as pd
+
+@pandas_udf("string")
+def mask_pii(col: pd.Series) -> pd.Series:
+    return col.apply(
+        lambda v: hashlib.sha256(v.encode()).hexdigest()[:12] if v else v
+    )
+
+masked_df = raw_df.withColumn("email_masked", mask_pii(raw_df.email))</pre>
+      <div class="hint">Say why <code>pandas_udf</code> (vectorized, Arrow-backed) beats a plain row-at-a-time UDF for 15 columns across billions of rows: far less Python/JVM serialization overhead.</div>
+    </div>
+
+    <div class="problem"><div class="diff"><span class="badge medium">Medium</span></div>
+      <h4>Delta MERGE for incremental upsert in PySpark</h4>
+      <pre>from delta.tables import DeltaTable
+
+target = DeltaTable.forName(spark, "silver.employee")
+
+(target.alias("t")
+  .merge(staging_df.alias("s"), "t.emp_id = s.emp_id")
+  .whenMatchedUpdateAll(condition="t.row_hash != s.row_hash")
+  .whenNotMatchedInsertAll()
+  .execute())</pre>
+    </div>
+
+    <div class="problem"><div class="diff"><span class="badge hard">Hard</span></div>
+      <h4>Handle schema drift dynamically when reading multiple source feeds</h4>
+      <pre>from pyspark.sql.utils import AnalysisException
+
+def read_with_drift_handling(path, expected_schema, spark):
+    df = spark.read.option("mergeSchema", "true").parquet(path)
+    incoming_cols = set(df.columns)
+    expected_cols = set(expected_schema.fieldNames())
+
+    new_cols = incoming_cols - expected_cols
+    missing_cols = expected_cols - incoming_cols
+
+    if new_cols:
+        # additive drift -> allow, log for schema registry update
+        print(f"New columns detected, allowing: {new_cols}")
+    if missing_cols:
+        # backfill missing expected columns as null to keep contract stable
+        for c in missing_cols:
+            df = df.withColumn(c, F.lit(None))
+
+    return df.select(*expected_schema.fieldNames(), *new_cols)</pre>
+      <div class="hint">This mirrors your resume's "schema drift framework" bullet — be ready to extend it live with "what if a type changed, not just a column."</div>
+    </div>
+
+    <div class="problem"><div class="diff"><span class="badge hard">Hard</span></div>
+      <h4>Structured streaming with watermark + late-data side output</h4>
+      <pre>from pyspark.sql.functions import window, col
+
+agg_df = (
+    stream_df
+      .withWatermark("event_time", "15 minutes")
+      .groupBy(window(col("event_time"), "10 minutes"))
+      .count()
+)
+
+def write_batch(batch_df, batch_id):
+    on_time = batch_df.filter(col("event_time") >= col("window.start"))
+    on_time.write.format("delta").mode("append").saveAsTable("gold.event_counts")
+
+query = agg_df.writeStream.foreachBatch(write_batch).start()</pre>
+    </div>
+
+    <div class="problem"><div class="diff"><span class="badge brutal">Brutal</span></div>
+      <h4>Recursive BOM hierarchy explosion (your own resume's hardest bullet — be ready to reproduce this live)</h4>
+      <pre>from pyspark.sql.functions import col, lit
+
+def explode_bom(bom_df, root_items_df, max_depth=15):
+    """
+    bom_df: parent_material_id, child_material_id, qty
+    root_items_df: material_id (top-level items to explode)
+    """
+    current_level = (
+        root_items_df
+          .withColumnRenamed("material_id", "parent_material_id")
+          .withColumn("level", lit(0))
+          .withColumn("path", col("parent_material_id").cast("string"))
+    )
+    result = current_level
+    depth = 0
+
+    while depth < max_depth:
+        next_level = (
+            current_level.alias("cur")
+              .join(bom_df.alias("bom"),
+                    col("cur.parent_material_id") == col("bom.parent_material_id"))
+              .select(
+                  col("bom.child_material_id").alias("parent_material_id"),
+                  (col("cur.level") + 1).alias("level"),
+                  F.concat(col("cur.path"), F.lit(">"), col("bom.child_material_id")).alias("path")
+              )
+        )
+        if next_level.limit(1).count() == 0:
+            break  # no new rows joined -> stop condition
+        next_level = next_level.cache()   # cut lineage growth each iteration
+        result = result.unionByName(next_level)
+        current_level = next_level
+        depth += 1
+
+    return result</pre>
+      <div class="hint">Talking points if pushed: cache/checkpoint each iteration to avoid an exploding lineage graph across 1 crore+ keys, cap max_depth as a safety valve against circular BOMs, and mention GraphFrames BFS as the "more correct" alternative if they ask for a better way.</div>
+    </div>
+  </div>
+
+  <!-- PYTHON -->
+  <div class="tabpane" id="python">
+    <div class="problem"><div class="diff"><span class="badge easy">Easy</span></div>
+      <h4>Generator to read a huge file in chunks (memory-safe)</h4>
+      <pre>def read_in_chunks(file_path, chunk_size=1024 * 1024):
+    with open(file_path, "r") as f:
+        while chunk := f.read(chunk_size):
+            yield chunk</pre>
+    </div>
+
+    <div class="problem"><div class="diff"><span class="badge medium">Medium</span></div>
+      <h4>Decorator: retry with exponential backoff (ties into ADF resilience answer)</h4>
+      <pre>import time, random, functools
+
+def retry_with_backoff(max_retries=5, base_delay=1):
+    def decorator(fn):
+        @functools.wraps(fn)
+        def wrapper(*args, **kwargs):
+            for attempt in range(max_retries):
+                try:
+                    return fn(*args, **kwargs)
+                except Exception as e:
+                    if attempt == max_retries - 1:
+                        raise
+                    delay = base_delay * (2 ** attempt) + random.uniform(0, 1)
+                    time.sleep(delay)
+        return wrapper
+    return decorator
+
+@retry_with_backoff(max_retries=4)
+def call_flaky_api():
+    ...</pre>
+    </div>
+
+    <div class="problem"><div class="diff"><span class="badge medium">Medium</span></div>
+      <h4>Flatten a deeply nested JSON (common for landing API payloads to Bronze)</h4>
+      <pre>def flatten_json(obj, parent_key="", sep="."):
+    items = {}
+    if isinstance(obj, dict):
+        for k, v in obj.items():
+            new_key = f"{parent_key}{sep}{k}" if parent_key else k
+            items.update(flatten_json(v, new_key, sep))
+    elif isinstance(obj, list):
+        for i, v in enumerate(obj):
+            items.update(flatten_json(v, f"{parent_key}[{i}]", sep))
+    else:
+        items[parent_key] = obj
+    return items</pre>
+    </div>
+
+    <div class="problem"><div class="diff"><span class="badge hard">Hard</span></div>
+      <h4>Parallel ingestion of N files with a bounded thread pool + failure isolation</h4>
+      <pre>from concurrent.futures import ThreadPoolExecutor, as_completed
+
+def ingest_file(path):
+    # ... load logic, raises on failure
+    return path
+
+def ingest_all(file_paths, max_workers=8):
+    results, failures = [], []
+    with ThreadPoolExecutor(max_workers=max_workers) as ex:
+        futures = {ex.submit(ingest_file, p): p for p in file_paths}
+        for fut in as_completed(futures):
+            path = futures[fut]
+            try:
+                results.append(fut.result())
+            except Exception as e:
+                failures.append((path, str(e)))
+    return results, failures</pre>
+      <div class="hint">Point out I/O-bound → threads are fine here; if it were CPU-bound transformation you'd reach for multiprocessing or just push the work into Spark instead.</div>
+    </div>
+
+    <div class="problem"><div class="diff"><span class="badge brutal">Brutal</span></div>
+      <h4>Design a small config-driven ingestion framework (class hierarchy) — the "why did you choose this approach" question in code form</h4>
+      <pre>from abc import ABC, abstractmethod
+from dataclasses import dataclass
+
+@dataclass
+class SourceConfig:
+    name: str
+    path: str
+    format: str
+    watermark_col: str | None = None
+
+class BaseIngestor(ABC):
+    def __init__(self, config: SourceConfig):
+        self.config = config
+
+    @abstractmethod
+    def read(self, spark): ...
+
+    def validate(self, df):
+        if df.rdd.isEmpty():
+            raise ValueError(f"{self.config.name}: empty batch, aborting load")
+        return df
+
+    def run(self, spark):
+        df = self.read(spark)
+        df = self.validate(df)
+        return df
+
+class CSVIngestor(BaseIngestor):
+    def read(self, spark):
+        return spark.read.option("header", True).csv(self.config.path)
+
+class ParquetIngestor(BaseIngestor):
+    def read(self, spark):
+        return spark.read.parquet(self.config.path)
+
+# adding a new source type = one new subclass, zero changes to orchestration
+INGESTOR_REGISTRY = {"csv": CSVIngestor, "parquet": ParquetIngestor}</pre>
+      <div class="hint">This is literally the "onboarding 100+ tables faster" story in code — new source = new small class or config row, not a rewritten pipeline.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CHECKLIST ============ -->
+<section id="checklist">
+  <h1><span class="tag">//</span> Final Checklist</h1>
+  <p class="subtitle">Tick these off — night before and hour before.</p>
+
+  <h2 class="sec-h">Night before</h2>
+  <div class="checklist">
+    <label><input type="checkbox"> Re-read your own CV out loud — you should be able to explain every bullet in under 60 seconds each.</label>
+    <label><input type="checkbox"> Rehearse the 90-second "current project" walkthrough (domain → role → architecture → one metric).</label>
+    <label><input type="checkbox"> Write out the recursive BOM explosion code from memory once, untimed.</label>
+    <label><input type="checkbox"> Pick 3 STAR stories (failure recovered / conflict resolved / initiative that moved a metric).</label>
+    <label><input type="checkbox"> Review Delta MERGE syntax and SCD2 pattern until you can write it without looking.</label>
+    <label><input type="checkbox"> Prepare 2–3 questions to ask the interviewer (team size, tech stack maturity, what success looks like in 90 days).</label>
+  </div>
+
+  <h2 class="sec-h">Hour before</h2>
+  <div class="checklist">
+    <label><input type="checkbox"> Test the Teams link from the interview email — join 5 minutes early.</label>
+    <label><input type="checkbox"> Skim the Cheat Sheets section top to bottom once.</label>
+    <label><input type="checkbox"> Have a blank editor/notepad open for live coding — not a browser tab full of tabs.</label>
+    <label><input type="checkbox"> Glass of water, quiet room, resume printed or on second screen.</label>
+    <label><input type="checkbox"> Breathe — you already shipped 100+ tables and a recursive BOM pipeline at scale. This interview is you explaining things you've already done.</label>
+  </div>
+</section>
+
+</main>
+
+<script>
+// section nav
+document.querySelectorAll('.sidebar nav a').forEach(link => {
+  link.addEventListener('click', e => {
+    e.preventDefault();
+    document.querySelectorAll('.sidebar nav a').forEach(a => a.classList.remove('active'));
+    link.classList.add('active');
+    document.querySelectorAll('main section').forEach(s => s.classList.remove('active'));
+    document.getElementById(link.dataset.target).classList.add('active');
+    window.scrollTo(0,0);
+  });
+});
+
+// difficulty filter
+document.querySelectorAll('#diffFilter button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#diffFilter button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    const diff = btn.dataset.diff;
+    document.querySelectorAll('details.qa').forEach(d => {
+      d.style.display = (diff === 'all' || d.dataset.diff === diff) ? '' : 'none';
+    });
+  });
+});
+
+// code tabs
+document.querySelectorAll('#codeTabs button').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('#codeTabs button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    document.querySelectorAll('.tabpane').forEach(p => p.classList.remove('active'));
+    document.getElementById(btn.dataset.tab).classList.add('active');
+  });
+});
+</script>
+
+</body>
+</html>
