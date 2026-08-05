@@ -6,26 +6,20 @@ A curated collection of interview prep resources, hands-on coding guides, and de
 
 ## 🔗 Resources
 
-### Advanced Databricks
+### Advanced Databricks | PySpark & Databricks Interview Prep (Hands-on) | Apache Spark & PySpark — Full Study Guide
 > Artifacts and deep-dive questions sourced from technical blogs and real-world scenarios.
+> Practical coding exercises designed to simulate real interview challenges.
+> Comprehensive study material covering Apache Spark and PySpark, using AWS Databricks as the platform.
+
+
+
+---
 
 🔗 [View Advanced Databricks Questions](https://pysparkcoders.github.io/study_material/adv_databricks_questions.html)
 
----
-
-### PySpark & Databricks Interview Prep (Hands-on)
-> Practical coding exercises designed to simulate real interview challenges.
-
 🔗 [View PySpark Coding Interview Guide](https://pysparkcoders.github.io/study_material/pyspark_coding.html)
 
----
-
-### Apache Spark & PySpark — Full Study Guide
-> Comprehensive study material covering Apache Spark and PySpark, using AWS Databricks as the platform.
-
 🔗 [View PySpark Study Material](https://pysparkcoders.github.io/study_material/pyspark_study_material.html)
-
----
 
 🔗 [CTS](https://pysparkcoders.github.io/study_material/CTS_Interview_Prep_Sankha.html)
 
