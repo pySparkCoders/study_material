@@ -51,6 +51,8 @@ A curated collection of interview prep resources, hands-on coding guides, and de
 
 🔗 [deloitte](https://pysparkcoders.github.io/study_material/deloitte_data_engineer_ii_interview_prep.html)
 
+🔗 [aws_dbr_big4]((aws-data-engineer-databricks-study-guide.html)
+
 
 
 
