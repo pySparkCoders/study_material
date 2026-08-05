@@ -27,31 +27,20 @@ A curated collection of interview prep resources, hands-on coding guides, and de
 
 ---
 
-> https://pysparkcoders.github.io/study_material/CTS_Interview_Prep_Sankha.html
-	
-> https://pysparkcoders.github.io/study_material/LTI_interview_prep_sankha.html
-	
-> https://pysparkcoders.github.io/study_material/accenture_databricks_interview_v1.html
-	
-> https://pysparkcoders.github.io/study_material/accenture_databricks_interview_v2.html	
-
-> https://pysparkcoders.github.io/study_material/adv_databricks_questions.html
-	
-> https://pysparkcoders.github.io/study_material/databricks_interview_prep_big4.html
-	
-> https://pysparkcoders.github.io/study_material/databricks_spark_prep.html	
-	
-> https://pysparkcoders.github.io/study_material/kafka_databricks_hub.html
-	
-> https://pysparkcoders.github.io/study_material/pwc_interview_prep_v1_sankha.html
-	
-> https://pysparkcoders.github.io/study_material/pwcround2prep.html	
-
-> https://pysparkcoders.github.io/study_material/pyspark_coding.html
-
-> https://pysparkcoders.github.io/study_material/pyspark_study_material.html
-
-> https://pysparkcoders.github.io/study_material/interview_drill_databricks.html
+🔗 > (https://pysparkcoders.github.io/study_material/CTS_Interview_Prep_Sankha.html)
+🔗 > https://pysparkcoders.github.io/study_material/LTI_interview_prep_sankha.html
+🔗 > https://pysparkcoders.github.io/study_material/accenture_databricks_interview_v1.html
+🔗 > https://pysparkcoders.github.io/study_material/accenture_databricks_interview_v2.html	
+🔗 > https://pysparkcoders.github.io/study_material/adv_databricks_questions.html
+🔗 > https://pysparkcoders.github.io/study_material/databricks_interview_prep_big4.html
+🔗 > https://pysparkcoders.github.io/study_material/databricks_spark_prep.html	
+🔗 > https://pysparkcoders.github.io/study_material/kafka_databricks_hub.html	
+🔗 > https://pysparkcoders.github.io/study_material/pwc_interview_prep_v1_sankha.html	
+🔗 > https://pysparkcoders.github.io/study_material/pwcround2prep.html	
+🔗 > https://pysparkcoders.github.io/study_material/pyspark_coding.html
+🔗 > https://pysparkcoders.github.io/study_material/pyspark_study_material.html
+🔗 > https://pysparkcoders.github.io/study_material/interview_drill_databricks.html
+🔗 > https://pysparkcoders.github.io/study_material/databricks_data_engineer_interview_prep.html
 
 
 
