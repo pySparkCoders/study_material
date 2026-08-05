@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deloitte Data Engineer II — 3-Round Interview Prep</title>
+<style>
+  :root{
+    --bg:#0f1117;
+    --panel:#161922;
+    --panel2:#1c2029;
+    --border:#2a2f3c;
+    --text:#e8e9ed;
+    --muted:#8b90a0;
+    --accent:#3fb68f;
+    --accent2:#4a90d9;
+    --easy:#3fb68f;
+    --medium:#d9a441;
+    --hard:#d9704a;
+    --brutal:#c0392b;
+    --brutal-bg:#3a1a1a;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--text);
+    font-family:'Georgia', 'Iowan Old Style', serif;
+    line-height:1.5;
+  }
+  .mono{font-family:'SF Mono','Consolas',monospace;}
+  header{
+    padding:28px 32px 20px;
+    border-bottom:1px solid var(--border);
+    background:linear-gradient(180deg,#171b25,#0f1117);
+  }
+  header h1{
+    margin:0 0 6px;
+    font-size:26px;
+    font-weight:700;
+    letter-spacing:-0.3px;
+  }
+  header .sub{
+    color:var(--muted);
+    font-size:14px;
+    font-family:'SF Mono','Consolas',monospace;
+  }
+  .badge-row{margin-top:14px;display:flex;gap:8px;flex-wrap:wrap;}
+  .pill{
+    font-family:'SF Mono','Consolas',monospace;
+    font-size:11px;
+    padding:4px 10px;
+    border-radius:20px;
+    border:1px solid var(--border);
+    color:var(--muted);
+  }
+  .round-map{
+    margin:18px 32px 0;
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:14px;
+  }
+  .round-card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-left:3px solid var(--accent2);
+    border-radius:6px;
+    padding:14px 16px;
+  }
+  .round-card h3{margin:0 0 6px;font-size:14px;color:var(--accent2);font-family:'SF Mono',monospace;}
+  .round-card p{margin:0;font-size:13px;color:var(--muted);}
+  .controls{
+    position:sticky;top:0;
+    z-index:10;
+    background:var(--bg);
+    padding:16px 32px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:center;
+  }
+  #search{
+    flex:1;
+    min-width:200px;
+    background:var(--panel);
+    border:1px solid var(--border);
+    color:var(--text);
+    padding:9px 12px;
+    border-radius:6px;
+    font-family:'SF Mono',monospace;
+    font-size:13px;
+  }
+  #search:focus{outline:none;border-color:var(--accent2);}
+  .chip{
+    font-family:'SF Mono',monospace;
+    font-size:12px;
+    padding:7px 13px;
+    border-radius:6px;
+    border:1px solid var(--border);
+    background:var(--panel);
+    color:var(--muted);
+    cursor:pointer;
+    user-select:none;
+    transition:all .12s;
+  }
+  .chip:hover{border-color:var(--accent2);}
+  .chip.active{background:var(--accent2);color:#fff;border-color:var(--accent2);}
+  .diff-chip.active[data-diff="Easy"]{background:var(--easy);border-color:var(--easy);}
+  .diff-chip.active[data-diff="Medium"]{background:var(--medium);border-color:var(--medium);color:#1a1400;}
+  .diff-chip.active[data-diff="Hard"]{background:var(--hard);border-color:var(--hard);}
+  .diff-chip.active[data-diff="Brutal"]{background:var(--brutal);border-color:var(--brutal);}
+  .counter{font-family:'SF Mono',monospace;font-size:12px;color:var(--muted);margin-left:auto;white-space:nowrap;}
+  main{padding:20px 32px 60px;max-width:1100px;margin:0 auto;}
+  .cat-block{margin-bottom:34px;}
+  .cat-title{
+    font-family:'SF Mono',monospace;
+    font-size:13px;
+    text-transform:uppercase;
+    letter-spacing:1px;
+    color:var(--accent);
+    margin:0 0 12px;
+    padding-bottom:8px;
+    border-bottom:1px solid var(--border);
+    display:flex;
+    justify-content:space-between;
+  }
+  .cat-count{color:var(--muted);font-weight:normal;}
+  .q-card{
+    background:var(--panel);
+    border:1px solid var(--border);
+    border-radius:8px;
+    padding:14px 16px;
+    margin-bottom:10px;
+    transition:border-color .15s;
+  }
+  .q-card:hover{border-color:#3a4152;}
+  .q-top{display:flex;gap:10px;align-items:flex-start;justify-content:space-between;}
+  .q-text{font-size:15px;flex:1;}
+  .q-text b{color:#fff;}
+  .tags{display:flex;gap:6px;flex-shrink:0;align-items:center;}
+  .diff-tag{
+    font-family:'SF Mono',monospace;
+    font-size:10px;
+    padding:3px 8px;
+    border-radius:4px;
+    font-weight:700;
+    white-space:nowrap;
+    text-transform:uppercase;
+  }
+  .diff-tag.Easy{background:rgba(63,182,143,.15);color:var(--easy);}
+  .diff-tag.Medium{background:rgba(217,164,65,.15);color:var(--medium);}
+  .diff-tag.Hard{background:rgba(217,112,74,.15);color:var(--hard);}
+  .diff-tag.Brutal{background:rgba(192,57,43,.25);color:#ff6b5b;}
+  .src-tag{
+    font-family:'SF Mono',monospace;
+    font-size:10px;
+    color:var(--muted);
+    padding:3px 6px;
+  }
+  .q-note{
+    margin-top:8px;
+    font-size:13px;
+    color:var(--muted);
+    font-style:italic;
+    border-left:2px solid var(--border);
+    padding-left:10px;
+    display:none;
+  }
+  .q-note.open{display:block;}
+  .q-toggle{
+    font-family:'SF Mono',monospace;
+    font-size:11px;
+    color:var(--accent2);
+    cursor:pointer;
+    margin-top:6px;
+    display:inline-block;
+  }
+  .hidden{display:none !important;}
+  .real-tag{border:1px solid #4a90d9; color:#4a90d9; background:rgba(74,144,217,.08);}
+  footer{
+    text-align:center;
+    padding:30px;
+    color:var(--muted);
+    font-family:'SF Mono',monospace;
+    font-size:11px;
+    border-top:1px solid var(--border);
+  }
+  @media(max-width:800px){
+    .round-map{grid-template-columns:1fr;}
+    header,.controls,main{padding-left:16px;padding-right:16px;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Deloitte — Data Engineer II · AI &amp; Data</h1>
+  <div class="sub">Sankha Subhra Mondal · 2-hour panel · 3 technical rounds (hands-on PySpark, SQL, ETL, Python)</div>
+  <div class="badge-row">
+    <span class="pill">Pune / Bengaluru / Chennai</span>
+    <span class="pill">AWS: Lambda · Glue · S3 · Redshift · SNS · SQS</span>
+    <span class="pill">DBT · Airflow (nice-to-have)</span>
+    <span class="pill">Databricks · Snowflake migration exposure</span>
+  </div>
+</header>
+
+<div class="round-map">
+  <div class="round-card">
+    <h3>ROUND 1 — Coding / Hands-on</h3>
+    <p>Live PySpark + SQL on a shared editor. Expect a small dataset, a transformation ask, then an optimization follow-up (skew, small files, joins). Python scripting fallback if Spark environment isn't provided.</p>
+  </div>
+  <div class="round-card">
+    <h3>ROUND 2 — Design / Architecture</h3>
+    <p>ETL/ELT pipeline design end-to-end, AWS service selection (Glue vs Lambda vs EMR), dimensional modeling, partitioning/bucketing decisions, Snowflake/warehouse concepts, CI/CD & orchestration.</p>
+  </div>
+  <div class="round-card">
+    <h3>ROUND 3 — Fitment / CV Deep-dive</h3>
+    <p>Walkthrough of your résumé projects (BOM explosion, Unity Catalog migration, PII masking, SCD Type 2), Agile practices, mentoring, and "why Deloitte / where in 5 years" behavioral questions.</p>
+  </div>
+</div>
+
+<div class="controls">
+  <input id="search" type="text" placeholder="Search questions… (e.g. 'shuffle', 'MERGE', 'Glue')">
+  <span class="chip diff-chip active" data-diff="all">All</span>
+  <span class="chip diff-chip" data-diff="Easy">Easy</span>
+  <span class="chip diff-chip" data-diff="Medium">Medium</span>
+  <span class="chip diff-chip" data-diff="Hard">Hard</span>
+  <span class="chip diff-chip" data-diff="Brutal">Brutal</span>
+  <span class="counter" id="counter"></span>
+</div>
+
+<main id="main"></main>
+
+<footer>Built from your CV, the Deloitte Data Engineer II JD, and question patterns reported by candidates at Deloitte / HashedIn by Deloitte on Glassdoor &amp; interview-prep write-ups (2024–2026). Real-reported questions are paraphrased, not verbatim.</footer>
+
+<script type="application/json" id="qdata">
+[
+{"cat":"Your CV — BOM Explosion, DDL Automation, Unity Catalog","items":[
+ {"q":"Walk me through the BOM hierarchy explosion pipeline — why is a recursive explosion over 10M+ material keys expensive in Spark, and what made your iterative DataFrame-join approach faster than a naive recursive query?","d":"Hard"},
+ {"q":"In the BOM pipeline, how did you decide when to stop the iterative join loop? What would break if a material had a circular reference?","d":"Brutal"},
+ {"q":"What's the difference between a recursive CTE approach (SQL-side) and an iterative Spark join approach for hierarchy explosion? Why might one be preferred on a distributed engine?","d":"Medium"},
+ {"q":"Your DDL automation framework generates 100+ Delta table structures from CSV/Parquet schemas — how do you infer types safely, and how do you handle a source column whose type changes over time?","d":"Medium"},
+ {"q":"You cut onboarding time by 60% with DDL automation — what were the manual steps before, and what specifically did automation remove? How would you prove that number if asked?","d":"Medium"},
+ {"q":"Describe the Unity Catalog migration — 100+ objects and 15+ Hive-metastore framework codes. What actually breaks when you move managed tables from Hive metastore to UC?","d":"Hard"},
+ {"q":"How did you implement custom-UDF PII masking across 15+ sensitive columns at the UC level rather than at the table/view level — why is that placement significant for governance?","d":"Hard"},
+ {"q":"What's the performance cost of a Python/Scala UDF for masking versus a native Spark SQL function, and did you consider that trade-off?","d":"Hard"},
+ {"q":"Explain SCD Type 2 MERGE logic on your Employee Dimension table — what columns do you use to detect a change, and how do you set effective/end dates and current-flag correctly in one MERGE statement?","d":"Medium"},
+ {"q":"What happens if two source records for the same employee arrive in the same batch with different attribute values — how does your SCD2 MERGE handle that without corrupting history?","d":"Brutal"},
+ {"q":"You mention 'IPE documentation' for governance reviews — what is an IPE in a controls context, and why does a data engineer need to produce it?","d":"Medium"},
+ {"q":"Describe your daily variance analysis across 15 ESG reports — what's your process for reconciling record counts and metric values, and how do you use Delta Lake time travel to trace a discrepancy?","d":"Medium"},
+ {"q":"Time travel shows you the state at a version, but not why it changed — how do you actually root-cause a discrepancy once you've isolated the version where it appeared?","d":"Hard"},
+ {"q":"Your ingestion monitoring framework tracks 25 daily files across 5 ESG apps and alerts on failure — how is it built? Polling, event-driven, or schedule-based, and how do you avoid alert fatigue?","d":"Medium"},
+ {"q":"What are the 10+ integrity checks in your file-level data quality workflow — give me five concrete ones and where in the pipeline each runs.","d":"Medium"},
+ {"q":"You migrated 100+ column-level summary views from on-prem to Unity Catalog — what typically goes wrong in that kind of view migration (syntax, lineage, permissions)?","d":"Medium"},
+ {"q":"You migrated SharePoint connections from password-based to token-based auth — walk me through why that migration matters and what token type/flow you used.","d":"Easy"},
+ {"q":"Your project is on an energy technology / ESG platform — what's the difference between Scope 1, 2, and 3 emissions data, and how does that affect how you'd design an ingestion pipeline for it?","d":"Medium"},
+ {"q":"You hold the Databricks Data Engineer Associate certification — pick one concept from it you had to unlearn or refine once you saw it in production.","d":"Easy"}
+]},
+{"cat":"AWS Services (Lambda, Glue, S3, Redshift, SNS, SQS)","items":[
+ {"q":"When would you choose AWS Glue over a Lambda function for a transformation job?","d":"Easy"},
+ {"q":"What are Glue Dynamic Frames vs Spark DataFrames, and why does Glue offer both?","d":"Medium"},
+ {"q":"How does S3 event-driven ingestion work end-to-end — S3 → SNS/SQS → Lambda/Glue trigger? Why put SQS between S3 and the consumer instead of triggering Lambda directly?","d":"Medium"},
+ {"q":"Explain the difference between SNS and SQS and when you'd use fan-out (SNS → multiple SQS queues) in a data pipeline.","d":"Easy"},
+ {"q":"What's a Lambda cold start, and how does it affect a data pipeline that's triggered thousands of times a day?","d":"Medium"},
+ {"q":"How would you handle a Lambda function that needs to process a file larger than what fits in memory/15-minute timeout?","d":"Hard"},
+ {"q":"Redshift vs Databricks/Delta Lake for analytics workloads — when does each make sense, and how would you move data between them?","d":"Medium"},
+ {"q":"What is Redshift Spectrum, and why would you query S3 data from Redshift instead of loading it in?","d":"Medium"},
+ {"q":"How do you design idempotent S3-triggered pipelines so a file re-delivery doesn't create duplicate records downstream?","d":"Hard"},
+ {"q":"What IAM permission model would you set up for a Glue job that reads from one team's S3 bucket and writes to another team's Redshift cluster?","d":"Hard"},
+ {"q":"Design a near-real-time alerting pipeline: an ESG file lands in S3, fails validation, and 3 stakeholders need to know within 5 minutes. Which AWS services, and why?","d":"Brutal"}
+]},
+{"cat":"PySpark Internals & Performance","items":[
+ {"q":"What is the difference between a transformation and an action in Spark, and why does that distinction matter for debugging a slow job?","d":"Easy"},
+ {"q":"Explain Spark's Catalyst optimizer at a high level — what does it do before your code actually runs?","d":"Medium"},
+ {"q":"What triggers a shuffle in Spark, and why is it typically the most expensive operation in a job?","d":"Medium"},
+ {"q":"You have two large tables to join and the job is stuck for 40 minutes on one task while others finish in 2 — what's happening and how do you fix it?","d":"Hard"},
+ {"q":"When would you use a broadcast join, and what happens if you broadcast a table that's too large?","d":"Medium"},
+ {"q":"Explain the small-file problem in Spark/Delta — why does writing thousands of small files hurt performance, and how do you fix it after the fact?","d":"Medium"},
+ {"q":"What is Adaptive Query Execution (AQE), and name two specific things it changes at runtime that a static plan couldn't.","d":"Hard"},
+ {"q":"coalesce() vs repartition() — what's actually different at the shuffle level, and why can coalesce give you uneven partition sizes?","d":"Medium"},
+ {"q":"How would you diagnose an executor OOM error in the Spark UI — what do you look at first?","d":"Hard"},
+ {"q":"What's the difference between cache() and persist(), and when does caching a DataFrame actually hurt you instead of helping?","d":"Medium"},
+ {"q":"Explain predicate pushdown and why file format (Parquet/Delta) matters for it.","d":"Medium"},
+ {"q":"head() vs take() vs first() on a DataFrame — what's the practical difference?","d":"Easy"},
+ {"q":"How do you explode an array column into multiple rows, and what happens to nulls when you do?","d":"Easy"},
+ {"q":"Given a DataFrame, how do you drop columns that contain any null values programmatically (not by hardcoding column names)?","d":"Medium"},
+ {"q":"What's data skew, and what are two different strategies to handle a skewed join key (e.g. one customer_id with 40% of all rows)?","d":"Hard"},
+ {"q":"Explain Tungsten and why off-heap memory management improved Spark's performance over the original JVM object model.","d":"Brutal"},
+ {"q":"A production job that ran fine for months suddenly starts spilling to disk — what changed, and how would you investigate without just bumping executor memory?","d":"Brutal"}
+]},
+{"cat":"SQL — Queries, Optimization, Window Functions","items":[
+ {"q":"Write a query to find the 2nd highest salary in each department.","d":"Easy"},
+ {"q":"Given an employee table with emp_id, emp_name, manager_id — write a query to find each employee's manager's name (self-join).","d":"Easy"},
+ {"q":"Explain the difference between RANK(), DENSE_RANK(), and ROW_NUMBER() with an example where their outputs diverge.","d":"Medium"},
+ {"q":"Write a query using a window function to compute a running 7-day total of ESG metric values per site.","d":"Medium"},
+ {"q":"What's a factless fact table, and give an example of when you'd design one.","d":"Medium"},
+ {"q":"Explain the difference between a CTE and a subquery — does a CTE always materialize, and does that affect performance?","d":"Medium"},
+ {"q":"How would you detect and remove duplicate rows in a table when there's no unique key, using window functions?","d":"Medium"},
+ {"q":"Explain indexing — clustered vs non-clustered — and how a wrong index choice can make a query slower, not faster.","d":"Hard"},
+ {"q":"Walk through how you'd optimize a query that joins two tables with 500M rows each and currently takes 40 minutes.","d":"Hard"},
+ {"q":"What's normalization, and what are the trade-offs of a highly normalized schema in an analytics (OLAP) context?","d":"Medium"},
+ {"q":"Explain SCD Type 1 vs Type 2 vs Type 3 with a one-line use case for each.","d":"Easy"},
+ {"q":"Write SQL to pivot a long-format table (metric, value) into a wide format with one column per metric.","d":"Medium"},
+ {"q":"How do you read and interpret a query execution plan to find the actual bottleneck (not just guess)?","d":"Hard"},
+ {"q":"Given a table of login timestamps per user, write a query to find users with 3+ consecutive days of activity (gaps-and-islands).","d":"Brutal"}
+]},
+{"cat":"Python Scripting","items":[
+ {"q":"How do you handle exceptions in an ETL script so that one bad record doesn't fail the entire batch?","d":"Medium"},
+ {"q":"Difference between Pandas and PySpark — when would you reach for Pandas inside a Databricks notebook despite having Spark available?","d":"Easy"},
+ {"q":"Write a Python function to check if a string is a palindrome, ignoring case and spaces.","d":"Easy"},
+ {"q":"Write a function that prints each character in a string twice, in order (e.g. 'abcd' → 'aabbccdd').","d":"Easy"},
+ {"q":"How would you deduplicate and standardize records from 3 different source formats using plain Python, before they ever reach Spark?","d":"Medium"},
+ {"q":"What's the difference between a list, tuple, and generator in Python, and why would you choose a generator when processing a large file line-by-line?","d":"Medium"},
+ {"q":"How do you structure retry logic with backoff for a REST API call inside an ingestion script?","d":"Medium"},
+ {"q":"Explain Python's GIL — does it limit your PySpark driver code the same way it limits a pure-Python multithreaded script?","d":"Hard"}
+]},
+{"cat":"ETL/ELT Design, Data Quality & Pipeline Reliability","items":[
+ {"q":"How do you ensure a data pipeline continues to work correctly over time, not just on day one?","d":"Easy"},
+ {"q":"Explain how you'd build scalable ETL pipelines in PySpark — talk through partitioning, shuffles, skew, caching, and joins together, not as isolated concepts.","d":"Hard"},
+ {"q":"What's the difference between ETL and ELT, and why do most modern lakehouse pipelines lean ELT?","d":"Easy"},
+ {"q":"Design a fail-fast validation layer at the landing zone — what checks run before data is even allowed into Bronze?","d":"Medium"},
+ {"q":"How do you handle schema drift when an upstream source silently adds or renames a column?","d":"Medium"},
+ {"q":"What makes a pipeline idempotent, and why does that matter when a job is manually re-run after a failure?","d":"Medium"},
+ {"q":"How would you design incremental loading for a source that has no reliable updated_at column?","d":"Hard"},
+ {"q":"Explain checksum-based validation and late-arriving data handling — how do you decide whether a late record still belongs in yesterday's partition?","d":"Hard"},
+ {"q":"You inherit a pipeline with no monitoring and it's silently been dropping 2% of records for weeks — how do you find that, and how do you prevent recurrence?","d":"Brutal"},
+ {"q":"Give an example of a time you had to work with poorly defined requirements on a pipeline — how did you proceed without a full spec?","d":"Medium"}
+]},
+{"cat":"Databricks, Delta Lake & Unity Catalog","items":[
+ {"q":"What is the Medallion Architecture (Bronze/Silver/Gold), and what determines what goes in a Platinum layer beyond Gold?","d":"Easy"},
+ {"q":"Explain Delta Lake time travel — how does it actually work under the hood (transaction log, versioning)?","d":"Medium"},
+ {"q":"What's the difference between a managed and an external (unmanaged) table, and what happens to the underlying data if you DROP each?","d":"Medium"},
+ {"q":"Explain Unity Catalog's three-level namespace (catalog.schema.table) and why that's a meaningful governance change from Hive metastore's two-level model.","d":"Medium"},
+ {"q":"How does Databricks Auto Loader differ from COPY INTO, and when would you pick one over the other?","d":"Medium"},
+ {"q":"What's the Databricks control plane vs data plane, and why does that separation matter for security?","d":"Hard"},
+ {"q":"Explain Z-ordering and OPTIMIZE — what problem do they solve, and on what kind of query pattern do they actually help?","d":"Hard"},
+ {"q":"What's VACUUM, and why can running it too aggressively break your time-travel or a concurrent long-running read?","d":"Hard"},
+ {"q":"Walk through what a MERGE INTO statement does under the hood in Delta Lake — why can it be slower than expected on a large target table?","d":"Hard"},
+ {"q":"What's the difference between job clusters and all-purpose (interactive) clusters, and how does that choice affect cost?","d":"Medium"}
+]},
+{"cat":"DBT & Airflow (JD nice-to-have)","items":[
+ {"q":"What problem does DBT solve that raw SQL scripts in Airflow don't?","d":"Easy"},
+ {"q":"Explain the difference between a DBT model materialized as a view vs a table vs incremental — when do you pick incremental?","d":"Medium"},
+ {"q":"What are DBT tests, and how would you use them to catch a broken foreign-key relationship between two models?","d":"Medium"},
+ {"q":"In Airflow, what's the difference between a DAG's schedule interval and its execution date/logical date — why does that confuse people?","d":"Medium"},
+ {"q":"How would you design an Airflow DAG that runs a Databricks job, then triggers a DBT run only if the Databricks job succeeded?","d":"Medium"},
+ {"q":"What's a good strategy for handling a failed task in the middle of a 20-task Airflow DAG without re-running the entire pipeline?","d":"Hard"}
+]},
+{"cat":"Cloud Architecture, Migration & Data Modeling","items":[
+ {"q":"Walk through migrating an on-premise data warehouse to Snowflake — what are the major phases and risks?","d":"Hard"},
+ {"q":"Explain star schema vs snowflake schema and when the extra normalization of a snowflake schema is worth the join cost.","d":"Medium"},
+ {"q":"When do you choose partitioning vs bucketing for a large table, and can you give a concrete column example from an HR/employee table?","d":"Medium"},
+ {"q":"How do you design a data warehouse to scale — what changes as data volume grows 10x, both in modeling and infra choices?","d":"Hard"},
+ {"q":"How do cloud providers typically bill for data analytics services (compute vs storage vs data transfer), and how does that shape your architecture decisions?","d":"Medium"},
+ {"q":"Design an end-to-end pipeline: raw ESG files land daily → cleaned, validated, conformed → served to a BI tool. Name every layer and why it exists.","d":"Hard"}
+]},
+{"cat":"Algorithms, Statistics & ML exposure (JD preferred)","items":[
+ {"q":"At a high level, how would you approach building a simple clustering-based anomaly detector for ESG metric outliers?","d":"Medium"},
+ {"q":"What's the difference between supervised and unsupervised learning, and where might a recommendation system fit into a data platform you've built?","d":"Easy"},
+ {"q":"How would basic NLP (e.g. entity extraction) be useful in an ESG reporting pipeline that ingests unstructured sustainability disclosures?","d":"Medium"}
+]},
+{"cat":"Behavioral, Agile & Communication (Round 3 staples)","items":[
+ {"q":"Why do you want to work at Deloitte?","d":"Easy"},
+ {"q":"Where do you see yourself in 5 years?","d":"Easy"},
+ {"q":"How do you see data engineering changing over the next 5 years?","d":"Medium"},
+ {"q":"Give an example of a time you led a team or mentored a junior engineer through a technical problem.","d":"Medium"},
+ {"q":"Give an example of a time you had to optimize a slow SQL query in production — what was the business impact of the fix?","d":"Medium"},
+ {"q":"Describe your sprint planning and retrospective process — what's one process improvement you actually got adopted?","d":"Medium"},
+ {"q":"How do you communicate a complex technical trade-off (e.g. cost vs latency) to a non-technical stakeholder?","d":"Medium"},
+ {"q":"What are your strengths, and where has a strength of yours caused a blind spot on a project?","d":"Hard"},
+ {"q":"Tell me about a time you exceeded expectations on a project — what did you do and how?","d":"Medium"},
+ {"q":"Describe a disagreement with a teammate or lead about a technical approach — how was it resolved?","d":"Hard"}
+]},
+{"cat":"Real Candidate-Reported Questions (paraphrased from Deloitte/HashedIn interview write-ups, 2024–2026)","items":[
+ {"q":"[Reported, Coding Round] Given a Spark job joining two large tables, identify and fix the small-file problem and describe how you'd handle incremental loading for it.","d":"Hard","real":true},
+ {"q":"[Reported, Coding Round] What's PySpark's approach to performance optimization in general — walk through your mental checklist for a slow job.","d":"Medium","real":true},
+ {"q":"[Reported, Design Round] Design a data model for a ticket-booking style application (e.g. BookMyShow) — what tables, what keys, how do you scale it?","d":"Hard","real":true},
+ {"q":"[Reported, Design Round] When do you reach for partitioning vs bucketing in Hive/Spark, and how would you partition/bucket an Aadhaar-style ID table?","d":"Medium","real":true},
+ {"q":"[Reported, Design Round] Explain Hadoop's architecture at a high level, and how cloud billing models change your data modeling choices.","d":"Medium","real":true},
+ {"q":"[Reported, Coding Round] Given emp_id, emp_name, manager_id, write SQL to build the reporting hierarchy.","d":"Easy","real":true},
+ {"q":"[Reported] Difference between a managed and an external table in Hive/Spark, and what happens to data on DROP for each.","d":"Medium","real":true},
+ {"q":"[Reported] coalesce() vs repartition() — does coalesce guarantee equal-sized partitions?","d":"Medium","real":true},
+ {"q":"[Reported] Given cluster specs (cores/memory), how would you size Spark executors for a given job?","d":"Hard","real":true},
+ {"q":"[Reported, Fitment Round] What's your learning plan for the next 6 months, and do you follow Agile sprints in your current team?","d":"Easy","real":true},
+ {"q":"[Reported] What data engineering tools are you familiar with, and how do you keep a pipeline correct as source systems evolve?","d":"Easy","real":true}
+]}
+]
+</script>
+
+<script>
+const data = JSON.parse(document.getElementById('qdata').textContent);
+let activeDiff = 'all';
+let searchTerm = '';
+
+function render(){
+  const main = document.getElementById('main');
+  main.innerHTML = '';
+  let totalShown = 0, totalAll = 0;
+
+  data.forEach(section => {
+    const filtered = section.items.filter(it => {
+      totalAll++;
+      const matchesDiff = activeDiff === 'all' || it.d === activeDiff;
+      const matchesSearch = searchTerm === '' || it.q.toLowerCase().includes(searchTerm);
+      return matchesDiff && matchesSearch;
+    });
+    if(filtered.length === 0) return;
+    totalShown += filtered.length;
+
+    const block = document.createElement('div');
+    block.className = 'cat-block';
+
+    const title = document.createElement('div');
+    title.className = 'cat-title';
+    title.innerHTML = `<span>${section.cat}</span><span class="cat-count">${filtered.length}</span>`;
+    block.appendChild(title);
+
+    filtered.forEach(it => {
+      const card = document.createElement('div');
+      card.className = 'q-card';
+      const tagsHtml = `<span class="diff-tag ${it.d}">${it.d}</span>` + (it.real ? '<span class="src-tag real-tag">real</span>' : '');
+      card.innerHTML = `
+        <div class="q-top">
+          <div class="q-text">${it.q}</div>
+          <div class="tags">${tagsHtml}</div>
+        </div>`;
+      block.appendChild(card);
+    });
+
+    main.appendChild(block);
+  });
+
+  document.getElementById('counter').textContent = `${totalShown} / ${totalAll} questions`;
+
+  if(totalShown === 0){
+    main.innerHTML = '<p style="color:var(--muted);text-align:center;padding:40px;font-family:monospace;">No questions match this filter.</p>';
+  }
+}
+
+document.querySelectorAll('.diff-chip').forEach(chip => {
+  chip.addEventListener('click', () => {
+    document.querySelectorAll('.diff-chip').forEach(c => c.classList.remove('active'));
+    chip.classList.add('active');
+    activeDiff = chip.dataset.diff;
+    render();
+  });
+});
+
+document.getElementById('search').addEventListener('input', e => {
+  searchTerm = e.target.value.toLowerCase();
+  render();
+});
+
+render();
+</script>
+
+</body>
+</html>
