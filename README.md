@@ -55,6 +55,9 @@ A curated collection of interview prep resources, hands-on coding guides, and de
 
 🔗 > https://pysparkcoders.github.io/study_material/databricks_data_engineer_interview_prep.html
 
+🔗 > https://pysparkcoders.github.io/study_material/deloitte_data_engineer_ii_interview_prep.html
+
+
 
 
 ## 🚀 Additional Information:
