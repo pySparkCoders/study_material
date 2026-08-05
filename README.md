@@ -49,7 +49,7 @@ A curated collection of interview prep resources, hands-on coding guides, and de
 
 🔗 [adv3_dbr_big4](https://pysparkcoders.github.io/study_material/pyspark_coding.html)
 
-🔗 [adv4_dbr_big4]https://pysparkcoders.github.io/study_material/pyspark_study_material.html)
+🔗 [adv4_dbr_big4](https://pysparkcoders.github.io/study_material/pyspark_study_material.html)
 
 🔗 [adv5_dbr_big4](https://pysparkcoders.github.io/study_material/interview_drill_databricks.html)
 
