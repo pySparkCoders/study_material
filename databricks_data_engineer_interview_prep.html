@@ -1,0 +1,968 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Databricks Data Engineer — 3-Hour Interview Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#10151c;
+  --panel:#161d27;
+  --panel-2:#1c2530;
+  --line:#2a3542;
+  --text:#e7ebef;
+  --text-dim:#93a1b0;
+  --text-faint:#5d6b7a;
+  --amber:#d9a441;
+  --amber-dim:#8a6a2c;
+  --teal:#4fb8af;
+  --easy:#5fb86b;
+  --medium:#d9a441;
+  --hard:#e0763a;
+  --brutal:#d9534f;
+  --code-bg:#0c1015;
+}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{
+  margin:0;
+  background:
+    radial-gradient(circle at 15% 0%, rgba(217,164,65,0.07), transparent 40%),
+    radial-gradient(circle at 85% 10%, rgba(79,184,175,0.06), transparent 35%),
+    var(--bg);
+  color:var(--text);
+  font-family:'IBM Plex Sans', sans-serif;
+  line-height:1.6;
+}
+.display{font-family:'Space Grotesk', sans-serif;}
+.mono{font-family:'IBM Plex Mono', monospace;}
+a{color:var(--teal);}
+
+/* ---------- HEADER ---------- */
+header.hero{
+  padding:56px 24px 32px;
+  max-width:1100px;
+  margin:0 auto;
+  border-bottom:1px solid var(--line);
+}
+.eyebrow{
+  font-family:'IBM Plex Mono', monospace;
+  font-size:12px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--amber);
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+.eyebrow .dot{width:6px;height:6px;border-radius:50%;background:var(--amber);display:inline-block;}
+h1.display{
+  font-size:clamp(28px,4vw,44px);
+  font-weight:700;
+  margin:10px 0 6px;
+  letter-spacing:-0.01em;
+}
+.subtitle{color:var(--text-dim);font-size:16px;max-width:760px;}
+.meta-row{
+  display:flex;flex-wrap:wrap;gap:10px;margin-top:20px;
+}
+.meta-chip{
+  background:var(--panel);
+  border:1px solid var(--line);
+  padding:7px 12px;
+  border-radius:6px;
+  font-size:12.5px;
+  color:var(--text-dim);
+  font-family:'IBM Plex Mono',monospace;
+}
+.meta-chip b{color:var(--text);font-weight:600;}
+
+/* ---------- STAGE TIMELINE (signature element) ---------- */
+.stage-wrap{max-width:1100px;margin:34px auto 0;padding:0 24px;}
+.stage-label{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--text-faint);text-transform:uppercase;letter-spacing:0.1em;margin-bottom:10px;}
+.stage-track{
+  display:flex;border:1px solid var(--line);border-radius:8px;overflow:hidden;
+  background:var(--panel);
+}
+.stage{
+  flex:1;padding:14px 12px;position:relative;border-right:1px solid var(--line);
+  min-width:0;
+}
+.stage:last-child{border-right:none;}
+.stage .t{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--amber);}
+.stage .n{font-size:13.5px;font-weight:600;margin-top:3px;color:var(--text);}
+.stage .d{font-size:11.5px;color:var(--text-faint);margin-top:2px;}
+.stage::before{
+  content:'';position:absolute;bottom:0;left:0;height:3px;width:100%;
+  background:linear-gradient(90deg, var(--amber), var(--teal));
+  opacity:0.55;
+}
+
+/* ---------- CONTROLS ---------- */
+.controls{
+  position:sticky;top:0;z-index:50;
+  background:rgba(16,21,28,0.92);
+  backdrop-filter:blur(10px);
+  border-bottom:1px solid var(--line);
+  padding:14px 24px;
+}
+.controls-inner{max-width:1100px;margin:0 auto;display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:space-between;}
+.filter-group{display:flex;gap:6px;flex-wrap:wrap;}
+.pill{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12px;
+  padding:7px 13px;
+  border-radius:20px;
+  border:1px solid var(--line);
+  background:var(--panel);
+  color:var(--text-dim);
+  cursor:pointer;
+  transition:all .15s ease;
+  user-select:none;
+}
+.pill:hover{border-color:var(--amber-dim);color:var(--text);}
+.pill.active{background:var(--amber);color:#1a1400;border-color:var(--amber);font-weight:600;}
+.pill.diff-active-easy{background:var(--easy);border-color:var(--easy);color:#08210c;font-weight:600;}
+.pill.diff-active-medium{background:var(--medium);border-color:var(--medium);color:#241a04;font-weight:600;}
+.pill.diff-active-hard{background:var(--hard);border-color:var(--hard);color:#2a1100;font-weight:600;}
+.pill.diff-active-brutal{background:var(--brutal);border-color:var(--brutal);color:#2a0505;font-weight:600;}
+#search{
+  background:var(--panel);border:1px solid var(--line);border-radius:20px;
+  padding:8px 14px;color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:12.5px;
+  width:220px;outline:none;
+}
+#search::placeholder{color:var(--text-faint);}
+#search:focus{border-color:var(--teal);}
+.count-tag{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--text-faint);white-space:nowrap;}
+
+/* ---------- MAIN ---------- */
+main{max-width:1100px;margin:0 auto;padding:36px 24px 100px;}
+.section-heading{
+  display:flex;align-items:baseline;gap:12px;margin:48px 0 18px;
+}
+.section-heading:first-child{margin-top:0;}
+.section-heading h2{font-family:'Space Grotesk',sans-serif;font-size:22px;font-weight:600;margin:0;}
+.section-heading .section-sub{color:var(--text-faint);font-size:13px;font-family:'IBM Plex Mono',monospace;}
+.section-rule{flex:1;height:1px;background:var(--line);}
+
+.qcard{
+  background:var(--panel);
+  border:1px solid var(--line);
+  border-radius:10px;
+  margin-bottom:12px;
+  overflow:hidden;
+  transition:border-color .15s ease;
+}
+.qcard:hover{border-color:#3a4756;}
+.qhead{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:16px 18px;cursor:pointer;
+}
+.qnum{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--text-faint);padding-top:3px;min-width:28px;}
+.qbody{flex:1;}
+.qtext{font-size:15px;font-weight:500;color:var(--text);}
+.qtags{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.tag{
+  font-family:'IBM Plex Mono',monospace;font-size:10.5px;padding:3px 8px;border-radius:4px;
+  text-transform:uppercase;letter-spacing:0.04em;
+}
+.tag.easy{background:rgba(95,184,107,0.15);color:var(--easy);}
+.tag.medium{background:rgba(217,164,65,0.15);color:var(--medium);}
+.tag.hard{background:rgba(224,118,58,0.15);color:var(--hard);}
+.tag.brutal{background:rgba(217,83,79,0.15);color:var(--brutal);}
+.tag.cat{background:rgba(79,184,175,0.12);color:var(--teal);}
+.chev{color:var(--text-faint);font-size:13px;transition:transform .2s ease;padding-top:4px;}
+.qcard.open .chev{transform:rotate(90deg);}
+.qanswer{
+  max-height:0;overflow:hidden;transition:max-height .25s ease;
+  border-top:1px solid transparent;
+}
+.qcard.open .qanswer{border-top:1px solid var(--line);}
+.qanswer-inner{padding:16px 18px 20px 58px;color:var(--text-dim);font-size:14.5px;}
+.qanswer-inner p{margin:0 0 10px;}
+.qanswer-inner ul{margin:6px 0 10px;padding-left:20px;}
+.qanswer-inner li{margin-bottom:5px;}
+.qanswer-inner strong{color:var(--text);}
+pre{
+  background:var(--code-bg);border:1px solid var(--line);border-radius:6px;
+  padding:14px 16px;overflow-x:auto;margin:10px 0;
+}
+code{font-family:'IBM Plex Mono',monospace;font-size:13px;color:#c9d6c2;}
+.hint-label{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--amber);text-transform:uppercase;letter-spacing:0.08em;margin:12px 0 6px;}
+
+.empty-state{
+  text-align:center;padding:60px 20px;color:var(--text-faint);font-family:'IBM Plex Mono',monospace;font-size:14px;
+}
+
+footer{
+  border-top:1px solid var(--line);padding:30px 24px;max-width:1100px;margin:0 auto;
+  color:var(--text-faint);font-size:12.5px;font-family:'IBM Plex Mono',monospace;
+}
+::-webkit-scrollbar{width:10px;height:10px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--line);border-radius:5px;}
+@media(max-width:700px){
+  .stage-track{flex-direction:column;}
+  .stage{border-right:none;border-bottom:1px solid var(--line);}
+  .stage:last-child{border-bottom:none;}
+  #search{width:150px;}
+  .qanswer-inner{padding-left:18px;}
+}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="eyebrow"><span class="dot"></span>INTERVIEW PREP · DATABRICKS DATA ENGINEER</div>
+  <h1 class="display">3-Hour Deep-Dive Question Bank</h1>
+  <p class="subtitle">Built against the TCS→client JD (Databricks / PySpark / SQL / ETL / distributed systems) and mapped to Bhavesh Nukala's own background — Azure Databricks, Delta Lake, Unity Catalog, Airflow, offshore delivery lead on the Starbucks account. Every question is tagged by topic and difficulty so you can drill weak spots fast.</p>
+  <div class="meta-row">
+    <div class="meta-chip">Role: <b>Databricks Data Engineer</b></div>
+    <div class="meta-chip">Total questions: <b id="total-count">—</b></div>
+    <div class="meta-chip">Difficulty tiers: <b>Easy → Brutal</b></div>
+    <div class="meta-chip">Format: <b>Technical + Scenario + Hands-on</b></div>
+  </div>
+</header>
+
+<div class="stage-wrap">
+  <div class="stage-label">// suggested 180-min run sheet</div>
+  <div class="stage-track">
+    <div class="stage"><div class="t">00–10</div><div class="n">Intro & Background</div><div class="d">walkthrough of your CV / current role</div></div>
+    <div class="stage"><div class="t">10–45</div><div class="n">SQL Round</div><div class="d">joins, window fns, MERGE, SCD2</div></div>
+    <div class="stage"><div class="t">45–100</div><div class="n">PySpark Round</div><div class="d">internals, hands-on, skew, streaming</div></div>
+    <div class="stage"><div class="t">100–140</div><div class="n">Databricks Platform</div><div class="d">architecture, Autoloader, COPY INTO, UC</div></div>
+    <div class="stage"><div class="t">140–170</div><div class="n">Scenario / Debugging</div><div class="d">OOM, slow jobs, huge upstream loads</div></div>
+    <div class="stage"><div class="t">170–180</div><div class="n">Wrap-up</div><div class="d">your questions for the interviewer</div></div>
+  </div>
+</div>
+
+<div class="controls">
+  <div class="controls-inner">
+    <div class="filter-group" id="cat-filters"></div>
+    <div class="filter-group" id="diff-filters"></div>
+    <input type="text" id="search" placeholder="search questions...">
+    <div class="count-tag"><span id="visible-count">0</span> shown</div>
+  </div>
+</div>
+
+<main>
+  <div id="content"></div>
+  <div class="empty-state" id="empty" style="display:none;">No questions match this filter combination.</div>
+</main>
+
+<footer>
+  Prepared for Sankha Subhra Mondal · Databricks Data Engineer Associate · UC Upgrade Specialization &nbsp;·&nbsp; click any question to expand / collapse the hint or full answer.
+</footer>
+
+<script>
+const CATS = [
+  {id:'sql', label:'SQL'},
+  {id:'pyspark', label:'PySpark'},
+  {id:'databricks', label:'Databricks Platform'},
+  {id:'scenario', label:'Scenario-Based'},
+];
+const DIFFS = ['easy','medium','hard','brutal'];
+
+const Q = [];
+let _id = 0;
+function add(cat, diff, q, a){ _id++; Q.push({id:_id, cat, diff, q, a}); }
+
+/* =========================================================
+   SQL SECTION
+   ========================================================= */
+add('sql','easy',
+  'What are the different types of SQL joins? When would you use a LEFT SEMI vs LEFT ANTI join?',
+  `<p>INNER, LEFT/RIGHT OUTER, FULL OUTER, CROSS, and in Spark SQL additionally <strong>LEFT SEMI</strong> and <strong>LEFT ANTI</strong>.</p>
+   <ul>
+     <li><strong>LEFT SEMI JOIN</strong> — returns rows from the left table that have a match in the right table, but only left-table columns (like an EXISTS filter).</li>
+     <li><strong>LEFT ANTI JOIN</strong> — returns rows from the left table with <em>no</em> match in the right table (like a NOT EXISTS filter).</li>
+   </ul>
+   <p>Both are cheaper than a regular join + filter because Spark never needs to bring in the right table's columns.</p>`);
+
+add('sql','easy',
+  'Difference between WHERE and HAVING?',
+  `<p><strong>WHERE</strong> filters rows before aggregation (cannot reference aggregate functions). <strong>HAVING</strong> filters groups after GROUP BY / aggregation, so it can reference aggregates like <code>SUM()</code>, <code>COUNT()</code>.</p>`);
+
+add('sql','easy',
+  'What is a CTE and why use one over a subquery?',
+  `<p>A Common Table Expression (<code>WITH x AS (...)</code>) is a named, temporary result set scoped to one query. Improves readability, allows reuse of the same logic multiple times in the query, and supports recursion (<code>WITH RECURSIVE</code>).</p>`);
+
+add('sql','medium',
+  'RANK() vs DENSE_RANK() vs ROW_NUMBER() — explain the difference with a tie example.',
+  `<p>For values <code>[100, 90, 90, 80]</code>:</p>
+   <ul>
+     <li><strong>ROW_NUMBER()</strong> → 1, 2, 3, 4 (always unique, arbitrary tie-break)</li>
+     <li><strong>RANK()</strong> → 1, 2, 2, 4 (ties share rank, next rank skips)</li>
+     <li><strong>DENSE_RANK()</strong> → 1, 2, 2, 3 (ties share rank, no gap)</li>
+   </ul>`);
+
+add('sql','medium',
+  'Write a query to remove duplicate rows, keeping only the latest record per key.',
+  `<p>Classic dedup pattern using <code>ROW_NUMBER()</code> partitioned by the natural key, ordered by the recency column descending:</p>
+   <pre><code>WITH ranked AS (
+  SELECT *,
+    ROW_NUMBER() OVER (
+      PARTITION BY employee_id
+      ORDER BY updated_at DESC
+    ) AS rn
+  FROM employee_raw
+)
+SELECT * EXCEPT (rn)
+FROM ranked
+WHERE rn = 1;</code></pre>`);
+
+add('sql','medium',
+  'Give an example use case for a self join.',
+  `<p>Finding employees who report to a manager in the same table: <code>SELECT e.name, m.name AS manager FROM emp e JOIN emp m ON e.manager_id = m.emp_id</code>. Also common for comparing consecutive rows (e.g. current vs previous day's price) when window functions aren't available.</p>`);
+
+add('sql','medium',
+  'Correlated vs non-correlated subquery — what is the performance implication?',
+  `<p>A <strong>non-correlated</strong> subquery executes once, independent of the outer query. A <strong>correlated</strong> subquery references a column from the outer query and conceptually re-executes per outer row — much more expensive unless the optimizer can rewrite it as a join/semi-join (Catalyst usually does this decorrelation in Spark SQL, but it's not guaranteed for every pattern).</p>`);
+
+add('sql','medium',
+  'Write a query to find the Nth highest salary without using LIMIT/OFFSET tricks that break on ties.',
+  `<pre><code>SELECT salary
+FROM (
+  SELECT salary, DENSE_RANK() OVER (ORDER BY salary DESC) AS rnk
+  FROM employees
+) t
+WHERE rnk = 3;   -- 3rd highest, ties handled correctly</code></pre>`);
+
+add('sql','hard',
+  'Write a full MERGE INTO statement for an upsert into a Delta table (insert new, update changed, and optionally soft-delete missing).',
+  `<pre><code>MERGE INTO silver.employee_dim AS target
+USING staging.employee_updates AS source
+  ON target.employee_id = source.employee_id
+WHEN MATCHED AND target.row_hash != source.row_hash THEN
+  UPDATE SET
+    target.name        = source.name,
+    target.department  = source.department,
+    target.updated_at  = source.updated_at,
+    target.row_hash     = source.row_hash
+WHEN NOT MATCHED THEN
+  INSERT (employee_id, name, department, updated_at, row_hash)
+  VALUES (source.employee_id, source.name, source.department,
+          source.updated_at, source.row_hash)
+WHEN NOT MATCHED BY SOURCE AND target.is_active = true THEN
+  UPDATE SET target.is_active = false, target.deactivated_at = current_timestamp();</code></pre>
+   <p><strong>Note:</strong> compare a hash of the row (<code>row_hash</code>) rather than every column individually — cheaper to write and avoids missing a column in the condition.</p>`);
+
+add('sql','hard',
+  'Write a MERGE-based SCD Type 2 implementation in pure SQL — full effective/end date + current flag pattern.',
+  `<p>SCD2 in a single MERGE is tricky because you both need to close the old row <em>and</em> insert a new row for the same natural key — MERGE alone can't do both for the same source row in one pass in classic Delta MERGE (pre deletion-vector "MERGE with schema evolution" tricks). The safe, interview-ready pattern is a <strong>two-step MERGE</strong>:</p>
+   <div class="hint-label">Step 1 — close out changed current rows</div>
+   <pre><code>MERGE INTO dim_employee AS target
+USING staged_changes AS source
+  ON target.employee_id = source.employee_id
+     AND target.is_current = true
+WHEN MATCHED AND target.row_hash != source.row_hash THEN
+  UPDATE SET
+    target.is_current = false,
+    target.end_date   = source.effective_date;</code></pre>
+   <div class="hint-label">Step 2 — insert new versions (new keys + changed keys)</div>
+   <pre><code>INSERT INTO dim_employee
+SELECT
+  s.employee_id, s.name, s.department, s.grade,
+  s.effective_date  AS start_date,
+  NULL              AS end_date,
+  true              AS is_current,
+  s.row_hash
+FROM staged_changes s
+LEFT JOIN dim_employee t
+  ON s.employee_id = t.employee_id AND t.is_current = true
+WHERE t.employee_id IS NULL         -- brand new key
+   OR t.row_hash != s.row_hash;     -- changed key (now closed in step 1)</code></pre>
+   <p>This is exactly the pattern you've implemented against the Employee Dimension table with SCD Type 2 MERGE logic — good to narrate that real production story here.</p>`);
+
+add('sql','hard',
+  'Gaps-and-islands: write a query to find consecutive date ranges of "active" status per user.',
+  `<p>Classic technique: subtract a row-number sequence from the date to create a constant "group" value for consecutive rows.</p>
+   <pre><code>WITH flagged AS (
+  SELECT user_id, activity_date,
+    DATE_SUB(activity_date,
+      ROW_NUMBER() OVER (PARTITION BY user_id ORDER BY activity_date)
+    ) AS grp
+  FROM daily_activity
+  WHERE status = 'active'
+)
+SELECT user_id, MIN(activity_date) AS island_start,
+       MAX(activity_date) AS island_end
+FROM flagged
+GROUP BY user_id, grp
+ORDER BY user_id, island_start;</code></pre>`);
+
+add('sql','hard',
+  'Write a query to pivot long-format sales data (month, category, amount) into a wide format (one column per month).',
+  `<pre><code>SELECT category,
+  SUM(CASE WHEN month = 'Jan' THEN amount END) AS jan,
+  SUM(CASE WHEN month = 'Feb' THEN amount END) AS feb,
+  SUM(CASE WHEN month = 'Mar' THEN amount END) AS mar
+FROM sales_long
+GROUP BY category;
+
+-- or, natively:
+SELECT * FROM sales_long
+PIVOT (
+  SUM(amount) FOR month IN ('Jan','Feb','Mar')
+);</code></pre>`);
+
+add('sql','brutal',
+  'How does Delta Lake MERGE behave under concurrent writers, and what conflict types can occur?',
+  `<p>Delta uses <strong>optimistic concurrency control</strong>. Every write reads the current table version, computes changes, then attempts to commit a new version atomically to the transaction log. If another writer committed in between, Delta checks whether the new commit's changes conflict with the files your transaction read/touched.</p>
+   <ul>
+     <li><strong>ConcurrentAppendException</strong> — another transaction appended files that would have matched your read's filter predicate (common with MERGE + concurrent INSERT on overlapping partitions).</li>
+     <li><strong>ConcurrentDeleteReadException</strong> — a file you read was deleted by another concurrent transaction.</li>
+     <li><strong>MetadataChangedException</strong> — schema/table properties changed mid-transaction.</li>
+   </ul>
+   <p>Mitigation: partition MERGE workloads so concurrent writers don't touch overlapping partitions, reduce transaction scope, or serialize writers to the same table via a single scheduled job rather than parallel triggers.</p>`);
+
+add('sql','brutal',
+  'Write a query combining SCD Type 2 versioning with late-arriving dimension records (a change record arrives out of order, with an effective_date earlier than the current row\'s start_date).',
+  `<p>The naive two-step MERGE breaks when a "late" record's effective_date falls <em>inside</em> an existing validity window rather than after it — you must find where in history it belongs and split that window, not just close the current row.</p>
+   <pre><code>-- Find the historical row whose window contains the late record
+WITH target_window AS (
+  SELECT * FROM dim_employee d, staged_late_changes s
+  WHERE d.employee_id = s.employee_id
+    AND s.effective_date BETWEEN d.start_date AND COALESCE(d.end_date, '9999-12-31')
+)
+-- 1) split the old window: cap end_date at (late.effective_date - 1)
+UPDATE dim_employee d
+SET end_date = date_sub(s.effective_date, 1)
+FROM staged_late_changes s
+WHERE d.employee_id = s.employee_id
+  AND s.effective_date BETWEEN d.start_date AND COALESCE(d.end_date,'9999-12-31');
+
+-- 2) insert the late record as a new "middle" version
+INSERT INTO dim_employee
+SELECT employee_id, name, department, grade,
+       effective_date AS start_date,
+       (SELECT start_date FROM target_window LIMIT 1) AS end_date, -- the window that followed
+       false AS is_current, row_hash
+FROM staged_late_changes;</code></pre>
+   <p>Talking point: call out that this is genuinely rare in interviews and signals senior-level SCD understanding — good to mention you'd normally guard against this with a late-arrival watermark check before it ever reaches the MERGE stage.</p>`);
+
+/* =========================================================
+   PYSPARK SECTION
+   ========================================================= */
+add('pyspark','easy',
+  'Difference between a transformation and an action in Spark. Give two examples of each.',
+  `<p><strong>Transformations</strong> are lazy — they build up a logical plan without executing (e.g. <code>select()</code>, <code>filter()</code>, <code>groupBy()</code>). <strong>Actions</strong> trigger execution of the DAG and return a result (e.g. <code>count()</code>, <code>collect()</code>, <code>write.save()</code>).</p>`);
+
+add('pyspark','easy',
+  'Narrow vs wide transformation — why does it matter?',
+  `<p><strong>Narrow</strong> transformations (map, filter) — each output partition depends on only one input partition, no shuffle needed. <strong>Wide</strong> transformations (groupBy, join, repartition) require data to move across partitions — a <strong>shuffle</strong> — which is expensive (disk I/O + network) and is the main thing to optimize around.</p>`);
+
+add('pyspark','easy',
+  'repartition() vs coalesce() — when would you use each?',
+  `<p><strong>repartition(n)</strong> does a full shuffle to create exactly n evenly-sized partitions — use when you need to increase partitions or fix skew. <strong>coalesce(n)</strong> avoids a full shuffle by merging existing partitions — only reduces partition count, cheaper, but can produce uneven partitions. Use coalesce before writing out fewer, larger files when you're only reducing count.</p>`);
+
+add('pyspark','easy',
+  'persist() vs cache() — what\'s the difference?',
+  `<p><code>cache()</code> is shorthand for <code>persist(StorageLevel.MEMORY_AND_DISK)</code>. <code>persist()</code> lets you pick the storage level explicitly (MEMORY_ONLY, MEMORY_AND_DISK, DISK_ONLY, with/without serialization or replication). Both are lazy — nothing is cached until an action triggers evaluation.</p>`);
+
+add('pyspark','easy',
+  'What does lazy evaluation actually mean in Spark, and why is it useful?',
+  `<p>Transformations just build a logical plan (DAG) — no computation happens until an action is called. This lets Catalyst see the <em>whole</em> chain of operations and optimize globally (predicate pushdown, filter reordering, column pruning) rather than executing each step naively as it's written.</p>`);
+
+add('pyspark','medium',
+  'Explain the Catalyst Optimizer phases at a high level.',
+  `<ol style="padding-left:20px;">
+    <li><strong>Analysis</strong> — resolve column/table references against the catalog, produce a resolved logical plan.</li>
+    <li><strong>Logical optimization</strong> — rule-based rewrites: predicate pushdown, constant folding, column pruning.</li>
+    <li><strong>Physical planning</strong> — generate candidate physical plans (e.g. broadcast vs sort-merge join), cost model picks one.</li>
+    <li><strong>Code generation</strong> — whole-stage codegen compiles the physical plan into optimized JVM bytecode.</li>
+  </ol>`);
+
+add('pyspark','medium',
+  'What triggers a broadcast join automatically, and how do you force one?',
+  `<p>Controlled by <code>spark.sql.autoBroadcastJoinThreshold</code> (default 10MB). If one side of the join is estimated smaller than the threshold, Spark broadcasts it to every executor and avoids a shuffle entirely.</p>
+   <pre><code>from pyspark.sql.functions import broadcast
+df_large.join(broadcast(df_small), "key")</code></pre>
+   <p>Force it explicitly when you know the size but stats are stale, or disable it (set threshold to -1) when a broadcast is accidentally too large and causing driver/executor OOM.</p>`);
+
+add('pyspark','medium',
+  'Write PySpark code to deduplicate records keeping the most recent per key using a window function.',
+  `<pre><code>from pyspark.sql import Window
+from pyspark.sql.functions import row_number, col
+
+w = Window.partitionBy("employee_id").orderBy(col("updated_at").desc())
+
+deduped_df = (
+    df.withColumn("rn", row_number().over(w))
+      .filter(col("rn") == 1)
+      .drop("rn")
+)</code></pre>`);
+
+add('pyspark','medium',
+  'What is Adaptive Query Execution (AQE) and what three things does it optimize at runtime?',
+  `<p>AQE re-plans parts of the query <em>during</em> execution using actual runtime statistics instead of only estimates:</p>
+   <ul>
+     <li><strong>Dynamically coalescing shuffle partitions</strong> — merges small post-shuffle partitions to avoid the "many tiny tasks" problem.</li>
+     <li><strong>Dynamically switching join strategies</strong> — can convert a sort-merge join to a broadcast join if actual runtime size is small enough.</li>
+     <li><strong>Dynamically handling skewed joins</strong> — splits oversized partitions into smaller sub-partitions (skew join optimization) so one task doesn't dominate the stage.</li>
+   </ul>
+   <p>Enabled by default from Spark 3.0+ via <code>spark.sql.adaptive.enabled</code>.</p>`);
+
+add('pyspark','medium',
+  'UDF vs Pandas UDF (vectorized UDF) — why is the latter faster?',
+  `<p>A regular Python UDF serializes each row individually across the JVM↔Python boundary (py4j), which is slow. A <strong>Pandas UDF</strong> uses Apache Arrow to transfer whole columnar batches at once and lets you write vectorized Pandas/NumPy operations — dramatically less serialization overhead and better CPU utilization.</p>
+   <pre><code>from pyspark.sql.functions import pandas_udf
+import pandas as pd
+
+@pandas_udf("double")
+def celsius_to_fahrenheit(temp: pd.Series) -> pd.Series:
+    return temp * 9/5 + 32</code></pre>`);
+
+add('pyspark','medium',
+  'How does Spark handle schema evolution when reading/writing Delta tables in PySpark?',
+  `<pre><code># allow new columns to be added automatically on write
+df.write.option("mergeSchema", "true").format("delta").mode("append").save(path)
+
+# allow the read to tolerate schema drift from source
+df = (spark.read.format("delta")
+      .option("mergeSchema", "true")
+      .load(path))</code></pre>
+   <p>For streaming/Autoloader ingestion, <code>cloudFiles.schemaEvolutionMode</code> controls whether new columns fail the stream, get added, or are rescued into a <code>_rescued_data</code> column.</p>`);
+
+add('pyspark','medium',
+  'Explain predicate pushdown and column pruning with Parquet/Delta.',
+  `<p><strong>Column pruning</strong> — only the columns referenced downstream are actually read off disk (Parquet's columnar layout makes this cheap). <strong>Predicate pushdown</strong> — filter conditions are pushed down to the file scan / storage layer, using Parquet's row-group min/max statistics (and Delta's file-level stats in the transaction log) to skip entire files or row groups that can't match — this is exactly how Delta file skipping and Z-ORDER accelerate filtered reads.</p>`);
+
+add('pyspark','medium',
+  'What is the risk of calling .collect() on a large DataFrame?',
+  `<p><code>collect()</code> pulls the <em>entire</em> result set from all executors back to the driver's memory as a local Python list. If the result is large, the driver — which typically has far less memory than the executor fleet combined — runs out of memory and crashes with a driver-side OOM. Prefer <code>take(n)</code>, <code>show()</code>, writing to storage, or aggregating first.</p>`);
+
+add('pyspark','hard',
+  'How do you detect and fix data skew in a join using the "salting" technique? Write the code.',
+  `<p><strong>Symptom:</strong> Spark UI shows one or two tasks in a stage taking dramatically longer than the rest (task duration/shuffle-read-size histogram is heavily right-skewed) — usually caused by a small number of hot keys (e.g. NULL, or one dominant customer_id).</p>
+   <div class="hint-label">Salting the skewed side</div>
+   <pre><code>from pyspark.sql.functions import lit, rand, concat, floor, explode, array
+
+N = 10  # salt buckets
+
+# salt the skewed (large) side
+salted_left = df_large.withColumn("salt", floor(rand() * N))
+salted_left = salted_left.withColumn("join_key", concat(col("key"), lit("_"), col("salt")))
+
+# replicate the small side across all salt buckets
+salted_right = (df_small
+    .withColumn("salt", explode(array([lit(i) for i in range(N)])))
+    .withColumn("join_key", concat(col("key"), lit("_"), col("salt"))))
+
+result = salted_left.join(salted_right, "join_key")</code></pre>
+   <p>This spreads the hot key across N synthetic keys so no single task inherits the whole skewed partition. In Spark 3.x, try AQE's built-in skew join optimization first (<code>spark.sql.adaptive.skewJoin.enabled</code>) — manual salting is the fallback when AQE isn't enough or isn't available.</p>`);
+
+add('pyspark','hard',
+  'Explain broadcast variables and accumulators, and one pitfall of each.',
+  `<p><strong>Broadcast variables</strong> — read-only value cached once per executor (not per task), used to avoid re-shipping a large lookup structure with every task closure. Pitfall: broadcasting something too large blows up executor memory.</p>
+   <p><strong>Accumulators</strong> — write-only variables aggregated back to the driver (counters, sums), useful for debugging/monitoring. Pitfall: updates inside transformations (not actions) can be applied more than once if a task is retried or re-executed due to speculative execution — only reliable inside actions.</p>`);
+
+add('pyspark','hard',
+  'Walk through how a job breaks down into jobs → stages → tasks.',
+  `<p>Each <strong>action</strong> triggers one <strong>job</strong>. The job's DAG is split into <strong>stages</strong> at shuffle boundaries — everything between two shuffles (or a shuffle and the source/sink) is one stage. Each stage is split into <strong>tasks</strong>, one per partition, and tasks within a stage run in parallel across executor cores. Stages within a job execute in dependency order (later stages wait on the shuffle output of earlier ones).</p>`);
+
+add('pyspark','hard',
+  'Write PySpark code to do an incremental load using a high-watermark column.',
+  `<pre><code># read the last processed watermark from a control table
+last_wm = (spark.table("control.watermarks")
+           .filter("table_name = 'orders'")
+           .select("max_updated_at").collect()[0][0])
+
+incremental_df = (spark.read.table("source.orders")
+                   .filter(col("updated_at") > last_wm))
+
+# process, then advance the watermark
+new_wm = incremental_df.agg({"updated_at": "max"}).collect()[0][0]
+
+spark.sql(f"""
+  UPDATE control.watermarks
+  SET max_updated_at = '{new_wm}'
+  WHERE table_name = 'orders'
+""")</code></pre>
+   <p>Always update the watermark <em>after</em> a successful write (commit), never before — otherwise a failed job silently skips the batch on retry.</p>`);
+
+add('pyspark','hard',
+  'Explain checkpointing vs persist() in Structured Streaming, and why checkpointing is mandatory for stateful/exactly-once streams.',
+  `<p><code>persist()</code>/<code>cache()</code> keeps data in memory/disk for the life of the Spark session — it's a performance optimization, not fault-tolerance. <strong>Checkpointing</strong> in Structured Streaming durably writes the stream's progress (offsets consumed, and for stateful operations, the actual state store snapshot) to reliable storage (e.g. an S3/ADLS path). On restart after a failure, Spark reads the checkpoint to resume exactly where it left off — this is what gives Structured Streaming its exactly-once processing guarantee, and it's mandatory for any stream with aggregation/state or that you need to be crash-recoverable.</p>`);
+
+add('pyspark','hard',
+  'Write PySpark Structured Streaming code with a watermark and a windowed aggregation, and explain what the watermark controls.',
+  `<pre><code>from pyspark.sql.functions import window, sum as spark_sum
+
+agg_df = (events_df
+    .withWatermark("event_time", "10 minutes")
+    .groupBy(window(col("event_time"), "5 minutes"), col("device_id"))
+    .agg(spark_sum("value").alias("total_value")))
+
+(agg_df.writeStream
+    .outputMode("append")
+    .format("delta")
+    .option("checkpointLocation", "/checkpoints/device_agg")
+    .start("/delta/device_agg"))</code></pre>
+   <p>The watermark tells Spark how long to wait for late data (here, 10 minutes past the max event_time seen) before finalizing and evicting a window's state. Data arriving later than the watermark threshold is dropped. It's the mechanism that bounds unbounded state growth in streaming aggregations.</p>`);
+
+add('pyspark','brutal',
+  'A groupBy/join stage is failing with executor OOM. Walk through your full diagnosis-to-fix process using the Spark UI.',
+  `<ol style="padding-left:20px;">
+    <li><strong>Open Spark UI → Stages</strong> for the failing stage. Check the task duration and shuffle-read-size distribution (max vs median vs min). A huge gap = <strong>skew</strong>.</li>
+    <li>Check <strong>Summary Metrics</strong> for "Shuffle Spill (Memory)" / "Shuffle Spill (Disk)" — heavy spill means partitions don't fit in executor memory even before OOM hits.</li>
+    <li>Check the <strong>Executors tab</strong> for GC time % — very high GC time before the crash points to memory pressure, not just a single bad task.</li>
+    <li>Identify root cause: (a) <strong>skewed key</strong> in the groupBy/join (fix: salting or AQE skew join), (b) <strong>too few shuffle partitions</strong> for the data volume, so each partition is oversized (fix: raise <code>spark.sql.shuffle.partitions</code> or enable AQE coalescing), (c) a <strong>broadcast join misfire</strong> where the "small" side was actually large (fix: check/raise/lower <code>autoBroadcastJoinThreshold</code>, or force a sort-merge join), (d) an unnecessary <code>.collect()</code> or <code>.toPandas()</code> pulling too much data to the driver.</li>
+    <li>Apply the fix, re-run at small scale first, confirm task duration variance is now tight, then scale back up.</li>
+  </ol>`);
+
+add('pyspark','brutal',
+  'Explain the physical plan of a sort-merge join vs broadcast join — what does "Exchange" mean in explain()?',
+  `<p>Run <code>df.join(...).explain("formatted")</code>. An <strong>Exchange</strong> node in the physical plan means Spark is shuffling data across the network to repartition it (hash-partitioning both sides by join key) before the join executes locally on each partition — this is the expensive part of a <strong>SortMergeJoin</strong> (Exchange → Sort → SortMergeJoin per partition). A <strong>BroadcastHashJoin</strong> instead shows a <code>BroadcastExchange</code> that ships the small side once to every executor, and the large side is never shuffled — the entire join happens node-local, which is why it's dramatically cheaper when applicable.</p>`);
+
+add('pyspark','brutal',
+  'How does Spark decide the number of tasks in a stage, and how does that relate to input file splits?',
+  `<p>For a <strong>source-reading stage</strong>, the number of tasks equals the number of input partitions, which for file-based sources is driven by the number of file splits — determined by <code>spark.sql.files.maxPartitionBytes</code> (default 128MB) and the number/size of underlying files (many small files → many small partitions → task-scheduling overhead dominates; the "small file problem"). For a <strong>shuffle stage</strong>, the number of tasks equals the configured number of output partitions (<code>spark.sql.shuffle.partitions</code>, default 200, or dynamically set by AQE). Task count directly caps parallelism — too few tasks under-utilizes the cluster, too many adds scheduling overhead per task.</p>`);
+
+add('pyspark','brutal',
+  'Explain Spark\'s unified memory management model — execution memory, storage memory, and how they interact.',
+  `<p>Under <code>UnifiedMemoryManager</code> (Spark 1.6+), the JVM heap on each executor is split into: <strong>Reserved memory</strong> (fixed, ~300MB, for Spark internals), and the remainder split between <strong>User memory</strong> (your own data structures, UDF state) and <strong>Spark memory</strong>, which is further divided into <strong>execution memory</strong> (shuffles, joins, sorts, aggregations) and <strong>storage memory</strong> (cached RDDs/DataFrames, broadcast variables). Execution and storage memory share the same region and can borrow from each other dynamically — execution memory can evict cached blocks under pressure (storage can't evict active execution memory), controlled by <code>spark.memory.fraction</code> and <code>spark.memory.storageFraction</code>. Off-heap memory can also be enabled via <code>spark.memory.offHeap.enabled</code> to avoid JVM GC overhead for large execution workloads.</p>`);
+
+/* =========================================================
+   DATABRICKS PLATFORM SECTION
+   ========================================================= */
+add('databricks','easy',
+  'What is the Databricks Lakehouse architecture, in one clear explanation?',
+  `<p>A single platform combining the low-cost, flexible storage of a data lake (cheap object storage, open file formats) with the ACID transactions, schema enforcement, and performance of a data warehouse — achieved via <strong>Delta Lake</strong> as the storage/table format layer on top of files in cloud object storage (S3/ADLS/GCS).</p>`);
+
+add('databricks','easy',
+  'Explain the Bronze / Silver / Gold Medallion architecture.',
+  `<ul>
+    <li><strong>Bronze</strong> — raw data landed as-is from source, minimal transformation, full history/audit trail.</li>
+    <li><strong>Silver</strong> — cleaned, deduplicated, conformed data — validated schema, joined/enriched where needed.</li>
+    <li><strong>Gold</strong> — business-level aggregates, curated for reporting/BI/ML consumption.</li>
+  </ul>
+  <p>(You've also worked with an extended <strong>Platinum</strong> layer on your ESG platform — worth mentioning as a further-curated, report-ready layer specific to sustainability KPIs.)</p>`);
+
+add('databricks','easy',
+  'What is Delta Lake and what ACID guarantees does it provide over plain Parquet?',
+  `<p>Delta Lake adds a transaction log (<code>_delta_log</code>) on top of Parquet files that records every add/remove file operation as an ordered, atomic commit. This gives <strong>Atomicity</strong> (a write either fully commits or not at all), <strong>Consistency</strong> (schema enforcement), <strong>Isolation</strong> (optimistic concurrency control between writers), and <strong>Durability</strong> (committed changes survive failures) — none of which plain Parquet-on-object-storage provides on its own.</p>`);
+
+add('databricks','medium',
+  'Explain Databricks Control Plane vs Data Plane — what runs where?',
+  `<p><strong>Control Plane</strong> (hosted/managed by Databricks in their own cloud account) — the web application, notebooks, job scheduler, cluster manager, Unity Catalog metadata, REST APIs. No customer data lives here.</p>
+   <p><strong>Data Plane</strong> (runs inside <em>your</em> cloud account — AWS/Azure/GCP) — the actual compute clusters (driver + executor VMs) that process your data, plus your data at rest in your own storage (S3/ADLS buckets). This separation is why Databricks is described as never directly holding your data — clusters spin up in your VPC/VNet, results are computed there, and only metadata/query results needed for the UI cross back to the control plane.</p>`);
+
+add('databricks','medium',
+  'Compare the Databricks cluster types: All-Purpose, Job Cluster, SQL Warehouse, and Pools.',
+  `<ul>
+    <li><strong>All-Purpose Cluster</strong> — long-running, shared interactively across notebooks/users, more expensive per DBU, good for dev/exploration.</li>
+    <li><strong>Job Cluster</strong> — spun up automatically for a scheduled job run and terminated on completion; cheaper DBU rate, isolated per job, no idle cost — the default for production pipelines.</li>
+    <li><strong>SQL Warehouse</strong> — compute optimized specifically for SQL/BI workloads (Databricks SQL), supports serverless auto-scaling, used by dashboards/queries rather than notebooks.</li>
+    <li><strong>Pools</strong> — a set of pre-warmed idle VM instances that clusters can attach to, cutting cluster start-up time from minutes to seconds by skipping cloud-provider VM provisioning.</li>
+  </ul>`);
+
+add('databricks','medium',
+  'DBFS vs Unity Catalog Volumes — what\'s the difference and why did governance move toward Volumes?',
+  `<p><strong>DBFS</strong> (Databricks File System) is a legacy abstraction over cloud storage mounted at the workspace level — historically a common way to store/access non-tabular files, but access wasn't governed by fine-grained ACLs and mounts were workspace-global (a governance blind spot). <strong>Unity Catalog Volumes</strong> govern non-tabular files (CSVs, images, model artifacts, checkpoints) the same way UC governs tables — with catalog.schema.volume namespacing, GRANT-based access control, and audit logging — closing the gap where file-based data used to bypass table-level governance entirely.</p>`);
+
+add('databricks','medium',
+  'Explain Unity Catalog\'s three-level namespace and what a metastore is.',
+  `<p>A <strong>metastore</strong> is the top-level UC container per cloud region, holding all metadata and governance policy for that region — one metastore is typically attached to multiple workspaces. Underneath it, objects are addressed as <code>catalog.schema.table</code>: <strong>catalog</strong> (top-level grouping, e.g. per business domain or environment), <strong>schema</strong> (a database within a catalog), <strong>table/view/volume/function</strong> (the actual object). This is a step up from the two-level Hive Metastore namespace (<code>schema.table</code>) and is what enables cross-workspace governance, lineage, and centralized access control via GRANT/REVOKE.</p>`);
+
+add('databricks','medium',
+  'What does the Delta transaction log actually contain, and how does time travel work?',
+  `<p><code>_delta_log/</code> holds an ordered sequence of JSON commit files (<code>000000.json</code>, <code>000001.json</code>...), each describing add/remove file actions, plus periodic Parquet <strong>checkpoint</strong> files that snapshot the log so readers don't have to replay every commit from version 0. Table state at any version is reconstructed by replaying the log up to that point. <strong>Time travel</strong> just queries against an older reconstructed state:</p>
+   <pre><code>SELECT * FROM my_table VERSION AS OF 12;
+SELECT * FROM my_table TIMESTAMP AS OF '2026-07-01';
+
+df = spark.read.format("delta").option("versionAsOf", 12).load(path)</code></pre>`);
+
+add('databricks','hard',
+  'Write Autoloader code that ingests JSON files with schema inference, evolution, and a checkpoint location. Explain each option.',
+  `<pre><code>bronze_df = (spark.readStream
+    .format("cloudFiles")
+    .option("cloudFiles.format", "json")
+    .option("cloudFiles.schemaLocation", "/checkpoints/bronze_orders/schema")
+    .option("cloudFiles.schemaEvolutionMode", "addNewColumns")
+    .option("cloudFiles.inferColumnTypes", "true")
+    .load("/mnt/raw/orders/"))
+
+(bronze_df.writeStream
+    .format("delta")
+    .option("checkpointLocation", "/checkpoints/bronze_orders/write")
+    .trigger(availableNow=True)          # micro-batch, process what's there, then stop
+    .outputMode("append")
+    .table("bronze.orders"))</code></pre>
+   <ul>
+     <li><strong>cloudFiles.schemaLocation</strong> — where Autoloader persists the inferred/evolving schema between runs.</li>
+     <li><strong>schemaEvolutionMode = addNewColumns</strong> — new columns get added automatically (stream restarts once to pick them up); other modes: <code>rescue</code> (unknown columns land in <code>_rescued_data</code>), <code>failOnNewColumns</code>, <code>none</code>.</li>
+     <li><strong>checkpointLocation</strong> — tracks exactly which files have already been ingested (via the internal RocksDB-backed file-listing state), giving exactly-once, idempotent ingestion even on restart.</li>
+     <li><strong>trigger(availableNow=True)</strong> — runs as a bounded micro-batch job (process everything currently available, then stop) rather than a continuously running stream — common for scheduled/Workflows-triggered ingestion.</li>
+   </ul>`);
+
+add('databricks','hard',
+  'Write a COPY INTO statement for idempotent batch ingestion, and explain how it avoids reprocessing files.',
+  `<pre><code>COPY INTO bronze.orders
+FROM '/mnt/raw/orders/'
+FILEFORMAT = JSON
+FORMAT_OPTIONS ('inferSchema' = 'true', 'mergeSchema' = 'true')
+COPY_OPTIONS ('mergeSchema' = 'true');</code></pre>
+   <p>COPY INTO maintains its own internal state (tracked against the target Delta table's transaction log) of exactly which source files it has already loaded, keyed by file path/metadata. Re-running the same statement against the same source directory is a no-op for already-loaded files — it only loads files it hasn't seen before, making it naturally idempotent without you managing a watermark or checkpoint yourself. This is why it's well suited to <strong>on-demand / ad-hoc backfill</strong> loads, whereas Autoloader is built for continuously running or frequently-triggered streaming ingestion.</p>`);
+
+add('databricks','hard',
+  'When would you choose Autoloader vs COPY INTO — and how would you combine both in a single pipeline?',
+  `<p><strong>Autoloader</strong> — high file volumes, needs low-latency near-continuous ingestion, benefits from file-notification-based discovery (scales to millions of files cheaply), stream-native with checkpointing and schema evolution built in. <strong>COPY INTO</strong> — simpler, SQL-native, best for smaller/periodic batch loads or one-off/on-demand historical backfills where the overhead of a running stream isn't justified.</p>
+   <p><strong>Combining both:</strong> run Autoloader for the active/ongoing stream against one physical path (e.g. <code>/raw/orders/incoming/</code>) with its own checkpoint, and run COPY INTO independently against a separate physical path (e.g. <code>/raw/orders/historical_backfill/</code>) for a one-time load of pre-existing history — each with independent state tracking so they never double-count or conflict, and both eventually converge writing into the same Bronze Delta table. This mirrors a real pattern for onboarding a new source: backfill history via COPY INTO once, then hand off ongoing ingestion to Autoloader.</p>`);
+
+add('databricks','hard',
+  'What does OPTIMIZE + ZORDER do, and when should you run it?',
+  `<pre><code>OPTIMIZE gold.sales_summary
+ZORDER BY (customer_id, region);</code></pre>
+   <p><strong>OPTIMIZE</strong> compacts many small files into fewer, larger files (bin-packing) — directly fixing the "small file problem" that slows down both scans and downstream job scheduling overhead. <strong>ZORDER BY</strong> co-locates related data for the specified columns within those files by sorting on a Z-order curve, so file-level min/max statistics become much more effective for skipping irrelevant files on filtered reads (data skipping). Run it periodically (scheduled, e.g. nightly) on tables that receive frequent small writes and are read with predictable filter columns — not on every write, since it's a relatively expensive operation itself.</p>`);
+
+add('databricks','hard',
+  'What does VACUUM do, and what\'s the risk of vacuuming with a retention period below the default?',
+  `<pre><code>VACUUM my_table RETAIN 168 HOURS;  -- default 7 days</code></pre>
+   <p>VACUUM physically deletes data files that are no longer referenced by the current table version and older than the retention threshold — reclaiming storage. The risk of a shorter retention: it breaks <strong>time travel</strong> to any version older than the retention window (the files are gone), and worse, it can corrupt a <strong>concurrently running long read/streaming query</strong> that's still referencing files from an older snapshot — that query will fail when it tries to read a file VACUUM already deleted. Databricks blocks retention below 168 hours (7 days) by default unless you explicitly disable the safety check, precisely because of this risk.</p>`);
+
+add('databricks','hard',
+  'Explain Deletion Vectors and Liquid Clustering — what problem does each solve?',
+  `<p><strong>Deletion Vectors</strong> — instead of rewriting an entire Parquet file to physically remove/update a handful of rows (the traditional copy-on-write cost of DELETE/UPDATE/MERGE), Delta marks the specific rows as logically deleted in a small side-file (the deletion vector), and readers filter them out on read. Dramatically reduces write amplification for row-level operations, especially MERGE with small % of matched rows.</p>
+   <p><strong>Liquid Clustering</strong> — replaces static partitioning + ZORDER with an adaptive clustering strategy that re-clusters incrementally as new data arrives, without requiring a full table rewrite or a fixed partition scheme chosen up-front. Solves the classic problem of partition columns chosen early becoming wrong/skewed as data and query patterns evolve.</p>`);
+
+add('databricks','hard',
+  'Explain how Databricks Workflows handle task dependencies, retries, and passing parameters between tasks.',
+  `<p>A Workflow (Job) is a DAG of tasks, each with a <code>depends_on</code> list defining upstream tasks that must succeed first. Tasks can run on a shared <strong>job cluster</strong> (defined once, reused across tasks — cheaper, faster) or each get isolated compute. <strong>Retries</strong> are configured per task (max retries + retry interval) so a transient failure (e.g. a flaky source API) doesn't fail the whole DAG. <strong>Parameter passing</strong> between tasks uses <code>dbutils.jobs.taskValues.set()</code> in the upstream task and <code>dbutils.jobs.taskValues.get()</code> in the downstream task, or job-level parameters resolved via <code>{{job.parameters.x}}</code> — useful for e.g. passing a computed row count or a watermark value forward.</p>`);
+
+add('databricks','hard',
+  'What are Databricks Asset Bundles (DABs) and how do they fit into a CI/CD workflow with GitHub Actions?',
+  `<p>DABs are a YAML-based, source-controlled way to define Databricks resources (jobs, pipelines, clusters, notebooks) as code (<code>databricks.yml</code>), instead of clicking through the UI. This makes deployments reproducible and diffable across dev/staging/prod targets. In a GitHub Actions pipeline: on PR merge, a workflow step runs <code>databricks bundle deploy --target prod</code> (authenticated via a service principal/PAT stored in GitHub Secrets), which validates and applies the bundle to the target workspace — giving you versioned, code-reviewed infrastructure changes instead of manual workspace edits, and a clean rollback path via git revert.</p>`);
+
+add('databricks','brutal',
+  'Explain end-to-end what happens when a new file lands in cloud storage and is picked up by Autoloader — contrast file-notification mode vs directory-listing mode.',
+  `<p><strong>Directory listing mode</strong> — Autoloader periodically lists the source directory (incrementally, tracking what it's already seen) to discover new files. Simple, no extra cloud infra needed, but listing cost/latency grows with the number of files in the directory over time — poor fit once you have millions of files.</p>
+   <p><strong>File notification mode</strong> — Autoloader instead sets up cloud-native event infrastructure: on AWS, an S3 bucket event triggers an SNS topic, which fans out to an SQS queue that Autoloader polls; on Azure, ADLS events flow through Event Grid to a Queue Storage queue. New file arrival pushes an event onto the queue immediately, so Autoloader discovers it near-instantly without ever listing the whole directory — scales to very high file volumes with low, constant discovery latency, at the cost of extra cloud resources (which Databricks provisions/manages for you) and slightly more setup complexity (permissions for Databricks to create the notification infra).</p>
+   <p>End-to-end: file lands → event fires (or gets picked up by next listing pass) → Autoloader enqueues it as "to process" → a micro-batch reads it, applies schema inference/evolution rules → writes to the Bronze Delta table → checkpoint commits the offset so the file is never reprocessed, even after a stream restart.</p>`);
+
+add('databricks','brutal',
+  'What is Photon, when does it activate, and what are its limitations?',
+  `<p>Photon is Databricks' native, vectorized query execution engine written in C++ (replacing the JVM-based Spark execution engine for supported operators), designed for CPU-efficient execution of SQL and DataFrame operations — significant speedups on scans, joins, aggregations, and writes, especially for Delta/Parquet workloads. It activates automatically on Photon-enabled clusters/SQL warehouses when the query plan consists of operators Photon supports; unsupported operators (certain UDFs, some complex data types/operations) fall back transparently to the standard JVM engine for that portion of the plan. Limitation: arbitrary Python/Scala UDFs generally aren't Photon-accelerated (they still run as regular JVM/Python execution), so a pipeline leaning heavily on custom UDFs won't see the full benefit — favor Spark SQL built-ins / Pandas UDFs where performance matters on a Photon cluster.</p>`);
+
+add('databricks','brutal',
+  'How does Unity Catalog\'s governance model (lineage, external locations, storage credentials) differ fundamentally from Hive Metastore?',
+  `<p><strong>Hive Metastore (HMS)</strong> — per-workspace metadata store, two-level namespace, access control historically enforced inconsistently (table ACLs were an add-on, not foundational; storage paths and credentials were often embedded directly in cluster configs/instance profiles with limited row/column-level control).</p>
+   <p><strong>Unity Catalog</strong> — a centralized, cross-workspace metastore with a three-level namespace, where every access path is mediated: <strong>storage credentials</strong> (cloud IAM role/service principal definitions) are decoupled from <strong>external locations</strong> (specific storage paths those credentials can access), which are decoupled again from the tables/catalogs that reference them — so no cluster or notebook ever holds raw cloud credentials directly. Access is governed by SQL-standard GRANT/REVOKE at catalog/schema/table/column/row level, and every read/write is automatically captured for <strong>data lineage</strong> (table-to-table and column-to-column) and audit logs — without you instrumenting anything yourself. This is the architectural shift that makes fine-grained governance (like the PII masking + audit compliance work you've done at the Unity Catalog level) enforceable platform-wide rather than bolted on per-workspace.</p>`);
+
+add('databricks','brutal',
+  'Explain the internals of what happens on disk when a MERGE INTO runs against a Delta table — and how deletion vectors change that cost.',
+  `<p><strong>Without deletion vectors (classic copy-on-write MERGE):</strong> Delta identifies every Parquet file containing at least one row that matches the MERGE condition, reads those files fully, applies the updates/inserts/deletes in memory, and writes out <em>entirely new</em> Parquet files replacing the old ones — even if only 1 row out of 5 million in a file changed. The old files are marked "removed" in the next transaction log commit (but not physically deleted until VACUUM). This "write amplification" is the main cost driver of frequent MERGE workloads on large files.</p>
+   <p><strong>With deletion vectors enabled:</strong> for rows that are updated/deleted, Delta doesn't rewrite the whole file — it writes a small deletion vector file marking exactly which row positions in the existing Parquet file are now invalid, and (for updates) appends the new row versions as a small new file. Readers merge the base file + deletion vector + inserted rows transparently at read time. This turns a full-file rewrite into a much smaller, targeted write — a major win for MERGE-heavy SCD Type 2 style workloads with a low percentage of matched rows per batch, at a small extra cost on the read path (applying the deletion vector).</p>`);
+
+/* =========================================================
+   SCENARIO-BASED SECTION
+   ========================================================= */
+add('scenario','hard',
+  'SCENARIO — A nightly job suddenly starts failing with "Executor OOM" / "Container killed by YARN for exceeding memory limits." Walk through your systematic diagnosis across every likely root cause.',
+  `<p>Treat this as a checklist against the Spark UI, in order of how commonly each cause shows up:</p>
+   <div class="hint-label">1 · Data skew (order by / group by / join)</div>
+   <p>Check the failing stage's task duration and shuffle-read-size distribution. One or a few tasks taking 10-100x longer/more data than the median = a hot key. Fix: AQE skew join handling, or manual key salting for the specific skewed key(s). For <code>ORDER BY</code>/global sort skew, check if a range-partitioning key is heavily concentrated at one value.</p>
+   <div class="hint-label">2 · Huge shuffle + executor overhead memory</div>
+   <p>Check "Shuffle Spill (Disk)" in stage metrics — heavy spill means shuffle partitions are oversized for available executor memory. Fix: increase <code>spark.sql.shuffle.partitions</code> (or let AQE auto-size them), or increase <code>spark.executor.memoryOverhead</code> if off-heap/shuffle buffer overhead specifically is being killed by the cluster manager (not the JVM heap itself).</p>
+   <div class="hint-label">3 · collect() / toPandas() on a large DataFrame</div>
+   <p>Grep the code for <code>.collect()</code>, <code>.toPandas()</code>, <code>.take(n)</code> with a large n — these pull data to the driver, which has a much smaller memory footprint than the executor fleet. Fix: aggregate/filter first, or write results to storage instead of pulling to driver.</p>
+   <div class="hint-label">4 · Huge broadcast join</div>
+   <p>Check if a "small" side of a join was broadcast but turned out much larger than expected (stale table statistics, or a filter that didn't reduce size as much as assumed) — broadcasting a multi-GB table crashes every executor simultaneously. Fix: lower/disable <code>autoBroadcastJoinThreshold</code>, or explicitly force a sort-merge join for that specific join.</p>
+   <div class="hint-label">5 · Huge Python variables / UDFs</div>
+   <p>Check for large Python objects captured in a UDF's closure (e.g. a big dict/list built in the driver and referenced inside a UDF) — this gets serialized and shipped per task, ballooning executor memory. Fix: convert the lookup structure to a broadcast variable, or move it to a join instead of a UDF closure.</p>
+   <p><strong>Process:</strong> reproduce at reduced scale first, check Spark UI stage/executor tabs for the specific signal above, apply the targeted fix (not a blanket "increase cluster size" — that's masking, not fixing), re-test, then scale back to full data.</p>`);
+
+add('scenario','hard',
+  'SCENARIO — Upstream is dumping a huge historical dataset (hundreds of GB to TB) that your pipeline needs to process without overwhelming the cluster. How do you approach it?',
+  `<div class="hint-label">Incremental load processing</div>
+   <p>Don't process the whole dataset in one pass — chunk it by a natural partitioning key (date range, ID range, or a high-watermark column) and process incrementally, one chunk/batch at a time, committing progress after each so a failure only requires re-running the last chunk, not the whole load.</p>
+   <div class="hint-label">Micro-batch mode</div>
+   <pre><code>(stream_df.writeStream
+    .trigger(processingTime="5 minutes")   # or trigger(availableNow=True)
+    .foreachBatch(process_batch_fn)
+    .start())</code></pre>
+   <p>Using Structured Streaming's micro-batch trigger (even against a static/bounded historical source treated as a stream, or <code>trigger(availableNow=True)</code> for a bounded run) lets you process the backlog in bounded, memory-safe increments rather than one giant batch job, with built-in checkpointing for restart safety.</p>
+   <div class="hint-label">randomSplit for controlled, staged processing</div>
+   <pre><code>chunks = full_df.randomSplit([0.25, 0.25, 0.25, 0.25], seed=42)
+for i, chunk in enumerate(chunks):
+    process_and_write(chunk)
+    print(f"chunk {i} done")</code></pre>
+   <p>Useful for a one-off backfill where there's no natural incremental key to chunk by — split the DataFrame into roughly equal random partitions and process each sequentially (or with limited parallelism), keeping peak memory/shuffle size bounded per chunk instead of spiking on the full dataset at once.</p>
+   <p><strong>Also worth mentioning:</strong> right-size the cluster for the backfill specifically (autoscaling job cluster, more workers just for this run), and consider COPY INTO for a pure ingestion backfill since it naturally tracks already-loaded files if the job needs to restart.</p>`);
+
+add('scenario','hard',
+  'SCENARIO — A Databricks job that used to run in 20 minutes is now taking 2+ hours with no code changes. Walk through your optimization checklist.',
+  `<ol style="padding-left:20px;">
+    <li><strong>Check data volume growth first</strong> — sometimes there's no bug, the source data genuinely grew. Compare row counts / input size to a baseline run.</li>
+    <li><strong>Check for the small file problem</strong> — if upstream writes accumulated many small files over time, scan overhead balloons. Run <code>DESCRIBE DETAIL</code> to check <code>numFiles</code> vs table size; fix with <code>OPTIMIZE</code>.</li>
+    <li><strong>Check for skew that wasn't there before</strong> — a new dominant key (e.g. a big customer onboarded) can suddenly skew a previously balanced join/groupBy. Check task duration distribution in Spark UI.</li>
+    <li><strong>Check shuffle partition count vs current data size</strong> — a static <code>spark.sql.shuffle.partitions</code> set for the old data volume may now be badly undersized. Enable/verify AQE is on.</li>
+    <li><strong>Check for disk spill</strong> — Stage metrics "Shuffle Spill" indicates the working set no longer fits in memory at current volume; may need larger executors or partition tuning rather than more executors.</li>
+    <li><strong>Check for accidental caching of stale/large intermediate results</strong>, or a missing <code>.cache()</code> on a DataFrame reused multiple times (recomputing the same expensive upstream chain repeatedly).</li>
+    <li><strong>Check broadcast join threshold</strong> — if a "small" dimension table grew past the auto-broadcast threshold, the join silently fell back to a much more expensive sort-merge join.</li>
+    <li><strong>Check cluster health</strong> — autoscaling misconfiguration, spot instance preemption/reclaims causing retries, or a driver-bound bottleneck (too much collect()/toPandas()).</li>
+    <li><strong>Look at explain(true) / the Spark UI DAG</strong> to confirm the physical plan didn't silently change (e.g. Delta stats went stale so a partition-pruning filter is no longer effective).</li>
+  </ol>
+  <p>Fix in order of cheapest-to-verify first (data volume, file count, cluster config) before diving into code-level changes.</p>`);
+
+add('scenario','medium',
+  'SCENARIO — Two pipelines running MERGE INTO against the same Delta table concurrently keep failing with ConcurrentAppendException. How do you resolve it?',
+  `<p>This is Delta's optimistic concurrency control rejecting a commit because another transaction's changes overlapped with what your MERGE read. Fixes: (1) partition the workloads so each writer only ever touches its own, non-overlapping partitions (e.g. split by region/date range), (2) serialize the two writers into a single scheduled job/queue instead of running them in parallel against the same table, (3) if genuinely concurrent writes are required, narrow the MERGE's read scope with a tighter filter predicate so the transaction's "read set" doesn't span the whole table, reducing the chance of overlap, or (4) implement retry-with-backoff around the MERGE call for a bounded number of automatic retries on this specific exception, since Delta commits are designed to be safely retryable.</p>`);
+
+add('scenario','medium',
+  'SCENARIO — A streaming ingestion job is "falling behind" — the input rate consistently exceeds the processing rate and the backlog keeps growing. How do you diagnose and fix it?',
+  `<p>Check the Structured Streaming UI (input rows/sec vs processing rows/sec, batch duration vs trigger interval). If processing consistently takes longer than the trigger interval, the stream is accumulating backlog. Fixes: increase parallelism (more executors, or repartition the micro-batch before heavy transformations), reduce per-batch work (push filtering earlier, avoid expensive shuffles per micro-batch where avoidable), tune <code>maxFilesPerTrigger</code>/<code>maxBytesPerTrigger</code> (for Autoloader/file sources) to rate-limit and stabilize batch size, or scale the cluster. If it's a one-time backlog spike rather than a sustained rate mismatch, consider a one-off <code>trigger(availableNow=True)</code> catch-up run with a larger cluster, then resume the normal continuous trigger.</p>`);
+
+add('scenario','medium',
+  'SCENARIO — Your ETL job fails midway through a write and is re-run. On re-run, you discover duplicate records in the target table. What went wrong and how do you prevent it?',
+  `<p>Likely cause: a plain <code>append</code> write (not idempotent) partially succeeded, then the retry re-appended data that had already landed, without any way to distinguish "already written" from "not yet written." Prevention: use <strong>MERGE INTO</strong> instead of blind append for any retryable write (upsert semantics make re-runs naturally idempotent), or use <strong>COPY INTO</strong>/Autoloader's built-in file-level idempotency tracking for ingestion specifically, or wrap the write with an explicit dedup step keyed on a natural key + batch/load timestamp before the final write. Also make sure watermark/checkpoint state is only advanced <em>after</em> a confirmed successful commit, never before.</p>`);
+
+add('scenario','medium',
+  'SCENARIO — A downstream Gold-layer report shows a count mismatch against the source system for yesterday\'s data. Walk through how you\'d trace it.',
+  `<p>This mirrors real variance-analysis work: reconcile record counts and key metric values layer by layer (Gold vs Silver vs Bronze vs source) to isolate where the divergence was introduced, rather than guessing. Use <strong>Delta Lake time travel</strong> to compare the table's state at different versions/points in time and pinpoint exactly which write introduced the discrepancy. Common root causes to check: a late-arriving batch that hadn't landed at extract time, a filter/join in a Silver transformation unintentionally dropping rows (e.g. an inner join where a left join was intended), duplicate handling logic that over- or under-deduplicated, or a timezone/date-boundary mismatch between source and pipeline causing a day's data to be split across two partitions.</p>`);
+
+add('scenario','hard',
+  'SCENARIO — You need to process a huge upstream file in a way that\'s safe to test on a fraction of the data before running on the full volume, without biasing which rows you test on. How would you sample it in PySpark?',
+  `<pre><code># reproducible random sample for testing, before scaling to the full run
+sample_df = full_df.sample(withReplacement=False, fraction=0.05, seed=42)
+
+# or a stratified sample to preserve key-distribution (e.g. by region)
+stratified = full_df.sampleBy("region", fractions={"east":0.05,"west":0.05,"north":0.05}, seed=42)</code></pre>
+   <p>Use <code>seed</code> for reproducibility across runs, prefer <code>sampleBy</code> (stratified) over plain <code>sample</code> when the data has known skew you want represented proportionally in the test set (e.g. testing a skew-fix should include the actual hot key, not just a uniform random sample that might miss it). This is distinct from <code>randomSplit</code>, which is for partitioning the <em>whole</em> dataset into disjoint chunks (e.g. for staged full-volume processing) rather than pulling a representative test subset.</p>`);
+
+add('scenario','brutal',
+  'SCENARIO — Your Databricks job passes on a 10GB dev dataset but consistently OOMs on the 500GB production dataset, and the cluster is already fairly large. The team wants a permanent fix, not just "add more executors." What do you investigate?',
+  `<p>The instinct to just scale the cluster masks the real problem and increases cost indefinitely as data grows further. Investigate structurally:</p>
+   <ul>
+     <li>Whether any operation has <strong>non-linear memory behavior</strong> relative to data size — e.g. a broadcast join whose "small" side isn't actually bounded (grows with production data), or a UDF that materializes a large Python object per-partition rather than per-row.</li>
+     <li>Whether <strong>partition count is static</strong> in code (e.g. hardcoded <code>repartition(200)</code>) rather than scaling with data volume — fine at 10GB, badly undersized at 500GB, causing oversized partitions per task.</li>
+     <li>Whether the dev dataset happens to avoid a <strong>skewed key</strong> that only appears at production scale/variety (10GB dev sample may not contain the problematic hot customer/key).</li>
+     <li>Whether there's a <strong>collect()/toPandas() call sized relative to input data</strong> that's fine at dev scale but blows the driver at prod scale.</li>
+     <li>Whether <strong>caching an intermediate DataFrame</strong> that's cheap at 10GB becomes a large, unnecessary memory hold at 500GB when it could instead be recomputed or persisted to disk-only.</li>
+   </ul>
+   <p>The permanent fix is almost always making partition sizing and join strategy <em>data-size-aware</em> (dynamic, via AQE, or computed from source stats) rather than tuned once against a small dev sample — plus adding a repeatable, production-scale-representative test dataset so this class of bug is caught before prod, not in prod.</p>`);
+
+add('scenario','brutal',
+  'SCENARIO — You\'re asked to redesign an existing pipeline that currently reprocesses the entire source table every night (full refresh) because it\'s become too slow and expensive as the table has grown. Propose the redesign.',
+  `<p>Move from full-refresh to <strong>incremental processing</strong>:</p>
+   <ol style="padding-left:20px;">
+    <li>Identify a reliable change-tracking signal upstream: a high-watermark column (updated_at), Change Data Feed (Delta's native <code>enableChangeDataFeed</code> to read only inserted/updated/deleted rows since the last version), or a CDC feed from the source system.</li>
+    <li>Replace the nightly full overwrite with a <strong>MERGE INTO</strong> against only the changed rows since the last successful run, tracked via a watermark control table (exactly the incremental-load pattern above).</li>
+    <li>Add a periodic (e.g. weekly) <strong>full reconciliation job</strong> as a safety net — compares row counts/checksums between source and target to catch any drift the incremental logic might silently miss, without reverting to nightly full reprocessing.</li>
+    <li>Run <strong>OPTIMIZE</strong> periodically since incremental MERGE writes tend to create more, smaller files over time than a bulk overwrite would.</li>
+    <li>Validate the migration carefully — run old (full) and new (incremental) pipelines in parallel for a period, diff the outputs, before decommissioning the full-refresh job.</li>
+   </ol>
+   <p>Trade-off to be upfront about in the interview: incremental pipelines are more complex to reason about and debug (state, watermarks, late-arriving data) than "just reprocess everything" — the redesign is worth it once table size/cost justifies the added complexity, not before.</p>`);
+
+/* =========================================================
+   RENDER LOGIC
+   ========================================================= */
+document.getElementById('total-count').textContent = Q.length;
+
+const state = { cat:'all', diffs:new Set(), search:'' };
+
+// category pills
+const catFilterEl = document.getElementById('cat-filters');
+const allPill = document.createElement('div');
+allPill.className = 'pill active';
+allPill.textContent = 'All Topics';
+allPill.onclick = () => { state.cat='all'; refreshPills(); render(); };
+catFilterEl.appendChild(allPill);
+CATS.forEach(c=>{
+  const p = document.createElement('div');
+  p.className='pill';
+  p.textContent = c.label;
+  p.dataset.cat = c.id;
+  p.onclick = () => { state.cat = c.id; refreshPills(); render(); };
+  catFilterEl.appendChild(p);
+});
+function refreshPills(){
+  [...catFilterEl.children].forEach(el=>{
+    const isAll = el === allPill;
+    el.classList.toggle('active', isAll ? state.cat==='all' : el.dataset.cat===state.cat);
+  });
+}
+
+// difficulty pills (multi-select toggle)
+const diffFilterEl = document.getElementById('diff-filters');
+DIFFS.forEach(d=>{
+  const p = document.createElement('div');
+  p.className='pill';
+  p.textContent = d[0].toUpperCase()+d.slice(1);
+  p.dataset.diff = d;
+  p.onclick = () => {
+    if(state.diffs.has(d)){ state.diffs.delete(d); p.classList.remove('diff-active-'+d);}
+    else { state.diffs.add(d); p.classList.add('diff-active-'+d); }
+    render();
+  };
+  diffFilterEl.appendChild(p);
+});
+
+document.getElementById('search').addEventListener('input', e=>{
+  state.search = e.target.value.toLowerCase();
+  render();
+});
+
+const contentEl = document.getElementById('content');
+const emptyEl = document.getElementById('empty');
+const visibleCountEl = document.getElementById('visible-count');
+
+function matches(item){
+  if(state.cat !== 'all' && item.cat !== state.cat) return false;
+  if(state.diffs.size > 0 && !state.diffs.has(item.diff)) return false;
+  if(state.search && !(item.q.toLowerCase().includes(state.search) || item.a.toLowerCase().includes(state.search))) return false;
+  return true;
+}
+
+function render(){
+  contentEl.innerHTML = '';
+  let shown = 0;
+  const catsToRender = state.cat==='all' ? CATS : CATS.filter(c=>c.id===state.cat);
+
+  catsToRender.forEach(cat=>{
+    const items = Q.filter(q => q.cat === cat.id && matches(q));
+    if(items.length === 0) return;
+    shown += items.length;
+
+    const heading = document.createElement('div');
+    heading.className = 'section-heading';
+    heading.innerHTML = `<h2 class="display">${cat.label}</h2><span class="section-sub">${items.length} question${items.length!==1?'s':''}</span><div class="section-rule"></div>`;
+    contentEl.appendChild(heading);
+
+    items.forEach(item=>{
+      const card = document.createElement('div');
+      card.className = 'qcard';
+      card.innerHTML = `
+        <div class="qhead">
+          <div class="qnum mono">Q${item.id}</div>
+          <div class="qbody">
+            <div class="qtext">${item.q}</div>
+            <div class="qtags">
+              <span class="tag ${item.diff}">${item.diff}</span>
+              <span class="tag cat">${CATS.find(c=>c.id===item.cat).label}</span>
+            </div>
+          </div>
+          <div class="chev">▸</div>
+        </div>
+        <div class="qanswer"><div class="qanswer-inner">${item.a}</div></div>
+      `;
+      const head = card.querySelector('.qhead');
+      const ans = card.querySelector('.qanswer');
+      head.addEventListener('click', ()=>{
+        const isOpen = card.classList.toggle('open');
+        ans.style.maxHeight = isOpen ? ans.scrollHeight + 'px' : '0px';
+      });
+      contentEl.appendChild(card);
+    });
+  });
+
+  visibleCountEl.textContent = shown;
+  emptyEl.style.display = shown === 0 ? 'block' : 'none';
+}
+
+render();
+</script>
+</body>
+</html>
