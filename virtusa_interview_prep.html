@@ -1,0 +1,696 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Virtusa · Data Engineer (AWS Databricks) — Interview Simulator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Spectral:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Work+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bronze:#A85C2E;
+  --bronze-soft:#E7D2C0;
+  --silver:#5B6B7A;
+  --silver-soft:#DCE3E8;
+  --gold:#A9821A;
+  --gold-soft:#EDE0B4;
+  --platinum:#3D3457;
+  --platinum-soft:#DCD6EA;
+  --ink:#1D2024;
+  --paper:#EEF0F1;
+  --paper-raised:#F8F9F9;
+  --line:#CBD1D5;
+  --muted:#5B646B;
+}
+*{box-sizing:border-box;}
+html,body{margin:0;padding:0;}
+body{
+  background:var(--paper);
+  color:var(--ink);
+  font-family:'Work Sans',sans-serif;
+  -webkit-font-smoothing:antialiased;
+}
+h1,h2,h3,.display{font-family:'Spectral',serif;}
+code,.mono,.timer,.badge,.chip{font-family:'IBM Plex Mono',monospace;}
+
+/* ---------- Header ---------- */
+.topbar{
+  background:var(--ink);
+  color:#F1F1EE;
+  padding:22px 28px 18px;
+  position:sticky; top:0; z-index:50;
+  border-bottom:3px solid var(--gold);
+}
+.topbar-inner{max-width:1180px;margin:0 auto;}
+.topbar-title{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;}
+.topbar-title h1{font-size:1.5rem;font-weight:600;margin:0;letter-spacing:0.2px;}
+.topbar-title .role-tag{font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;color:#C9C4B8;border:1px solid #55564f;padding:3px 8px;border-radius:2px;}
+.topbar-sub{margin:4px 0 16px;font-size:0.88rem;color:#B9BEC2;}
+.progress-track{display:flex;gap:4px;height:8px;border-radius:4px;overflow:hidden;background:#2b2e33;}
+.seg{flex:1;position:relative;background:#3a3d43;}
+.seg > i{position:absolute;left:0;top:0;bottom:0;width:0%;transition:width .3s linear;}
+.seg.bronze > i{background:var(--bronze);}
+.seg.silver > i{background:var(--silver);}
+.seg.gold > i{background:var(--gold);}
+.seg.platinum > i{background:#8f7fc9;}
+.clock-row{display:flex;align-items:center;justify-content:space-between;margin-top:10px;flex-wrap:wrap;gap:10px;}
+.clock{font-size:1.6rem;letter-spacing:1px;}
+.clock small{font-size:0.7rem;color:#9AA0A5;letter-spacing:0.05em;margin-left:6px;}
+.clock-controls button{
+  background:transparent;border:1px solid #565a5f;color:#EDEDE8;
+  font-family:'IBM Plex Mono',monospace;font-size:0.72rem;letter-spacing:0.06em;
+  padding:7px 13px;border-radius:3px;cursor:pointer;margin-left:8px;text-transform:uppercase;
+}
+.clock-controls button:hover{border-color:var(--gold);color:var(--gold);}
+.clock-controls button.primary{background:var(--gold);border-color:var(--gold);color:#1D2024;font-weight:600;}
+.clock-controls button.primary:hover{opacity:.88;color:#1D2024;}
+
+/* ---------- Layout ---------- */
+.shell{max-width:1180px;margin:0 auto;display:flex;gap:26px;padding:28px 28px 80px;align-items:flex-start;}
+.rail{width:230px;flex-shrink:0;position:sticky;top:158px;}
+.rail-strata{display:flex;flex-direction:column-reverse;border-radius:8px;overflow:hidden;border:1px solid var(--line);}
+.strat-btn{
+  display:block;width:100%;text-align:left;border:none;cursor:pointer;
+  padding:16px 16px 14px;font-family:'Work Sans',sans-serif;
+  border-top:1px solid rgba(0,0,0,.08);
+  position:relative;
+}
+.strat-btn:first-child{border-top:none;}
+.strat-btn .lyr{font-family:'IBM Plex Mono',monospace;font-size:0.65rem;letter-spacing:0.1em;text-transform:uppercase;opacity:.75;}
+.strat-btn .nm{display:block;font-weight:600;font-size:0.98rem;margin-top:3px;}
+.strat-btn .mins{display:block;font-size:0.74rem;margin-top:3px;opacity:.75;}
+.strat-btn[data-round="bronze"]{background:var(--bronze-soft);color:#5A3113;}
+.strat-btn[data-round="silver"]{background:var(--silver-soft);color:#293743;}
+.strat-btn[data-round="gold"]{background:var(--gold-soft);color:#4A3A08;}
+.strat-btn[data-round="platinum"]{background:var(--platinum-soft);color:#241E38;}
+.strat-btn.active{box-shadow:inset 4px 0 0 var(--ink);}
+.strat-btn:hover{filter:brightness(0.96);}
+.rail-note{margin-top:16px;background:var(--paper-raised);border:1px solid var(--line);border-radius:8px;padding:14px;font-size:0.78rem;color:var(--muted);line-height:1.5;}
+.rail-note strong{color:var(--ink);}
+.bridge-link{display:block;margin-top:10px;text-align:center;background:var(--ink);color:#F1F1EE;padding:10px;border-radius:6px;font-size:0.78rem;letter-spacing:.03em;cursor:pointer;text-transform:uppercase;font-family:'IBM Plex Mono',monospace;}
+.bridge-link:hover{background:#33363c;}
+
+/* ---------- Main content ---------- */
+.main{flex:1;min-width:0;}
+.round-head{margin-bottom:18px;}
+.round-head .eyebrow{font-family:'IBM Plex Mono',monospace;font-size:0.72rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--muted);}
+.round-head h2{font-size:1.7rem;margin:4px 0 8px;}
+.round-head p.desc{margin:0 0 12px;color:var(--muted);font-size:0.94rem;max-width:70ch;}
+.tagrow{display:flex;flex-wrap:wrap;gap:6px;}
+.chip{font-size:0.68rem;background:var(--paper-raised);border:1px solid var(--line);padding:4px 9px;border-radius:20px;color:var(--muted);letter-spacing:.02em;}
+
+.qlist{display:flex;flex-direction:column;gap:12px;margin-top:20px;}
+.qcard{background:var(--paper-raised);border:1px solid var(--line);border-radius:9px;overflow:hidden;}
+.qcard-head{display:flex;align-items:flex-start;gap:12px;padding:15px 17px;cursor:pointer;}
+.qnum{font-family:'IBM Plex Mono',monospace;font-size:0.78rem;color:var(--muted);flex-shrink:0;width:28px;padding-top:2px;}
+.qbody{flex:1;}
+.qtext{font-size:0.96rem;line-height:1.5;font-weight:500;}
+.qmeta{display:flex;gap:6px;margin-top:7px;flex-wrap:wrap;}
+.diff{font-family:'IBM Plex Mono',monospace;font-size:0.63rem;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:3px;}
+.diff.easy{background:#D9EAD9;color:#2E5B2E;}
+.diff.medium{background:#F5E3B3;color:#6B4E00;}
+.diff.hard{background:#F2CBB9;color:#8A3A12;}
+.diff.brutal{background:#E9C4CE;color:#7A1F3B;}
+.hnds{font-family:'IBM Plex Mono',monospace;font-size:0.63rem;text-transform:uppercase;letter-spacing:.06em;padding:2px 7px;border-radius:3px;background:#D9E4EC;color:#28495F;}
+.chev{flex-shrink:0;transition:transform .2s;color:var(--muted);margin-top:3px;}
+.qcard.open .chev{transform:rotate(180deg);}
+.qanswer{max-height:0;overflow:hidden;transition:max-height .25s ease;border-top:1px solid transparent;}
+.qcard.open .qanswer{border-top:1px solid var(--line);}
+.qanswer-inner{padding:15px 17px 18px 57px;font-size:0.88rem;line-height:1.6;color:#33383D;}
+.qanswer-inner pre{background:#1D2024;color:#E7E7E2;padding:12px 14px;border-radius:6px;overflow-x:auto;font-size:0.8rem;line-height:1.55;margin:10px 0;}
+.qanswer-inner code{background:#E4E7E9;padding:1px 5px;border-radius:3px;font-size:0.83em;}
+.qanswer-inner pre code{background:none;padding:0;}
+.qanswer-inner ul{margin:8px 0;padding-left:20px;}
+.qanswer-inner .lbl{font-family:'IBM Plex Mono',monospace;font-size:0.66rem;text-transform:uppercase;letter-spacing:.07em;color:var(--muted);margin:12px 0 4px;}
+.qanswer-inner .lbl:first-child{margin-top:0;}
+
+/* Bridge section */
+.bridge{background:var(--paper-raised);border:1px solid var(--line);border-radius:9px;padding:20px 22px;margin-bottom:16px;}
+.bridge h3{margin:0 0 4px;font-size:1.05rem;}
+.bridge .jdline{font-size:0.78rem;color:var(--muted);margin-bottom:10px;font-style:italic;}
+.bridge .cvline{font-size:0.9rem;line-height:1.55;border-left:3px solid var(--gold);padding-left:12px;}
+.bridge .cvline b{color:var(--ink);}
+
+.tips{background:#232227;color:#EDEDE8;border-radius:9px;padding:20px 22px;margin-top:26px;font-size:0.87rem;line-height:1.6;}
+.tips h3{color:#EED98A;font-size:1rem;margin:0 0 8px;}
+.tips ul{margin:0;padding-left:18px;}
+.tips li{margin-bottom:5px;}
+
+@media (max-width:820px){
+  .shell{flex-direction:column;}
+  .rail{width:100%;position:static;}
+  .rail-strata{flex-direction:row;flex-wrap:wrap;}
+  .strat-btn{width:50%;border-top:1px solid rgba(0,0,0,.08)!important;}
+  .qanswer-inner{padding-left:17px;}
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="topbar-inner">
+    <div class="topbar-title">
+      <h1>Interview Simulator</h1>
+      <span class="role-tag">Virtusa · Data Engineer — AWS Databricks (Offshore)</span>
+    </div>
+    <div class="topbar-sub">2 hrs · 3 Technical Rounds (Bronze → Silver → Gold) + 1 Managerial Round (Platinum) · Sankha Subhra Mondal</div>
+    <div class="progress-track">
+      <div class="seg bronze"><i id="fill-bronze"></i></div>
+      <div class="seg silver"><i id="fill-silver"></i></div>
+      <div class="seg gold"><i id="fill-gold"></i></div>
+      <div class="seg platinum"><i id="fill-platinum"></i></div>
+    </div>
+    <div class="clock-row">
+      <div class="clock"><span id="clockDisplay">35:00</span><small>ROUND TIMER</small></div>
+      <div class="clock-controls">
+        <button id="btnStart" class="primary">Start round</button>
+        <button id="btnReset">Reset</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+  <div class="rail">
+    <div class="rail-strata">
+      <button class="strat-btn" data-round="platinum">
+        <span class="lyr">Layer 04 · Managerial</span>
+        <span class="nm">Platinum</span>
+        <span class="mins">20 min · ownership &amp; delivery</span>
+      </button>
+      <button class="strat-btn" data-round="gold">
+        <span class="lyr">Layer 03 · Technical</span>
+        <span class="nm">Gold</span>
+        <span class="mins">30 min · Python &amp; ETL ops</span>
+      </button>
+      <button class="strat-btn" data-round="silver">
+        <span class="lyr">Layer 02 · Technical</span>
+        <span class="nm">Silver</span>
+        <span class="mins">35 min · SQL &amp; reconciliation</span>
+      </button>
+      <button class="strat-btn active" data-round="bronze">
+        <span class="lyr">Layer 01 · Technical</span>
+        <span class="nm">Bronze</span>
+        <span class="mins">35 min · PySpark &amp; ingestion</span>
+      </button>
+    </div>
+    <div class="rail-note">
+      <strong>Why this order:</strong> mirrors the JD's own Medallion flow — raw ingestion validation first, then reconciliation logic, then ETL/orchestration, then how you lead delivery. Click a layer to jump.
+    </div>
+    <div class="bridge-link" id="bridgeToggleBtn">CV ↔ JD Bridge</div>
+  </div>
+
+  <div class="main">
+
+    <div id="bridgeSection" style="display:none;">
+      <div class="round-head">
+        <div class="eyebrow">Before you start</div>
+        <h2>Your CV, in the JD's own words</h2>
+        <p class="desc">The JD is basically describing work you've already shipped at Baker Hughes. When a question sounds generic, land it on one of these — specific beats textbook every time.</p>
+      </div>
+      <div id="bridgeList"></div>
+    </div>
+
+    <div id="roundSection">
+      <div class="round-head">
+        <div class="eyebrow" id="rEyebrow">Layer 01 · Technical Round 1</div>
+        <h2 id="rTitle">Bronze — PySpark &amp; Ingestion Validation</h2>
+        <p class="desc" id="rDesc"></p>
+        <div class="tagrow" id="rTags"></div>
+      </div>
+      <div class="qlist" id="qlist"></div>
+    </div>
+
+    <div class="tips">
+      <h3>How to run this like the real thing</h3>
+      <ul>
+        <li>Do it in order, out loud, on a whiteboard/notes app — not silently in your head. Interviewers score your reasoning trail, not just the final answer.</li>
+        <li>Hit "Start round" per layer and stop when the timer ends, even mid-answer — that's the pressure you're training for.</li>
+        <li>For every "Hands-on" tag, actually type the code. Recognizing an answer and producing it under pressure are different skills.</li>
+        <li>Bronze/Silver/Gold questions deliberately echo the JD phrase-for-phrase (reconciliation, dedup, standardization, profiling) — expect the real interviewer to use this exact vocabulary.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------------- DATA ---------------- */
+
+const BRIDGE = [
+  {jd:"Perform source-to-Bronze and Bronze-to-Silver data validation, reconciliation, and data quality assessment.",
+   cv:"Independently designed a <b>Bronze-to-Silver CSR pipeline using SCD Type 2 MERGE logic</b> against the Employee Dimension table, enabling ESG KPI reporting and producing IPE documentation."},
+  {jd:"Conduct daily variance analysis / reconciliation, tracing discrepancies.",
+   cv:"Conducted <b>daily variance analysis across 15 ESG reports</b>, reconciling record counts and metric values, then used <b>Delta Lake time travel</b> to trace discrepancies back to historical table versions."},
+  {jd:"Analyze existing transformation logic, including deduplication, standardization, cleansing, and business rule implementations.",
+   cv:"Built a <b>PySpark ingestion monitoring framework</b> tracking 25 daily file ingestions across 5 ESG applications, plus a <b>file-level data quality validation workflow</b> applying 10+ integrity checks."},
+  {jd:"Mandatory: AWS S3, Delta Lake, Unity Catalog, Data Quality Frameworks, CDC processing.",
+   cv:"Led a <b>Unity Catalog governance migration</b> of 100+ data objects and 15+ Hive-metastore framework codes, plus a <b>custom-UDF PII masking layer</b> across 15+ sensitive columns for audit compliance."},
+  {jd:"Develop SQL queries and validation scripts for data reconciliation and testing.",
+   cv:"Built a <b>DDL automation framework</b> generating 100+ Delta table structures directly from CSV/Parquet schemas, cutting new source onboarding time by 60%."},
+  {jd:"Support implementation of Silver and Gold layer data structures aligned with enterprise data models; recursive/complex transformation logic.",
+   cv:"Optimized a <b>recursive Bill-of-Materials explosion pipeline</b> in PySpark across 10M+ material keys using iterative DataFrame joins, enabling accurate LCA reporting."},
+  {jd:"Implement logging, error handling, monitoring, and operational support for data pipelines.",
+   cv:"Migrated 10+ SharePoint data source connections from password-based to <b>token-based authentication</b>, and built email-alerting on pipeline failures/delays for 5 ESG applications."}
+];
+
+const ROUNDS = {
+bronze:{
+  eyebrow:"Layer 01 · Technical Round 1",
+  title:"Bronze — PySpark &amp; Ingestion Validation",
+  desc:"Raw-layer thinking: ingestion patterns, schema drift, dedup/standardization logic, Auto Loader vs COPY INTO, Delta/Unity Catalog fundamentals — the JD's \u201csource-to-Bronze validation\u201d in practice.",
+  tags:["Apache Spark","PySpark","AWS S3","Delta Lake","Unity Catalog","CDC"],
+  seconds:35*60,
+  questions:[
+{d:"medium",h:true,q:"You're handed a raw S3 landing zone with daily CSV drops. Write PySpark to detect and quarantine duplicate rows before they hit Bronze, where 'duplicate' means same business key but the file arrived twice.",
+ a:`<div class="lbl">Approach</div>Dedup at Bronze must be idempotent against re-runs, not just per-batch.
+<pre><code>from pyspark.sql import functions as F, Window
+
+w = Window.partitionBy("business_key").orderBy(F.col("_ingest_ts").desc())
+deduped = (raw_df
+    .withColumn("rn", F.row_number().over(w))
+)
+clean = deduped.filter("rn = 1").drop("rn")
+quarantine = deduped.filter("rn > 1").drop("rn")
+
+clean.write.format("delta").mode("append").saveAsTable("bronze.orders")
+quarantine.write.format("delta").mode("append").saveAsTable("bronze.orders_quarantine")</code></pre>
+<div class="lbl">What they're really testing</div><ul><li>Do you reach for <code>dropDuplicates()</code> (naive — no "latest wins" logic) or a windowed row_number (correct)?</li><li>Do you quarantine instead of silently dropping — auditability matters at Bronze.</li></ul>`},
+{d:"easy",h:false,q:"Auto Loader vs COPY INTO — when would you pick each for a landing-zone ingestion framework?"},
+{d:"medium",h:true,q:"Write the Auto Loader code to incrementally ingest JSON files from S3 into a Bronze Delta table, with schema evolution allowed and a checkpoint.",
+ a:`<pre><code>df = (spark.readStream
+    .format("cloudFiles")
+    .option("cloudFiles.format", "json")
+    .option("cloudFiles.schemaLocation", "/mnt/schema/bronze_orders")
+    .option("cloudFiles.schemaEvolutionMode", "addNewColumns")
+    .load("s3://landing-zone/orders/"))
+
+(df.writeStream
+    .format("delta")
+    .option("checkpointLocation", "/mnt/checkpoints/bronze_orders")
+    .option("mergeSchema", "true")
+    .trigger(availableNow=True)
+    .table("bronze.orders"))</code></pre>
+<div class="lbl">Follow-up they'll ask</div>What happens on the next run if a new column shows up mid-stream? (Stream stops with an <code>UnknownFieldException</code>-style signal, schema log updates, then restart picks it up — mention this proactively.)`},
+{d:"hard",h:true,q:"A source system silently renamed a column (schema drift) and your Bronze table now has both old and new column names across partitions. How do you detect this before it breaks Silver, and how do you fix historical data?",
+ a:`<div class="lbl">Detection</div><ul><li>Compare incoming batch schema against the table's current schema on every load (<code>df.schema</code> vs <code>spark.table(...).schema</code>) — flag any diff instead of relying on <code>mergeSchema</code> to silently absorb it.</li><li>Log schema fingerprints (column name + type hash) per ingestion run so drift shows up as a diff, not a mystery.</li></ul>
+<div class="lbl">Fix</div><ul><li>Backfill: <code>ALTER TABLE ... RENAME COLUMN</code> if Delta version supports it, or a one-time <code>withColumnRenamed</code> + overwrite of affected partitions.</li><li>Coalesce both names going forward with <code>F.coalesce(F.col("new_name"), F.col("old_name"))</code> in the Silver transform until the backfill lands.</li></ul>`},
+{d:"medium",h:false,q:"Explain how you'd design a CDC (change data capture) ingestion pattern from an upstream OLTP source into Bronze — what does the payload look like and how do you apply it downstream?"},
+{d:"easy",h:false,q:"What's the actual difference between the Bronze, Silver, and Gold layers in your own project — not the textbook definition, the one you'd give from your CSR/ESG pipeline experience?"},
+{d:"medium",h:true,q:"Write PySpark to standardize inconsistent date formats and trim/uppercase a country-code column while landing Bronze → Silver, and flag rows that fail standardization instead of dropping them.",
+ a:`<pre><code>from pyspark.sql import functions as F
+
+std = (bronze_df
+    .withColumn("country_code", F.upper(F.trim(F.col("country_code"))))
+    .withColumn("event_date_parsed",
+        F.coalesce(
+            F.to_date("event_date", "yyyy-MM-dd"),
+            F.to_date("event_date", "MM/dd/yyyy"),
+            F.to_date("event_date", "dd-MMM-yyyy")
+        )
+    )
+    .withColumn("dq_flag",
+        F.when(F.col("event_date_parsed").isNull(), F.lit("BAD_DATE"))
+         .when(~F.col("country_code").rlike("^[A-Z]{2,3}$"), F.lit("BAD_COUNTRY"))
+         .otherwise(F.lit("OK"))
+    )
+)
+good = std.filter("dq_flag = 'OK'")
+bad  = std.filter("dq_flag != 'OK'")</code></pre>`},
+{d:"hard",h:false,q:"Your PII masking UDF runs across 15+ columns and it's the slowest stage in the pipeline. Walk through how you'd diagnose whether it's a UDF serialization problem, a shuffle problem, or a skew problem — and how you'd fix each."},
+{d:"medium",h:true,q:"Implement a custom PySpark UDF (or better, a non-UDF alternative) that masks an email column, keeping the domain visible for debugging but hashing the local part.",
+ a:`<div class="lbl">Prefer built-ins over a Python UDF for performance</div>
+<pre><code>from pyspark.sql import functions as F
+
+masked = df.withColumn(
+    "email_masked",
+    F.concat(
+        F.substring(F.sha2(F.split(F.col("email"), "@")[0], 256), 1, 8),
+        F.lit("@"),
+        F.split(F.col("email"), "@")[1]
+    )
+)</code></pre>
+<div class="lbl">Why this beats a Python UDF</div>Native Spark SQL functions run in the JVM — no Python serialization / row-by-row round-trip like a <code>@udf</code> would incur. Mention this unprompted; it signals you know the Catalyst/Tungsten cost of UDFs.`},
+{d:"medium",h:false,q:"What's Unity Catalog actually solving that the Hive metastore didn't? Ground it in your own migration of 100+ objects — what broke, what had to be re-permissioned?"},
+{d:"hard",h:true,q:"Two Bronze tables need to be joined to build a Silver fact table, but one side is 200GB and the other is 40MB. Show the code and explain what Spark does differently here.",
+ a:`<pre><code># Small side auto-broadcasts if under spark.sql.autoBroadcastJoinThreshold (default 10MB)
+# 40MB may need an explicit hint:
+from pyspark.sql import functions as F
+
+result = big_df.join(F.broadcast(small_df), "join_key", "left")</code></pre>
+<div class="lbl">What changes under the hood</div>No shuffle on the large side — the small table is sent whole to every executor, avoiding a sort-merge join's expensive shuffle+sort on 200GB. Mention <code>spark.sql.autoBroadcastJoinThreshold</code> and that AQE can auto-convert a sort-merge join to broadcast at runtime if it detects the actual size post-filter.`},
+{d:"easy",h:false,q:"Delta Lake time travel — you used it to trace ESG report discrepancies. Give the exact syntax for querying a table as of a version and as of a timestamp."},
+{d:"medium",h:false,q:"Describe your file-level data quality validation workflow (the '10+ integrity checks' from your CV) — what were the actual checks, and where in the pipeline did they run?"},
+{d:"brutal",h:true,q:"Design a Bronze ingestion framework from scratch for a new source that lands 50 files/day across 5 ESG applications, with a requirement that data owners get alerted within 15 minutes of a missing or malformed file. Sketch the architecture.",
+ a:`<div class="lbl">Structure your answer around</div><ul><li><b>Landing:</b> S3 prefix per source/app, partitioned by ingestion date.</li><li><b>Trigger:</b> Auto Loader file-notification mode (SNS/SQS-backed) for near-real-time pickup instead of directory listing.</li><li><b>Validation gate:</b> row count vs expected manifest, checksum, schema check, before promoting file to "processed" — matches your CV's fail-fast approach.</li><li><b>Alerting:</b> Databricks Workflow with a task-failure webhook → SNS → email/Slack, or a scheduled "missing file" job comparing expected vs received manifests by a cutoff time.</li><li><b>Observability:</b> a control table logging file_name, arrival_ts, row_count, validation_status per run — this is your audit trail for IPE documentation.</li></ul>Close by anchoring it explicitly: "this is roughly what I built for the 25-file/5-application ESG monitoring framework."`}
+  ]
+},
+silver:{
+  eyebrow:"Layer 02 · Technical Round 2",
+  title:"Silver — SQL, Reconciliation &amp; Data Profiling",
+  desc:"The JD's core ask: 'develop SQL queries and validation scripts for data reconciliation and testing,' plus MERGE/SCD Type 2 and profiling for completeness, accuracy, consistency.",
+  tags:["SQL","MERGE INTO","SCD Type 2","Reconciliation","Data Profiling","Window Functions"],
+  seconds:35*60,
+  questions:[
+{d:"medium",h:true,q:"Write a SQL reconciliation query that compares record counts and a sum of an amount column between a source table and a target Silver table, surfacing only the mismatches.",
+ a:`<pre><code>WITH src AS (
+  SELECT COUNT(*) AS cnt, SUM(amount) AS total FROM source.orders
+),
+tgt AS (
+  SELECT COUNT(*) AS cnt, SUM(amount) AS total FROM silver.orders
+)
+SELECT
+  src.cnt AS src_count, tgt.cnt AS tgt_count, src.cnt - tgt.cnt AS count_diff,
+  src.total AS src_total, tgt.total AS tgt_total, src.total - tgt.total AS amount_diff
+FROM src, tgt
+WHERE src.cnt <> tgt.cnt OR src.total <> tgt.total;</code></pre>
+<div class="lbl">Level it up if asked</div>Do it at grain level (per business_date or per source_system) with a <code>FULL OUTER JOIN</code> on that grain instead of one global row — a single global diff hides where the mismatch actually is.`},
+{d:"medium",h:true,q:"Implement SCD Type 2 using MERGE INTO for an employee dimension table — same shape as your CSR pipeline. Show the SQL.",
+ a:`<pre><code>MERGE INTO silver.dim_employee AS tgt
+USING staged_employee AS src
+ON tgt.employee_id = src.employee_id AND tgt.is_current = true
+
+WHEN MATCHED AND (
+  tgt.department <> src.department OR tgt.manager_id <> src.manager_id
+) THEN UPDATE SET tgt.is_current = false, tgt.end_date = current_date()
+
+WHEN NOT MATCHED THEN INSERT (employee_id, department, manager_id, start_date, end_date, is_current)
+VALUES (src.employee_id, src.department, src.manager_id, current_date(), NULL, true);
+
+-- second pass inserts the new current row for changed employees
+INSERT INTO silver.dim_employee
+SELECT employee_id, department, manager_id, current_date(), NULL, true
+FROM staged_employee src
+WHERE EXISTS (
+  SELECT 1 FROM silver.dim_employee tgt
+  WHERE tgt.employee_id = src.employee_id AND tgt.is_current = false AND tgt.end_date = current_date()
+);</code></pre>
+<div class="lbl">Interviewer follow-up to expect</div>"Why two passes instead of one MERGE?" — a single MERGE statement can't both expire the old row and insert the new version of the *same* key in one pass; walk through why.`},
+{d:"easy",h:false,q:"What's the difference between MERGE INTO with WHEN MATCHED THEN UPDATE vs WHEN MATCHED THEN DELETE + INSERT for SCD Type 2 — why does one break history and the other doesn't?"},
+{d:"medium",h:true,q:"Write a SQL data profiling query that reports, per column, null percentage, distinct count, and min/max for a numeric column — the kind of thing you'd run before sign-off on a new source.",
+ a:`<pre><code>SELECT
+  COUNT(*) AS total_rows,
+  ROUND(100.0 * SUM(CASE WHEN amount IS NULL THEN 1 ELSE 0 END) / COUNT(*), 2) AS null_pct,
+  COUNT(DISTINCT customer_id) AS distinct_customers,
+  MIN(amount) AS min_amount,
+  MAX(amount) AS max_amount,
+  ROUND(AVG(amount), 2) AS avg_amount
+FROM silver.orders;</code></pre>
+Mention that for a real profiling framework you'd loop this pattern across every column dynamically rather than hand-write it per column — ties to "Data Quality Frameworks" in the JD's preferred skills.`},
+{d:"hard",h:true,q:"Write a window-function query to find, per customer, the gap in days between consecutive orders, and flag customers whose most recent gap is more than 3x their historical average gap (a 'going silent' signal).",
+ a:`<pre><code>WITH gaps AS (
+  SELECT customer_id, order_date,
+    DATEDIFF(order_date, LAG(order_date) OVER (PARTITION BY customer_id ORDER BY order_date)) AS gap_days
+  FROM silver.orders
+),
+stats AS (
+  SELECT customer_id,
+    AVG(gap_days) AS avg_gap,
+    MAX(order_date) AS last_order_date
+  FROM gaps WHERE gap_days IS NOT NULL
+  GROUP BY customer_id
+),
+latest AS (
+  SELECT g.customer_id, g.gap_days AS latest_gap
+  FROM gaps g JOIN stats s ON g.customer_id = s.customer_id AND g.order_date = s.last_order_date
+)
+SELECT s.customer_id, s.avg_gap, l.latest_gap
+FROM stats s JOIN latest l ON s.customer_id = l.customer_id
+WHERE l.latest_gap > 3 * s.avg_gap;</code></pre>`},
+{d:"medium",h:false,q:"You're reconciling Bronze row counts against Silver after a dedup step and the numbers legitimately differ (dupes were dropped on purpose). How do you write a reconciliation check that doesn't false-positive on expected, explainable differences?"},
+{d:"hard",h:true,q:"Write SQL to detect referential integrity violations — orphaned foreign keys — between a fact table and a dimension, at scale, without a full nested-loop check.",
+ a:`<pre><code>SELECT f.order_id, f.customer_id
+FROM silver.fact_orders f
+LEFT ANTI JOIN silver.dim_customer d
+  ON f.customer_id = d.customer_id
+LIMIT 1000;</code></pre>
+<code>LEFT ANTI JOIN</code> is the key move — it's a hash/sort-merge join under the hood, not a row-by-row exists check, so it scales fine on large fact tables. Say this explicitly if asked "how does this perform at scale."`},
+{d:"medium",h:false,q:"Explain the difference between RANK(), DENSE_RANK(), and ROW_NUMBER() with an example where they'd return different results — and which one you'd use to pick 'the latest record per key' in a MERGE staging step."},
+{d:"medium",h:true,q:"Write a CTE-based query that builds a source-to-target mapping validation: for each column pair, count how many rows have a value mismatch between source and target after a transformation.",
+ a:`<pre><code>WITH joined AS (
+  SELECT s.order_id,
+    s.status AS src_status, t.status AS tgt_status,
+    s.amount AS src_amount, t.amount AS tgt_amount
+  FROM source.orders s
+  JOIN silver.orders t ON s.order_id = t.order_id
+)
+SELECT
+  SUM(CASE WHEN src_status <> tgt_status THEN 1 ELSE 0 END) AS status_mismatches,
+  SUM(CASE WHEN src_amount <> tgt_amount THEN 1 ELSE 0 END) AS amount_mismatches
+FROM joined;</code></pre>
+This is the literal "source-to-target mapping documentation" validation step from the JD — say that connection out loud.`},
+{d:"hard",h:false,q:"A MERGE INTO job that used to take 4 minutes now takes 40 minutes after the target table grew to 500M rows. What do you check first, second, third?"},
+{d:"brutal",h:true,q:"Design the full reconciliation SQL suite you'd hand to a QA team for sign-off on a new Bronze→Silver→Gold pipeline: what checks, in what order, and what's the pass/fail threshold philosophy?",
+ a:`<div class="lbl">Structure</div><ol><li><b>Row-count reconciliation</b> per partition/business date — exact match expected unless a documented filter exists.</li><li><b>Aggregate reconciliation</b> — SUM/AVG on key measures, source vs target, tolerance near-zero for financial figures.</li><li><b>Referential integrity</b> — anti-join checks for orphaned keys, zero tolerance.</li><li><b>Completeness/null profiling</b> — null % per mandatory column against an agreed threshold (e.g. <1%).</li><li><b>Duplicate check</b> — business-key uniqueness in Silver/Gold, zero tolerance.</li><li><b>Business rule spot checks</b> — sampled rows against known-good source values.</li></ol>Close with: "I'd package this as parameterized SQL so it runs identically across every new source — that's effectively a lightweight data quality framework, which is on the preferred-skills list here."`}
+  ]
+},
+gold:{
+  eyebrow:"Layer 03 · Technical Round 3",
+  title:"Gold — Python, ETL Engineering &amp; Operations",
+  desc:"Python for pipeline orchestration/logging/error-handling, ETL design patterns, and the operational maturity the JD calls out: monitoring, CI/CD, Git, Terraform, Power BI data-model awareness.",
+  tags:["Python","Error Handling","Logging & Monitoring","CI/CD","Git","Terraform"],
+  seconds:30*60,
+  questions:[
+{d:"medium",h:true,q:"Write a Python decorator that wraps a pipeline task function with retry logic (3 attempts, exponential backoff) and structured logging on failure.",
+ a:`<pre><code>import time, logging, functools
+
+logger = logging.getLogger("pipeline")
+
+def retry_with_backoff(max_attempts=3, base_delay=2):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapper(*args, **kwargs):
+            for attempt in range(1, max_attempts + 1):
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    logger.error(f"{func.__name__} failed attempt {attempt}/{max_attempts}: {e}")
+                    if attempt == max_attempts:
+                        raise
+                    time.sleep(base_delay ** attempt)
+        return wrapper
+    return decorator
+
+@retry_with_backoff(max_attempts=3)
+def load_file(path):
+    ...</code></pre>`},
+{d:"easy",h:false,q:"How would you structure logging in a multi-stage ETL job (ingest → validate → transform → load) so that when it fails at 2am, the on-call person can tell which stage and which record without re-running anything?"},
+{d:"medium",h:true,q:"Write a Python function to compare two CSV/Parquet schemas and return added, removed, and type-changed columns — the schema-drift detector piece of your framework.",
+ a:`<pre><code>def diff_schema(old_schema: dict, new_schema: dict):
+    old_cols, new_cols = set(old_schema), set(new_schema)
+    added = new_cols - old_cols
+    removed = old_cols - new_cols
+    type_changed = {
+        c for c in old_cols & new_cols
+        if old_schema[c] != new_schema[c]
+    }
+    return {"added": added, "removed": removed, "type_changed": type_changed}</code></pre>
+Mention you'd run this against every incoming batch's inferred schema vs. the registered Delta table schema, and fail-fast (or route to quarantine) on <code>removed</code> or <code>type_changed</code>, but allow <code>added</code> if schema evolution is enabled — same policy as the Bronze schema-drift question.`},
+{d:"medium",h:false,q:"What does your DDL automation framework actually do end-to-end (CSV/Parquet schema → 100+ Delta tables)? Walk through it as if explaining to someone who'll maintain it after you."},
+{d:"hard",h:true,q:"Write Python (not PySpark) to recursively explode a Bill-of-Materials structure — parent_id/child_id/quantity — into a flat list of all leaf-level components and their total quantity for a given top-level product. This mirrors your 10M-key BOM pipeline; do it at small scale first.",
+ a:`<pre><code>from collections import defaultdict
+
+def explode_bom(bom_edges, root_id):
+    children = defaultdict(list)
+    for parent, child, qty in bom_edges:
+        children[parent].append((child, qty))
+
+    totals = defaultdict(float)
+    def dfs(node_id, multiplier):
+        if node_id not in children:      # leaf component
+            totals[node_id] += multiplier
+            return
+        for child, qty in children[node_id]:
+            dfs(child, multiplier * qty)
+
+    dfs(root_id, 1)
+    return dict(totals)</code></pre>
+<div class="lbl">Bridge to your real answer</div>Explain why you moved this to <b>iterative PySpark DataFrame joins</b> instead of row-by-row recursion at 10M+ keys — recursion/UDF-per-row doesn't parallelize; repeated self-joins on a "frontier" of unresolved parents do. Be ready to sketch that loop structure too.`},
+{d:"medium",h:true,q:"Write a Python function that validates a source-to-target column mapping spec (a dict of source_col → target_col) against the actual DataFrame columns on both sides, and raises a clear error listing exactly what's missing.",
+ a:`<pre><code>def validate_mapping(mapping: dict, source_cols: set, target_cols: set):
+    missing_src = [s for s in mapping if s not in source_cols]
+    missing_tgt = [t for t in mapping.values() if t not in target_cols]
+    if missing_src or missing_tgt:
+        raise ValueError(
+            f"Mapping validation failed. "
+            f"Missing in source: {missing_src}. Missing in target: {missing_tgt}."
+        )
+    return True</code></pre>`},
+{d:"medium",h:false,q:"What's your Git branching approach on a client engagement with multiple developers touching the same pipeline repo — and how do you handle a merge conflict in a notebook file specifically?"},
+{d:"medium",h:false,q:"You have no direct Terraform experience listed but it's a preferred skill here. How would you describe, in plain terms, what Terraform would do for provisioning a Databricks workspace/cluster policy — enough to show you understand the concept even without hands-on depth?"},
+{d:"hard",h:true,q:"Write a Python monitoring script (pseudo-code is fine) that checks, for each of 5 ESG applications, whether today's expected file has landed by a cutoff time, and sends an alert listing exactly which applications are missing — this is your CV's ingestion monitoring framework.",
+ a:`<pre><code>from datetime import datetime
+
+def check_daily_landing(app_configs, s3_client, cutoff_time):
+    missing = []
+    for app in app_configs:
+        expected_key = app["path_template"].format(date=datetime.today().strftime("%Y-%m-%d"))
+        if not s3_client.exists(expected_key):
+            missing.append(app["name"])
+
+    if missing and datetime.now().time() >= cutoff_time:
+        send_alert(
+            subject=f"Missing files: {len(missing)} ESG apps",
+            body=f"No file received today for: {', '.join(missing)}"
+        )
+    return missing</code></pre>
+Emphasize the design choice: check against an *expected manifest*, not just "did anything land" — that's what catches partial/missing files, not just total silence.`},
+{d:"medium",h:false,q:"How would a CI/CD pipeline for Databricks notebooks/jobs look — what gets tested before a deploy, and what tool would you use (Databricks Asset Bundles, Repos + Actions/Azure DevOps, etc.)?"},
+{d:"easy",h:false,q:"The JD mentions 'Power BI data model understanding' as a preferred skill. What does a data engineer actually need to know about how Power BI consumes a Gold layer table — star schema, relationships, refresh?"},
+{d:"brutal",h:true,q:"A Gold-layer table used by 3 downstream Power BI dashboards has been silently wrong for 2 days — a transformation bug inflated a revenue metric by 12%. Walk through your full incident response: detection, root cause, fix, and how you prevent recurrence.",
+ a:`<div class="lbl">Structure the answer as a timeline</div><ul><li><b>Detection:</b> how did you find out — automated reconciliation alert (ideal) vs. a business user flagging it (reactive, worse)? Say you'd want the former and that's a gap if it wasn't caught automatically.</li><li><b>Containment:</b> flag the dashboard/table as "data under review," don't let more decisions get made on it.</li><li><b>Root cause:</b> use Delta time travel to diff the Gold table version-by-version against the last known-good version, isolate which transformation run introduced the error, check the corresponding code change/deploy.</li><li><b>Fix:</b> backfill affected partitions from a corrected job run, not a manual patch — must be re-derivable.</li><li><b>Prevention:</b> add the exact reconciliation check that would've caught this (e.g. day-over-day metric delta threshold alert) to the automated suite.</li></ul>Close with your actual experience: "this is close to what daily variance analysis across ESG reports was designed to catch."`}
+  ]
+},
+platinum:{
+  eyebrow:"Layer 04 · Managerial Round",
+  title:"Platinum — Ownership, Delivery &amp; Communication",
+  desc:"Less code, more judgment: how you own a pipeline in production, work with Data Modelers/BAs, handle pressure, and whether you're ready for an offshore delivery model at this scope.",
+  tags:["Stakeholder Mgmt","Prioritization","Incident Ownership","Career Motivation"],
+  seconds:20*60,
+  questions:[
+{d:"medium",h:false,q:"Walk me through the CSR/Bronze-to-Silver pipeline end to end, as if I'm a Data Modeler who's never seen it — what did you own, and where did you need someone else's sign-off?"},
+{d:"medium",h:false,q:"Tell me about a time a data quality issue was found after it reached a report or dashboard. What did you do, and what changed in the pipeline afterward?"},
+{d:"medium",h:false,q:"How do you prioritize when three ESG applications all have ingestion failures on the same morning and you can only fix one first?"},
+{d:"medium",h:false,q:"This role explicitly says 'support' and 'validate existing' pipelines rather than greenfield build — how do you feel about a role that's more analysis/validation-heavy than the pipeline-building work on your CV?"},
+{d:"medium",h:false,q:"Describe working with a Business Analyst or Data Modeler who didn't understand a technical constraint you were raising. How did you get alignment?"},
+{d:"easy",h:false,q:"You've been at TCS on the same Baker Hughes engagement for 4+ years. What's making you look now, and what are you hoping this role gives you that the current one doesn't?"},
+{d:"medium",h:false,q:"Tell me about the PII masking / audit compliance work. Who asked for it, and how did you know you'd implemented it correctly — what was the sign-off process?"},
+{d:"medium",h:false,q:"This is an offshore engagement — how do you handle ambiguity when a US/EU-based stakeholder gives you a requirement that's incomplete and there's a 9-10 hour timezone gap before you can ask a follow-up?"},
+{d:"easy",h:false,q:"What's an example of pushback you gave to a senior engineer or lead on a technical decision, and how did that conversation go?"},
+{d:"medium",h:false,q:"Your CV shows steady promotion (Trainee → Assistant System Engineer → System Engineer) plus recognition awards each year. What do you think you're specifically known for on your team?"},
+{d:"hard",h:false,q:"Give an example of a production pipeline failure that happened outside business hours. What was your response process, and what would you do differently next time?"},
+{d:"easy",h:false,q:"What questions do you have for us about the team, the tech stack, or how this offshore engagement is structured?"}
+  ]
+}
+};
+
+const ROUND_ORDER = ["bronze","silver","gold","platinum"];
+let currentRound = "bronze";
+let timerInterval = null;
+let timeLeft = ROUNDS.bronze.seconds;
+let running = false;
+
+function fmt(sec){
+  const m = Math.floor(sec/60).toString().padStart(2,"0");
+  const s = Math.floor(sec%60).toString().padStart(2,"0");
+  return m+":"+s;
+}
+
+function renderRound(key){
+  currentRound = key;
+  const r = ROUNDS[key];
+  document.getElementById("bridgeSection").style.display = "none";
+  document.getElementById("roundSection").style.display = "block";
+  document.getElementById("rEyebrow").textContent = r.eyebrow;
+  document.getElementById("rTitle").innerHTML = r.title;
+  document.getElementById("rDesc").textContent = r.desc;
+  document.getElementById("rTags").innerHTML = r.tags.map(t=>'<span class="chip">'+t+'</span>').join("");
+
+  const qlist = document.getElementById("qlist");
+  qlist.innerHTML = "";
+  r.questions.forEach((item, i) => {
+    const card = document.createElement("div");
+    card.className = "qcard";
+    const diffLabel = item.d.charAt(0).toUpperCase()+item.d.slice(1);
+    card.innerHTML = `
+      <div class="qcard-head">
+        <div class="qnum">${(i+1).toString().padStart(2,"0")}</div>
+        <div class="qbody">
+          <div class="qtext">${item.q}</div>
+          <div class="qmeta">
+            <span class="diff ${item.d}">${diffLabel}</span>
+            ${item.h ? '<span class="hnds">Hands-on</span>' : ''}
+          </div>
+        </div>
+        <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </div>
+      <div class="qanswer"><div class="qanswer-inner">${item.a ? item.a : "<em>No pre-written model answer for this one — it's a discussion/definition question. Answer it out loud, then move on.</em>"}</div></div>
+    `;
+    const head = card.querySelector(".qcard-head");
+    const answer = card.querySelector(".qanswer");
+    head.addEventListener("click", () => {
+      const isOpen = card.classList.contains("open");
+      if(isOpen){
+        card.classList.remove("open");
+        answer.style.maxHeight = null;
+      } else {
+        card.classList.add("open");
+        answer.style.maxHeight = answer.scrollHeight + "px";
+      }
+    });
+    qlist.appendChild(card);
+  });
+
+  document.querySelectorAll(".strat-btn").forEach(b=>{
+    b.classList.toggle("active", b.dataset.round === key);
+  });
+
+  resetTimerForRound(key, false);
+  updateProgressBars();
+}
+
+function renderBridge(){
+  document.getElementById("roundSection").style.display = "none";
+  document.getElementById("bridgeSection").style.display = "block";
+  const list = document.getElementById("bridgeList");
+  list.innerHTML = BRIDGE.map(b => `
+    <div class="bridge">
+      <div class="jdline">JD: "${b.jd}"</div>
+      <div class="cvline">${b.cv}</div>
+    </div>
+  `).join("");
+}
+
+document.querySelectorAll(".strat-btn").forEach(btn=>{
+  btn.addEventListener("click", ()=> renderRound(btn.dataset.round));
+});
+document.getElementById("bridgeToggleBtn").addEventListener("click", renderBridge);
+
+function resetTimerForRound(key, keepRunning){
+  clearInterval(timerInterval);
+  timeLeft = ROUNDS[key].seconds;
+  running = false;
+  document.getElementById("btnStart").textContent = "Start round";
+  document.getElementById("clockDisplay").textContent = fmt(timeLeft);
+}
+
+document.getElementById("btnStart").addEventListener("click", ()=>{
+  if(running){
+    clearInterval(timerInterval);
+    running = false;
+    document.getElementById("btnStart").textContent = "Resume";
+  } else {
+    running = true;
+    document.getElementById("btnStart").textContent = "Pause";
+    timerInterval = setInterval(()=>{
+      if(timeLeft > 0){
+        timeLeft--;
+        document.getElementById("clockDisplay").textContent = fmt(timeLeft);
+        updateProgressBars();
+      } else {
+        clearInterval(timerInterval);
+        running = false;
+        document.getElementById("btnStart").textContent = "Start round";
+      }
+    }, 1000);
+  }
+});
+
+document.getElementById("btnReset").addEventListener("click", ()=>{
+  resetTimerForRound(currentRound);
+  updateProgressBars();
+});
+
+function updateProgressBars(){
+  ROUND_ORDER.forEach(key=>{
+    const fillEl = document.getElementById("fill-"+key);
+    if(key === currentRound){
+      const pct = 100 * (1 - timeLeft / ROUNDS[key].seconds);
+      fillEl.style.width = pct+"%";
+    }
+  });
+}
+
+renderRound("bronze");
+</script>
+</body>
+</html>
