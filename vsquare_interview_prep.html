@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VSquare · PySpark ETL Developer — Interview Pipeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #10131a;
+    --bg-raised: #161b24;
+    --bg-card: #1b212c;
+    --line: #2a3140;
+    --text: #edeef1;
+    --text-dim: #8d97a8;
+    --text-faint: #5a6474;
+
+    --bronze: #c98a4b;
+    --bronze-soft: rgba(201,138,75,0.14);
+    --silver: #a9b4c4;
+    --silver-soft: rgba(169,180,196,0.14);
+    --gold: #e0b84a;
+    --gold-soft: rgba(224,184,74,0.14);
+    --platinum: #cfe8e6;
+    --platinum-soft: rgba(207,232,230,0.14);
+
+    --accent: var(--current, var(--bronze));
+    --accent-soft: var(--current-soft, var(--bronze-soft));
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background: radial-gradient(ellipse 1200px 600px at 50% -10%, #1a2130 0%, var(--bg) 55%);
+    color: var(--text);
+    font-family: 'IBM Plex Sans', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height:100vh;
+  }
+  ::selection{ background: var(--accent-soft); color: var(--text); }
+
+  .wrap{ max-width: 1080px; margin: 0 auto; padding: 36px 20px 80px; }
+
+  header{ margin-bottom: 30px; }
+  .eyebrow{
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; letter-spacing:.14em; text-transform:uppercase;
+    color: var(--text-faint); display:flex; align-items:center; gap:8px; margin-bottom:10px;
+  }
+  .eyebrow .dot{ width:6px; height:6px; border-radius:50%; background: var(--bronze); box-shadow:0 0 8px var(--bronze); }
+  h1{
+    font-family:'Space Grotesk', sans-serif; font-weight:700; font-size: clamp(26px, 4vw, 38px);
+    margin: 0 0 8px; letter-spacing:-0.01em; line-height:1.1;
+  }
+  h1 em{ font-style:normal; color: var(--text-dim); font-weight:500; }
+  .sub{ color: var(--text-dim); font-size:14.5px; max-width:640px; line-height:1.55; }
+  .sub b{ color: var(--text); font-weight:600; }
+
+  .lineage{ display:flex; align-items:stretch; gap:0; margin: 30px 0 8px; position:relative; }
+  .node-btn{
+    flex:1; background: var(--bg-card); border:1px solid var(--line); border-radius:10px;
+    padding:14px 14px 13px; cursor:pointer; text-align:left; position:relative; margin-right:10px;
+    transition: border-color .15s ease, transform .15s ease, background .15s ease;
+    font-family:inherit; color:inherit;
+  }
+  .node-btn:last-child{ margin-right:0; }
+  .node-btn:hover{ transform: translateY(-2px); border-color: var(--metal); }
+  .node-btn.active{ border-color: var(--metal); background: var(--bg-raised); box-shadow: 0 0 0 1px var(--metal) inset, 0 8px 24px -12px var(--metal); }
+  .node-tier{
+    font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.12em; text-transform:uppercase;
+    color: var(--metal); display:flex; align-items:center; gap:6px; margin-bottom:6px;
+  }
+  .node-tier .chip{ width:8px; height:8px; border-radius:2px; background: var(--metal); }
+  .node-title{ font-family:'Space Grotesk', sans-serif; font-weight:600; font-size:14.5px; margin-bottom:3px; }
+  .node-meta{ font-size:11.5px; color: var(--text-faint); font-family:'IBM Plex Mono', monospace; }
+  .rail-line{
+    position:absolute; left:0; right:0; top:50%; height:1px; background:
+      repeating-linear-gradient(90deg, var(--line) 0 6px, transparent 6px 10px);
+    z-index:-1;
+  }
+
+  .tabbar{ display:flex; gap:6px; margin: 26px 0 18px; border-bottom:1px solid var(--line); }
+  .tab{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; letter-spacing:.04em; text-transform:uppercase;
+    padding:10px 4px; margin-right:22px; color: var(--text-faint); background:none; border:none; cursor:pointer;
+    border-bottom:2px solid transparent; position:relative; top:1px;
+  }
+  .tab.active{ color: var(--text); border-bottom-color: var(--accent); }
+
+  .panel{ display:none; }
+  .panel.active{ display:block; animation: fade .25s ease; }
+  @keyframes fade{ from{opacity:0; transform:translateY(4px);} to{opacity:1; transform:translateY(0);} }
+
+  .round-head{ display:flex; justify-content:space-between; align-items:flex-end; gap:16px; margin-bottom:18px; flex-wrap:wrap; }
+  .round-name{ font-family:'Space Grotesk', sans-serif; font-weight:700; font-size:21px; }
+  .round-focus{ color: var(--text-dim); font-size:13.5px; max-width:560px; margin-top:6px; line-height:1.5;}
+
+  .timeline{ display:flex; flex-direction:column; gap:0; margin: 18px 0 28px; border-left:2px solid var(--line); padding-left:0;}
+  .seg{ display:grid; grid-template-columns:78px 1fr; gap:14px; padding: 12px 0 12px 18px; border-bottom:1px dashed var(--line); position:relative; }
+  .seg:last-child{ border-bottom:none; }
+  .seg::before{ content:''; position:absolute; left:-7px; top:18px; width:10px; height:10px; border-radius:50%; background: var(--bg); border:2px solid var(--accent); }
+  .seg-time{ font-family:'IBM Plex Mono', monospace; font-size:12px; color: var(--accent); padding-top:1px; }
+  .seg-title{ font-weight:600; font-size:14px; margin-bottom:3px; }
+  .seg-desc{ font-size:13px; color: var(--text-dim); line-height:1.5; }
+
+  .filters{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:16px; align-items:center; }
+  .filter-btn{
+    font-family:'IBM Plex Mono', monospace; font-size:11.5px; padding:6px 12px; border-radius:20px;
+    border:1px solid var(--line); background: var(--bg-card); color: var(--text-dim); cursor:pointer;
+  }
+  .filter-btn.active{ border-color: var(--accent); color: var(--text); background: var(--accent-soft); }
+  .search{
+    margin-left:auto; background: var(--bg-card); border:1px solid var(--line); border-radius:8px;
+    padding:7px 12px; color:var(--text); font-family:'IBM Plex Sans',sans-serif; font-size:13px; min-width:180px;
+  }
+  .search::placeholder{ color: var(--text-faint); }
+
+  .qlist{ display:flex; flex-direction:column; gap:10px; }
+  .qcard{ background: var(--bg-card); border:1px solid var(--line); border-radius:10px; padding:15px 16px; cursor:pointer; }
+  .qcard-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+  .qtier{
+    font-family:'IBM Plex Mono', monospace; font-size:10px; letter-spacing:.08em; text-transform:uppercase;
+    padding:2px 8px; border-radius:4px; white-space:nowrap; flex-shrink:0; margin-top:2px;
+  }
+  .qtier.Fundamentals{ background: rgba(169,180,196,.15); color:#c7cfda; }
+  .qtier.Intermediate{ background: rgba(224,184,74,.15); color:#e0b84a; }
+  .qtier.Scenario{ background: rgba(201,138,75,.15); color:#dba05f; }
+  .qtier.Brutal{ background: rgba(214,90,90,.16); color:#e08787; }
+  .qtext{ font-size:14.5px; font-weight:500; line-height:1.45; }
+  .qhint{
+    font-size:13px; color: var(--text-dim); line-height:1.55; margin-top:10px; padding-top:10px;
+    border-top:1px dashed var(--line); display:none;
+  }
+  .qcard.open .qhint{ display:block; }
+  .qhint b{ color: var(--text); }
+  .qcaret{ color: var(--text-faint); font-size:12px; flex-shrink:0; transition: transform .15s ease; margin-top:4px;}
+  .qcard.open .qcaret{ transform: rotate(90deg); }
+
+  .guide-grid{ display:grid; grid-template-columns: 1fr; gap:16px; }
+  .g-card{ background: var(--bg-card); border:1px solid var(--line); border-radius:10px; padding:18px 20px; }
+  .g-card h3{ font-family:'Space Grotesk', sans-serif; font-size:15.5px; margin:0 0 10px; display:flex; align-items:center; gap:8px; }
+  .g-card h3 .sw{ width:8px; height:8px; border-radius:2px; }
+  .g-card p, .g-card li{ font-size:13.5px; color: var(--text-dim); line-height:1.6; }
+  .g-card b{ color: var(--text); font-weight:600; }
+  .g-card ul{ margin:6px 0 0; padding-left:18px; }
+  .g-card li{ margin-bottom:6px; }
+  .flag{
+    display:inline-flex; align-items:center; gap:6px; font-family:'IBM Plex Mono', monospace; font-size:11px;
+    background: rgba(214,90,90,.14); color:#e08787; border-radius:6px; padding:3px 9px; margin-bottom:10px;
+  }
+  .two-col{ display:grid; grid-template-columns: 1fr 1fr; gap:16px; }
+  @media (max-width: 720px){ .two-col{ grid-template-columns:1fr; } .lineage{ flex-wrap:wrap; } .node-btn{ min-width: 45%; margin-bottom:10px; } }
+
+  .star-item{ border-left:2px solid var(--line); padding-left:12px; margin-bottom:14px; }
+  .star-item b{ display:block; color:var(--text); font-size:13.5px; margin-bottom:3px; }
+
+  footer{ margin-top:40px; text-align:center; color: var(--text-faint); font-size:11.5px; font-family:'IBM Plex Mono', monospace; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow"><span class="dot"></span>VSQUARE SYSTEM PVT LTD — REQ: PYSPARK ETL DEVELOPER</div>
+    <h1>Interview Pipeline <em>— Bronze to Platinum</em></h1>
+    <div class="sub">Four rounds, run the way your own Medallion Architecture runs: each stage refines and validates before the next. <b>2 hours per round</b> — telephonic screen, two technical rounds, one managerial round. Built off your actual CV: BOM explosion pipeline, DDL automation, Unity Catalog migration, SCD2/PII work, and the ESG platform at TCS.</div>
+  </header>
+
+  <div class="lineage">
+    <div class="rail-line"></div>
+    <button class="node-btn active" data-round="bronze" style="--metal:var(--bronze)">
+      <div class="node-tier"><span class="chip"></span>Bronze</div>
+      <div class="node-title">Telephonic Screen</div>
+      <div class="node-meta">2 hr · raw ingest</div>
+    </button>
+    <button class="node-btn" data-round="silver" style="--metal:var(--silver)">
+      <div class="node-tier"><span class="chip"></span>Silver</div>
+      <div class="node-title">Technical Round 1</div>
+      <div class="node-meta">2 hr · PySpark &amp; Databricks</div>
+    </button>
+    <button class="node-btn" data-round="gold" style="--metal:var(--gold)">
+      <div class="node-tier"><span class="chip"></span>Gold</div>
+      <div class="node-title">Technical Round 2</div>
+      <div class="node-meta">2 hr · SQL, streaming, design</div>
+    </button>
+    <button class="node-btn" data-round="platinum" style="--metal:var(--platinum)">
+      <div class="node-tier"><span class="chip"></span>Platinum</div>
+      <div class="node-title">Managerial Round</div>
+      <div class="node-meta">2 hr · ownership &amp; fit</div>
+    </button>
+  </div>
+
+  <div class="tabbar">
+    <button class="tab active" data-tab="round">Round detail</button>
+    <button class="tab" data-tab="guide">Preparation guide</button>
+  </div>
+
+  <div class="panel active" id="panel-round">
+    <div class="round-head">
+      <div>
+        <span class="round-name" id="r-name">Round 1 — Telephonic Screening</span>
+        <div class="round-focus" id="r-focus"></div>
+      </div>
+    </div>
+
+    <div class="timeline" id="r-timeline"></div>
+
+    <div class="filters">
+      <button class="filter-btn active" data-tier="All">All</button>
+      <button class="filter-btn" data-tier="Fundamentals">Fundamentals</button>
+      <button class="filter-btn" data-tier="Intermediate">Intermediate</button>
+      <button class="filter-btn" data-tier="Scenario">Scenario</button>
+      <button class="filter-btn" data-tier="Brutal">Brutal</button>
+      <input class="search" id="search" placeholder="Search questions…">
+    </div>
+
+    <div class="qlist" id="qlist"></div>
+  </div>
+
+  <div class="panel" id="panel-guide">
+    <div class="guide-grid">
+
+      <div class="g-card">
+        <div class="flag">⚠ READ FIRST</div>
+        <h3><span class="sw" style="background:var(--bronze)"></span>Two things in the JD to reconcile before you're asked</h3>
+        <ul>
+          <li><b>Experience figure is inconsistent:</b> the header says "4+ Years" but the summary paragraph says "6+ years of experience." You have ~4. Don't raise it yourself — if asked directly, say plainly: "I've got 4+ years, all hands-on in PySpark/Databricks production pipelines, which is what the role centers on" and pivot straight into a project. Confidence in the work outweighs a number mismatch that's on their end, not yours.</li>
+          <li><b>Snowflake is a real gap:</b> your CV is Databricks/Delta Lake/Unity Catalog end to end — no Snowflake. The JD lists Databricks <i>and/or</i> Snowflake, so this is very likely survivable, but expect at least one question testing whether you know the difference. Don't claim hands-on Snowflake experience. Say you've worked the Databricks/Delta Lake side of this exact problem (ACID tables, time travel, schema evolution, Unity Catalog governance) and name 2-3 concrete Snowflake equivalents so they hear you've done your homework, not that you're bluffing.</li>
+        </ul>
+      </div>
+
+      <div class="two-col">
+        <div class="g-card">
+          <h3><span class="sw" style="background:var(--silver)"></span>Databricks → Snowflake bridge (memorize these pairs)</h3>
+          <ul>
+            <li><b>Delta transaction log</b> ↔ Snowflake's metadata-driven <b>micro-partitions</b> — both give ACID + time travel without you managing files directly.</li>
+            <li><b>Delta VERSION AS OF time travel</b> ↔ Snowflake time travel (up to 90 days, via AT/BEFORE).</li>
+            <li><b>Unity Catalog</b> ↔ Snowflake's role-based access control + object tagging for governance.</li>
+            <li><b>Clusters / DBUs (compute)</b> ↔ Snowflake's <b>virtual warehouses</b> — both separate compute from storage, both auto-suspend/auto-scale.</li>
+            <li><b>Auto Loader / COPY INTO (Databricks)</b> ↔ <b>Snowpipe</b> for continuous ingestion.</li>
+            <li>Say out loud once: "The concepts transfer directly — I'd expect to be productive in Snowflake within a couple of weeks, not months."</li>
+          </ul>
+        </div>
+        <div class="g-card">
+          <h3><span class="sw" style="background:var(--gold)"></span>Topics to actively refresh (not just recognize)</h3>
+          <ul>
+            <li>AQE: skew join handling, dynamic partition coalescing, dynamic join strategy switching — say <i>when</i> each triggers, not just that it exists.</li>
+            <li>Broadcast vs sort-merge vs shuffle-hash join — decision thresholds, not just definitions.</li>
+            <li>SQL window functions and CTEs under pressure — write syntax cold, no autocomplete.</li>
+            <li>Structured Streaming: watermarking, trigger modes, checkpointing, exactly-once semantics.</li>
+            <li>MERGE INTO performance — partition pruning, file compaction (OPTIMIZE/VACUUM), Z-ordering.</li>
+            <li>CI/CD for data pipelines — even a basic Databricks Asset Bundles / GitHub Actions story, since it's a "preferred" JD line.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="g-card">
+        <h3><span class="sw" style="background:var(--bronze)"></span>Your project bank, pre-loaded as STAR answers</h3>
+        <div class="star-item"><b>BOM Hierarchy Explosion Pipeline</b>Situation: recursive Bill-of-Materials explosion needed for LCA reporting. Task: make it work at scale. Action: iterative DataFrame joins across 10M+ material keys instead of recursive SQL/UDF row-by-row logic. Result: pipeline runs reliably on Databricks/AWS, feeds LCA reporting directly. — Use this for any "how do you handle recursive/hierarchical data in Spark" question.</div>
+        <div class="star-item"><b>DDL Automation Framework</b>Built a PySpark script that auto-generates Delta table DDL from CSV/Parquet schemas — provisioned 100+ tables, cut onboarding time 60%. — Use this for "how do you handle schema management at scale" or "tell me about a time you automated something manual."</div>
+        <div class="star-item"><b>Unity Catalog Governance Migration</b>Migrated 100+ data objects and 15+ Hive-metastore-based frameworks to Unity Catalog; built a custom-UDF PII masking layer across 15+ sensitive columns for audit compliance. — Your strongest answer for governance, compliance, or "migration project" questions.</div>
+        <div class="star-item"><b>SCD Type 2 CSR Pipeline</b>Independently designed Bronze-to-Silver pipeline using SCD2 MERGE logic against the Employee Dimension table, producing IPE documentation for ESG KPI reporting. — Use for MERGE INTO / dimensional modeling / audit-trail questions.</div>
+        <div class="star-item"><b>Ingestion Monitoring Framework</b>Built a framework tracking 25 daily file ingestions across 5 ESG applications, alerting owners on failure/delay via email. — Use for "how do you monitor pipeline health" or reliability/observability questions.</div>
+        <div class="star-item"><b>Daily Variance Analysis + Delta Time Travel</b>Reconciled record counts/metric values across 15 ESG reports daily; used Delta Lake time travel to trace discrepancies to historical table versions. — Your best debugging/RCA story.</div>
+      </div>
+
+      <div class="g-card">
+        <h3><span class="sw" style="background:var(--platinum)"></span>Questions worth asking them (one per round)</h3>
+        <ul>
+          <li><b>Telephonic:</b> "Is this a net-new pipeline build or taking over/extending an existing PySpark ETL codebase?"</li>
+          <li><b>Technical 1:</b> "For the Databricks vs Snowflake split in the JD — is the client currently running both, or is this greenfield on one platform?"</li>
+          <li><b>Technical 2:</b> "What does the batch vs streaming split look like today — mostly batch with streaming as a roadmap item, or already in production?"</li>
+          <li><b>Managerial:</b> "What would success look like in the first 90 days for whoever takes this role?"</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <footer>BRONZE → SILVER → GOLD → PLATINUM · build once, refine every stage</footer>
+</div>
+
+<script type="application/json" id="data-bronze">
+{
+  "name": "Round 1 — Telephonic Screening",
+  "focus": "Resume walkthrough, JD alignment, and a lighter technical screen to confirm you're worth flying into the technical rounds.",
+  "timeline": [
+    {"time":"0:00","title":"Introduction & rapport","desc":"Recruiter/HR intros the panel and role context. Keep your own intro to 60-90 seconds: current role at TCS on the Baker Hughes ESG engagement, PySpark/Databricks focus, ~4 years."},
+    {"time":"0:10","title":"Resume & project walkthrough","desc":"Expect them to pick 2-3 CV bullets and ask you to go deeper. Have the BOM pipeline, DDL automation, and Unity Catalog migration stories ready at 90-second and 4-minute lengths."},
+    {"time":"0:40","title":"Role & JD alignment","desc":"They'll probe the Databricks/Snowflake overlap and confirm you're comfortable with the location/remote setup and the stated experience band."},
+    {"time":"1:00","title":"Foundational technical screen","desc":"Rapid-fire Python/SQL/PySpark fundamentals and ETL concept checks — designed to filter, not to be exhaustive."},
+    {"time":"1:45","title":"Logistics & next steps","desc":"Notice period, current CTC/expected CTC, location preference (Bangalore preferred vs remote), and confirmation of the technical rounds to follow."}
+  ],
+  "questions": [
+    {"tier":"Fundamentals","q":"Walk me through your current role and how it maps to this PySpark ETL Developer position.","hint":"Lead with the ESG/sustainability pipeline work at TCS, PySpark + Databricks on AWS, then explicitly connect Medallion Architecture and Delta Lake to the JD's 'enterprise ETL pipelines' language."},
+    {"tier":"Fundamentals","q":"What's the difference between a DataFrame and an RDD in Spark, and why does it matter for ETL work?","hint":"DataFrames carry schema and go through Catalyst optimization; RDDs are unopinionated distributed collections with no query planning. For ETL you almost always want DataFrames/Spark SQL for the optimizer."},
+    {"tier":"Fundamentals","q":"Explain the difference between narrow and wide transformations, with one example each.","hint":"Narrow: map, filter, select — no shuffle, data stays in-partition. Wide: groupBy, join, distinct — triggers a shuffle across partitions."},
+    {"tier":"Intermediate","q":"You mention Databricks and Unity Catalog on your resume — this role also lists Snowflake. How would you describe your comfort level there?","hint":"Be honest: no direct Snowflake, but 4+ years on Databricks/Delta Lake solving the same class of problem. Name 2 concept pairs (time travel, virtual warehouses) to show you've mapped the gap."},
+    {"tier":"Intermediate","q":"Tell me about the DDL Automation Framework on your CV — what problem was it solving?","hint":"Manual Delta table provisioning didn't scale as new data sources arrived; auto-generating DDL from CSV/Parquet schema cut onboarding time 60% across 100+ tables."},
+    {"tier":"Intermediate","q":"What does 'data lineage' mean to you, and how have you documented it in past projects?","hint":"Tracing a field from source to final report; mention IPE documentation you produced for ESG KPI reporting and the CSR SCD2 pipeline."},
+    {"tier":"Scenario","q":"If a downstream stakeholder says a report number looks wrong, what's your first move?","hint":"Reference your daily variance analysis process: reconcile record counts/metric values first, then use Delta time travel to trace back to the historical table version where it diverged."},
+    {"tier":"Scenario","q":"Why are you looking to move roles right now?","hint":"Keep this forward-looking and specific to growth (broader ETL platform exposure, Snowflake, scale) — never negative about TCS or Baker Hughes."}
+  ]
+}
+</script>
+
+<script type="application/json" id="data-silver">
+{
+  "name": "Round 2 — Technical Round 1",
+  "focus": "Deep PySpark internals and Databricks/Delta Lake mechanics. Expect them to push past definitions into 'why' and 'when.'",
+  "timeline": [
+    {"time":"0:00","title":"Warm-up: live PySpark","desc":"Small coding warm-up (dedupe, groupBy/agg, or a join) to see how you actually write code, not just talk about it."},
+    {"time":"0:20","title":"PySpark internals deep dive","desc":"Catalyst optimizer, AQE, shuffle mechanics, join strategy selection, partitioning/bucketing."},
+    {"time":"1:00","title":"Delta Lake & Databricks platform","desc":"Transaction log/MVCC, MERGE INTO internals, SCD Type 2, Unity Catalog, time travel, OPTIMIZE/VACUUM/Z-order."},
+    {"time":"1:30","title":"Hands-on ETL design problem","desc":"Given a raw source (files/API/DB), design the Bronze→Silver→Gold pipeline live — schema handling, dedup, incremental load strategy."}
+  ],
+  "questions": [
+    {"tier":"Fundamentals","q":"Explain how the Catalyst optimizer turns a DataFrame query into an execution plan.","hint":"Unresolved logical plan → analyzed (resolved) plan → optimized logical plan (rule-based) → physical plans (cost-based) → selected physical plan → code generation via Tungsten."},
+    {"tier":"Fundamentals","q":"What's the difference between coalesce() and repartition(), and when would you use each?","hint":"repartition() does a full shuffle and can increase or decrease partitions evenly; coalesce() avoids a full shuffle but can only decrease partitions, often leaving them uneven — use it after a filter that shrinks data before a write."},
+    {"tier":"Intermediate","q":"Walk me through how Adaptive Query Execution changes a join plan at runtime.","hint":"AQE re-optimizes after shuffle stages using actual runtime statistics: it can flip a sort-merge join to a broadcast join if a table turns out small, coalesce skewed shuffle partitions, and split skewed keys automatically."},
+    {"tier":"Intermediate","q":"You built a PII masking layer with custom UDFs on 15+ columns. Why UDFs instead of built-in functions, and what's the performance cost?","hint":"Custom UDFs were needed for column-specific masking logic (format-preserving, deterministic masking) that built-ins don't cover; the cost is losing Catalyst's ability to optimize/vectorize across the UDF boundary — mention Pandas UDFs (vectorized, Arrow-backed) as the mitigation."},
+    {"tier":"Intermediate","q":"Explain Delta Lake's transaction log and how it enables ACID guarantees and time travel on top of object storage.","hint":"The _delta_log JSON/checkpoint files record every add/remove file action as an ordered, atomic commit; readers reconstruct table state at any version by replaying the log up to that point — that's what makes time travel and concurrent read/write safe on S3."},
+    {"tier":"Scenario","q":"Design a MERGE INTO strategy for your SCD Type 2 employee dimension pipeline — what does the match condition and the update/insert logic actually look like?","hint":"Match on business key; on match with changed attributes, close out the old row (set end_date, is_current=false) and insert a new current row; on no match, insert as new. Mention partition pruning on the merge condition to avoid full-table scans."},
+    {"tier":"Scenario","q":"A MERGE INTO job that used to take 10 minutes now takes 90. Walk me through how you'd diagnose it.","hint":"Diagnosis before fix: check Spark UI for the stage that regressed, look for data skew in the join keys, check if small-file problem crept in (needs OPTIMIZE), check if partition pruning stopped working, check cluster/executor sizing changes — don't jump straight to 'add more workers.'"},
+    {"tier":"Brutal","q":"Explain exactly why a broadcast join can fail with an OOM error even when the 'small' table looks small in row count, and how you'd fix it.","hint":"Row count doesn't equal serialized size — wide columns, nested structs, or skewed value distributions can blow past spark.sql.autoBroadcastJoinThreshold's memory budget on the broadcasting side; fix by checking actual byte size, disabling auto-broadcast for that join, or forcing sort-merge."},
+    {"tier":"Brutal","q":"Your Unity Catalog migration moved 100+ objects off Hive Metastore. What actually breaks silently in that migration if you're not careful, and how do you catch it?","hint":"Talk about three-level namespace changes breaking hardcoded references, external location/storage credential permissions not carrying over, and legacy views referencing old metastore paths — catch it with a pre-migration dependency audit and post-migration validation queries, not just a 'did the migration script succeed' check."}
+  ]
+}
+</script>
+
+<script type="application/json" id="data-gold">
+{
+  "name": "Round 3 — Technical Round 2",
+  "focus": "SQL depth, the Snowflake/cloud gap, streaming, and a system-design segment for the end-to-end ETL architecture.",
+  "timeline": [
+    {"time":"0:00","title":"SQL deep dive & performance tuning","desc":"Window functions, CTEs, query plan reading, index/partition-aware tuning."},
+    {"time":"0:30","title":"Cloud data warehouse / Snowflake","desc":"Expect this to be concept-level given your Databricks background — they're checking transferability, not Snowflake syntax memorization."},
+    {"time":"0:50","title":"Batch & streaming processing","desc":"Structured Streaming fundamentals, Auto Loader, checkpointing, exactly-once semantics."},
+    {"time":"1:20","title":"System design: end-to-end architecture","desc":"Design a full ETL platform from multiple source types to BI-ready Gold layer, with error handling, monitoring, and testing baked in."}
+  ],
+  "questions": [
+    {"tier":"Fundamentals","q":"Write a query using a window function to get each employee's rank within their department by salary.","hint":"RANK() or DENSE_RANK() OVER (PARTITION BY department ORDER BY salary DESC) — be ready to explain RANK vs DENSE_RANK vs ROW_NUMBER differences cold."},
+    {"tier":"Fundamentals","q":"When would you reach for a CTE instead of a subquery or a temp view?","hint":"Readability for multi-step logic, recursive queries (hierarchical data like your BOM explosion problem), and reuse of the same derived result multiple times in one query."},
+    {"tier":"Intermediate","q":"How would you explain Snowflake's separation of storage and compute to someone who's only worked in Databricks?","hint":"Databricks clusters and Snowflake virtual warehouses both decouple compute from storage and auto-scale/auto-suspend; the difference is Snowflake manages storage as proprietary micro-partitions behind the warehouse, where Databricks/Delta stores open Parquet files you control directly."},
+    {"tier":"Intermediate","q":"What's the difference between Auto Loader and a scheduled batch COPY INTO-style load, and when would you pick each?","hint":"Auto Loader incrementally discovers new files (via cloud notifications or directory listing) for near-real-time ingestion with schema evolution support; scheduled batch loads are simpler and fine when latency requirements are loose and file arrival is predictable."},
+    {"tier":"Intermediate","q":"Explain watermarking in Structured Streaming — what problem does it actually solve?","hint":"Bounds how long the engine waits for late-arriving events before finalizing a windowed aggregation, so state doesn't grow unbounded — it's a tradeoff between completeness and memory/latency."},
+    {"tier":"Scenario","q":"Design the pipeline: sources are a REST API, a set of daily CSV drops, and a change-data-capture stream from an operational DB. Get all three into a BI-ready Gold layer.","hint":"Bronze: raw ingest per source with source-specific connectors (API polling job, Auto Loader on CSV landing zone, CDC via Debezium/Kafka or native connector) — land as-is with ingestion metadata. Silver: conform schemas, dedupe, validate, apply SCD logic where needed. Gold: business-level aggregates/marts. Call out monitoring, DLQ for bad records, and idempotent/replayable design throughout."},
+    {"tier":"Scenario","q":"How would you performance-tune a SQL query that's doing a full table scan on a 500M-row table when it should only need a small slice?","hint":"Check if partition pruning predicates are sargable (no functions wrapping the partition column), check if the table is Z-ordered/clustered on the filter column, check the query plan for a missed pushdown, and confirm statistics are up to date for the optimizer."},
+    {"tier":"Brutal","q":"You have a streaming job that must guarantee exactly-once delivery into a Delta table even after a driver crash mid-batch. How do you actually guarantee that?","hint":"Checkpointing (write-ahead log of offsets and state) combined with Delta's idempotent writes via foreachBatch + MERGE using a batch/transaction ID, or Delta's built-in idempotent streaming writes (txnAppId/txnVersion) — the checkpoint alone isn't sufficient without idempotent sink writes."},
+    {"tier":"Brutal","q":"Your ingestion monitoring framework tracks 25 daily files across 5 apps. How would you redesign it to also handle partial/late-arriving files without generating false failure alerts?","hint":"Separate 'file not yet arrived' from 'file failed validation' as distinct states, add an SLA window per source before alerting, and support backfill/reprocessing without double-counting — false positives erode trust in the alerting faster than missed alerts do."}
+  ]
+}
+</script>
+
+<script type="application/json" id="data-platinum">
+{
+  "name": "Round 4 — Managerial Round",
+  "focus": "Ownership, stakeholder handling, conflict resolution, and whether you can operate with less oversight than an IC technical round tests for.",
+  "timeline": [
+    {"time":"0:00","title":"Behavioral & leadership (STAR)","desc":"Ownership stories, handling ambiguity, driving something without being told to."},
+    {"time":"0:40","title":"Project ownership & stakeholders","desc":"How you've worked with business stakeholders to translate requirements into pipelines — directly relevant to the JD's 'collaborate with stakeholders' line."},
+    {"time":"1:10","title":"Culture fit & conflict resolution","desc":"How you handle disagreement with a teammate, a missed deadline, or conflicting priorities."},
+    {"time":"1:30","title":"Career goals & close","desc":"Where you see yourself growing, compensation expectations, and your questions for them."}
+  ],
+  "questions": [
+    {"tier":"Fundamentals","q":"Tell me about a time you owned a project end-to-end without close supervision.","hint":"Use the CSR SCD2 pipeline — 'independently designed' is literally on your CV. Frame the ambiguity you resolved and the IPE documentation you produced as evidence of ownership through to audit-readiness, not just build."},
+    {"tier":"Intermediate","q":"Describe a time you had to translate a vague business requirement into a technical pipeline design.","hint":"Pull from the ESG KPI reporting work — business wants a compliant metric, you had to figure out the SCD2 modeling and data quality checks needed to get there reliably."},
+    {"tier":"Intermediate","q":"Tell me about a disagreement you had with a teammate or lead on a technical approach. How did you resolve it?","hint":"Pick a real, moderate-stakes example; show you argued from data/tradeoffs, not ego, and describe the resolution and outcome, not just the disagreement."},
+    {"tier":"Scenario","q":"A stakeholder wants a report by end of day, but you've found a data quality issue that would make the numbers wrong. What do you do?","hint":"Flag it immediately with a clear explanation of the discrepancy and a realistic fix timeline — connect to your daily variance analysis habit as evidence this is a practiced instinct, not improvisation."},
+    {"tier":"Scenario","q":"How do you prioritize when you're juggling ingestion monitoring alerts, a stakeholder request, and a scheduled pipeline migration at the same time?","hint":"Frame a simple triage logic: production data integrity/alerts first, then business-facing deadlines, then planned migration work — and mention communicating re-prioritized timelines proactively rather than silently slipping dates."},
+    {"tier":"Scenario","q":"Where do you want to be in 2-3 years, and how does this role fit that?","hint":"Be specific: broader platform exposure (multi-cloud/warehouse), deeper ownership of architecture decisions, eventually mentoring — tie it back to what this JD's scope actually offers rather than a generic answer."},
+    {"tier":"Brutal","q":"Give me an example of a mistake you made in production. What happened, and what did you change afterward?","hint":"Pick something real and moderate — a missed edge case, a bad assumption on data volume, a schema change that broke downstream. The interviewer is testing honesty and whether you built a lasting safeguard (a check, a test, a process change), not just apologized."}
+  ]
+}
+</script>
+
+<script>
+  const rounds = ['bronze','silver','gold','platinum'];
+  const data = {};
+  rounds.forEach(r => { data[r] = JSON.parse(document.getElementById('data-'+r).textContent); });
+
+  let currentRound = 'bronze';
+  let currentTier = 'All';
+  let currentSearch = '';
+
+  function setMetalVars(round){
+    const map = {
+      bronze: ['--bronze','--bronze-soft'],
+      silver: ['--silver','--silver-soft'],
+      gold: ['--gold','--gold-soft'],
+      platinum: ['--platinum','--platinum-soft']
+    };
+    const pair = map[round];
+    document.documentElement.style.setProperty('--current', `var(${pair[0]})`);
+    document.documentElement.style.setProperty('--current-soft', `var(${pair[1]})`);
+  }
+
+  function renderRound(){
+    const d = data[currentRound];
+    document.getElementById('r-name').textContent = d.name;
+    document.getElementById('r-focus').textContent = d.focus;
+
+    const tl = document.getElementById('r-timeline');
+    tl.innerHTML = d.timeline.map(s => `
+      <div class="seg">
+        <div class="seg-time">${s.time}</div>
+        <div><div class="seg-title">${s.title}</div><div class="seg-desc">${s.desc}</div></div>
+      </div>`).join('');
+
+    renderQuestions();
+  }
+
+  function renderQuestions(){
+    const d = data[currentRound];
+    const q = d.questions.filter(item => {
+      const tierOk = currentTier === 'All' || item.tier === currentTier;
+      const searchOk = !currentSearch || item.q.toLowerCase().includes(currentSearch) || item.hint.toLowerCase().includes(currentSearch);
+      return tierOk && searchOk;
+    });
+    const list = document.getElementById('qlist');
+    if(q.length === 0){
+      list.innerHTML = `<div style="color:var(--text-faint); font-size:13px; padding:20px 0;">No questions match that filter.</div>`;
+      return;
+    }
+    list.innerHTML = q.map((item) => `
+      <div class="qcard">
+        <div class="qcard-top">
+          <div><span class="qtier ${item.tier}">${item.tier}</span></div>
+          <span class="qcaret">▸</span>
+        </div>
+        <div class="qtext" style="margin-top:8px;">${item.q}</div>
+        <div class="qhint"><b>Strong answer touches:</b> ${item.hint}</div>
+      </div>`).join('');
+
+    list.querySelectorAll('.qcard').forEach(card => {
+      card.addEventListener('click', () => card.classList.toggle('open'));
+    });
+  }
+
+  document.querySelectorAll('.node-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.node-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentRound = btn.dataset.round;
+      setMetalVars(currentRound);
+      currentTier = 'All'; currentSearch = '';
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      document.querySelector('.filter-btn[data-tier="All"]').classList.add('active');
+      document.getElementById('search').value = '';
+      document.querySelector('.tab[data-tab="round"]').click();
+      renderRound();
+    });
+  });
+
+  document.querySelectorAll('.filter-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentTier = btn.dataset.tier;
+      renderQuestions();
+    });
+  });
+
+  document.getElementById('search').addEventListener('input', (e) => {
+    currentSearch = e.target.value.toLowerCase();
+    renderQuestions();
+  });
+
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+    });
+  });
+
+  setMetalVars('bronze');
+  renderRound();
+</script>
+
+</body>
+</html>
