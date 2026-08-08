@@ -57,6 +57,7 @@ A curated collection of interview prep resources, hands-on coding guides, and de
 
 🔗 [virtusa](https://pysparkcoders.github.io/study_material/virtusa_interview_prep.html)
 
+🔗 [vsquare](https://pysparkcoders.github.io/study_material/vsquare_interview_prep.html)
 
 
 ## 🚀 Additional Information:
